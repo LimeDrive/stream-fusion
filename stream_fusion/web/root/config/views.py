@@ -9,7 +9,7 @@ from stream_fusion.web.root.config.schemas import ManifestResponse, StaticFileRe
 
 router = APIRouter()
 
-templates = Jinja2Templates(directory="/app/stream_fusion/templates")
+templates = Jinja2Templates(directory="/app/stream_fusion/static")
 stream_cache = TTLCache(maxsize=1000, ttl=3600)
 
 
@@ -26,10 +26,10 @@ async def configure(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@router.get("/static/{file_path:path}", response_model=StaticFileResponse)
-async def serve_static(file_path: str):
-    logger.debug(f"Serving static file: {file_path}")
-    return FileResponse(f"/app/stream_fusion/templates/{file_path}")
+# @router.get("/static/{file_path:path}", response_model=StaticFileResponse)
+# async def serve_static(file_path: str):
+#     logger.debug(f"Serving static file: {file_path}")
+#     return FileResponse(f"/app/stream_fusion/templates/{file_path}")
 
 
 @router.get("/manifest.json")
