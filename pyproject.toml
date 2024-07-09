@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "stream-fusion"
+version = "v0.1.0"
+description = "StreamFusion is an advanced plugin for Stremio that significantly enhances its streaming capabilities with debrid service."
+authors = ["LimeDrive <limecat@limedrive.eu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.111.0"
+uvicorn = "^0.30.1"
+starlette = "^0.37.2"
+requests = "^2.32.3"
+bencode-py = "^4.0.0"
+jinja2 = "^3.1.4"
+aiocron = "^1.8"
+python-dotenv = "^1.0.1"
+rank-torrent-name = "^0.2.21"
+cachetools = "^5.3.3"
+redis = "^5.0.7"
+aiohttp = "^3.9.5"
+gunicorn = "^22.0.0"
+loguru = "^0.7.2"
+stackprinter = "^0.2.12"
+pydantic-settings = "^2.3.4"
+sqlalchemy = "^2.0.31"
+aiosqlite = "^0.20.0"
+toml = "^0.10.2"
+jsonpickle = "^3.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
