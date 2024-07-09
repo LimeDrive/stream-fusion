@@ -38,7 +38,7 @@ async def get_manifest():
     logger.info("Serving manifest.json")
     return ManifestResponse(
         id="community.limedrive.streamfusion",
-        icon="https://i.imgur.com/tVjqEJP.png",
+        icon="https://raw.githubusercontent.com/LimeDrive/stream-fusion/limedrive-add-auth/stream_fusion/static/logo-stream-fusion.png",
         version=str(get_version()),
         resources=["stream"],
         types=["movie", "series"],
@@ -67,7 +67,7 @@ async def get_manifest():
     logger.info("Serving manifest.json")
     return ManifestResponse(
         id="community.limedrive.streamfusion",
-        icon="https://i.imgur.com/tVjqEJP.png",
+        icon="https://raw.githubusercontent.com/LimeDrive/stream-fusion/limedrive-add-auth/stream_fusion/static/logo-stream-fusion.png",
         version=str(get_version()),
         resources=["stream"],
         types=["movie", "series"],
