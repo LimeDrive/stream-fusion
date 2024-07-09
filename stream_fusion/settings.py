@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     debug: bool = True
     dev_host: str = "0.0.0.0"
     dev_port: int = 8080
+    develop: bool = True
     # VERSION
     version_path: str = "/app/pyproject.toml"
 

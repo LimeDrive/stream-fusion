@@ -13,14 +13,15 @@ from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
 from stream_fusion.utils.detection import detect_languages
 from stream_fusion.logging_config import logger
+from stream_fusion.settings import settings
 
 
 class JackettService:
     def __init__(self, config):
         self.logger = logger
 
-        self.__api_key = config['jackettApiKey']
-        self.__base_url = f"{config['jackettHost']}/api/v2.0"
+        self.__api_key = settings.jackett_api_key
+        self.__base_url = f"{settings.jackett_shema}://{settings.jackett_host}:{settings.jackett_port}/api/v2.0"
         self.__session = requests.Session()
 
     def search(self, media):

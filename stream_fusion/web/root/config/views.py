@@ -1,11 +1,12 @@
 from cachetools import TTLCache
 from fastapi import APIRouter, Request
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import  RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from stream_fusion.logging_config import logger
 from stream_fusion.version import get_version
-from stream_fusion.web.root.config.schemas import ManifestResponse, StaticFileResponse
+from stream_fusion.web.root.config.schemas import ManifestResponse
+from stream_fusion.settings import settings
 
 router = APIRouter()
 
@@ -70,7 +71,7 @@ async def get_manifest():
         version=str(get_version()),
         resources=["stream"],
         types=["movie", "series"],
-        name="StreamFusion",
+        name="StreamFusion" + " (dev)" if settings.develop else "",
         description="StreamFusion enhances Stremio by integrating torrent indexers and debrid services,"
          " providing access to a vast array of cached torrent sources. This plugin seamlessly bridges"
          " Stremio with popular indexers and debrid platforms, offering users an expanded content"

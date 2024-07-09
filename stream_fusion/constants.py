@@ -83,5 +83,4 @@ EXCLUDED_TRACKERS = ['0day.kiev', '1ptbar', '2 Fast 4 You', '2xFree', '3ChangTra
                      'ZOMB', 'ZonaQ', 'Ztracker']
 
 REDIS_HOST = 'redis'
-
 REDIS_PORT = 6379

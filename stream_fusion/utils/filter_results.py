@@ -108,12 +108,21 @@ def filter_out_non_matching_series(items, season, episode):
     return filtered_items
 
 
+def clean_tmdb_title(title):
+    characters_to_filter = r'[<>:"/\\|?*\x00-\x1F™®©℠¡¿–—''""•…]'
+    cleaned_title = re.sub(characters_to_filter, ' ', title)
+    cleaned_title = cleaned_title.strip()
+    cleaned_title = re.sub(r'\s+', ' ', cleaned_title)
+    return cleaned_title
+
 def remove_non_matching_title(items, titles):
     logger.info(f"Removing items not matching titles: {titles}")
     filtered_items = []
+    cleaned_titles = [clean_tmdb_title(title) for title in titles]
+    
     for item in items:
-        for title in titles:
-            if title_match(title, item.parsed_data.parsed_title):
+        for cleaned_title in cleaned_titles:
+            if title_match(cleaned_title, item.parsed_data.parsed_title):
                 filtered_items.append(item)
                 break
         else:
