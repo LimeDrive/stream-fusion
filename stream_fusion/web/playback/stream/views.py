@@ -1,7 +1,7 @@
 import asyncio
 from functools import lru_cache
 import aiohttp
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse, StreamingResponse
 
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
@@ -10,11 +10,6 @@ from stream_fusion.logging_config import logger
 from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.string_encoding import decodeb64
-from stream_fusion.web.playback.stream.schemas import (
-    ErrorResponse,
-    HeadResponse,
-    StreamResponse,
-)
 
 
 router = APIRouter()
@@ -69,11 +64,7 @@ def get_stream_link(
     return link
 
 
-@router.get(
-    "/{config}/{query}",
-    response_model=StreamResponse,
-    responses={500: {"model": ErrorResponse}},
-)
+router.get("/{config}/{query}")
 async def get_playback(
     config: str,
     query: str,
@@ -103,22 +94,20 @@ async def get_playback(
                     return StreamingResponse(
                         proxy_stream(link, headers, proxy),
                         status_code=206,
-                        headers=StreamResponse(
-                            content_range=response.headers["Content-Range"],
-                            content_length=response.headers["Content-Length"],
-                            accept_ranges="bytes",
-                            content_type="video/mp4",
-                        ).model_dump(),
+                        headers={
+                            "Content-Range": response.headers["Content-Range"],
+                            "Content-Length": response.headers["Content-Length"],
+                            "Accept-Ranges": "bytes",
+                            "Content-Type": "video/mp4",
+                        },
                     )
                 elif response.status == 200:
                     return StreamingResponse(
                         proxy_stream(link, headers, proxy),
-                        headers=StreamResponse(
-                            content_range=None,
-                            content_length=None,
-                            accept_ranges="bytes",
-                            content_type="video/mp4",
-                        ).model_dump(),
+                        headers={
+                            "Content-Type": "video/mp4",
+                            "Accept-Ranges": "bytes",
+                        },
                     )
                 else:
                     return RedirectResponse(link, status_code=302)
@@ -126,18 +115,11 @@ async def get_playback(
     except Exception as e:
         logger.error(f"Playback error: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=ErrorResponse(
-                detail="An error occurred while processing the request."
-            ).model_dump(),
+            status_code=500, detail="An error occurred while processing the request."
         )
 
 
-@router.head(
-    "/{config}/{query}",
-    response_model=HeadResponse,
-    responses={500: {"model": ErrorResponse}},
-)
+router.head("/{config}/{query}")
 async def head_playback(
     config: str,
     query: str,
@@ -162,8 +144,5 @@ async def head_playback(
     except Exception as e:
         logger.error(f"HEAD request error: {e}")
         return Response(
-            status=500,
-            content=ErrorResponse(
-                detail="An error occurred while processing the request."
-            ).model_dump_json(),
+            status=500, detail="An error occurred while processing the request."
         )
