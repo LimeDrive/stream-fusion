@@ -9,8 +9,7 @@ def parse_config(b64config):
     # For backwards compatibility
     if "languages" not in config:
         config["languages"] = [config["language"]]
-
+    # Cut the option due to backwards compatibility
     if "anonymizeMagnets" not in config:
-        config["anonymizeMagnets"] = False # Default to False if not specified
-
+        config["anonymizeMagnets"] = False
     return config

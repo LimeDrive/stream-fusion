@@ -90,8 +90,8 @@ class TorrentService:
             file_details = self.__find_episode_file(result.files, result.parsed_data.season, result.parsed_data.episode)
 
             if file_details is not None:
-                self.logger.info("File details")
-                self.logger.info(file_details)
+                self.logger.debug("File details")
+                self.logger.debug(file_details)
                 result.file_index = file_details["file_index"]
                 result.file_name = file_details["title"]
                 result.size = file_details["size"]

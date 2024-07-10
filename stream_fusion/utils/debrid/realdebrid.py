@@ -107,7 +107,7 @@ class RealDebrid(BaseDebrid):
 
         # The torrent is not yet added
         if torrent_info is None:
-            torrent_info = self.__add_magnet_or_torrent(magnet, torrent_download, anon_magnet=config["anonymizeMagnets"])
+            torrent_info = self.__add_magnet_or_torrent(magnet, torrent_download)
             if not torrent_info or 'files' not in torrent_info:
                 return "Error: Failed to get torrent info."
 

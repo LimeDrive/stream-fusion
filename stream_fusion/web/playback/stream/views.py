@@ -1,7 +1,7 @@
 import asyncio
 from functools import lru_cache
 import aiohttp
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse, StreamingResponse
 
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency

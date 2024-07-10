@@ -14,6 +14,7 @@ def main() -> None:
             port=settings.port,
             reload=settings.reload,
             log_level=settings.log_level.value.lower(),
+            # TODO: check if factory is needed
             factory=True,
         )
     else:

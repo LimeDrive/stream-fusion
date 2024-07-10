@@ -28,6 +28,7 @@ from stream_fusion.utils.torrent.torrent_service import TorrentService
 from stream_fusion.utils.torrent.torrent_smart_container import TorrentSmartContainer
 from stream_fusion.utils.zilean.zilean_result import ZileanResult
 from stream_fusion.utils.zilean.zilean_service import ZileanService
+from stream_fusion.settings import settings
 
 
 router = APIRouter()
@@ -50,7 +51,7 @@ async def get_results(
 
     def get_metadata():
         logger.info(f"Fetching metadata from {config['metadataProvider']}")
-        if config["metadataProvider"] == "tmdb" and config["tmdbApi"]:
+        if config["metadataProvider"] == "tmdb" and settings.tmdb_api_key:
             metadata_provider = TMDB(config)
         else:
             metadata_provider = Cinemeta(config)
@@ -189,7 +190,7 @@ async def get_results(
         return search_results
 
     def get_and_filter_results(media, config):
-        min_results = int(config.get("minCachedResults", 1))
+        min_results = int(config.get("minCachedResults", 5))
         cache_key = media_cache_key(media)
 
         unfiltered_results = redis_cache.get(cache_key)

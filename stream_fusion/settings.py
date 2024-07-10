@@ -51,8 +51,9 @@ class Settings(BaseSettings):
     jackett_port: int = 9117
     jackett_api_key: str = "jackett_api_key"
     # ZILEAN DMM API
-    zilean_dmm_api_key: str = "zilean_dmm_api_key" # TODO: check to protéct Zilane API with APIKEY
+    zilean_api_key: str = "zilean_dmm_api_key" # TODO: check to protéct Zilane API with APIKEY
     zilean_url: str = "https://zilean.io/api/v1/dmm/search"
+    zilean_max_workers: int = 4
     # DEVELOPMENT
     debug: bool = True
     dev_host: str = "0.0.0.0"

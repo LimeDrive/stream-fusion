@@ -48,8 +48,8 @@ def register_shutdown_event(
 
     @app.on_event("shutdown")
     async def _shutdown() -> None:
-        global global_session
-        if global_session:
-            await global_session.close()
-
+        # global global_session
+        # if global_session:
+        #     await global_session.close()
+        pass
     return _shutdown

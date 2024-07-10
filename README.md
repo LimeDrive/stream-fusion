@@ -16,15 +16,15 @@ StreamFusion is an advanced plugin for Stremio that significantly enhances its s
 - **Stream Proxification**: All streams originate from a single IP address.
 - **Download Management**: Capable of managing torrent downloads on debrid services.
 
-## Installation
+## Installation (WIP)
 
 [Installation instructions to be added]
 
-## Configuration
+## Configuration (WIP)
 
 [Configuration details to be added]
 
-## Usage
+## Usage (WIP)
 
 [Usage guide to be added]
 
