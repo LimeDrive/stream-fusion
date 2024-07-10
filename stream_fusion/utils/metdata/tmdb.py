@@ -3,6 +3,7 @@ import requests
 from stream_fusion.utils.metdata.metadata_provider_base import MetadataProvider
 from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
+from stream_fusion.settings import settings
 
 class TMDB(MetadataProvider):
     def get_metadata(self, id, type):
@@ -13,7 +14,7 @@ class TMDB(MetadataProvider):
         result = None
 
         for lang in self.config['languages']:
-            url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={self.config['tmdbApi']}&external_source=imdb_id&language={lang}"
+            url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={settings.tmdb_api_key}&external_source=imdb_id&language={lang}"
             response = requests.get(url)
             data = response.json()
 
