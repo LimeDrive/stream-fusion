@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     gunicorn_timeout: int = 180
     aiohttp_timeout: int = 3600
-    reload: bool = True
+    reload: bool = False
     # LOGGING
     log_level: LogLevel = LogLevel.INFO
     log_path: str = "/app/config/logs/stream-fusion.log"
