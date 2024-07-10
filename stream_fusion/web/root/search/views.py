@@ -1,6 +1,6 @@
 import hashlib
 import time
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.cache import search_public
@@ -21,6 +21,7 @@ from stream_fusion.utils.metdata.tmdb import TMDB
 from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
 from stream_fusion.utils.parse_config import parse_config
+from stream_fusion.utils.security.security_api_key import check_api_key
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.web.root.search.schemas import SearchResponse, Stream
 from stream_fusion.web.root.search.stremio_parser import parse_to_stremio_streams
@@ -48,6 +49,12 @@ async def get_results(
     stream_id = stream_id.replace(".json", "")
     config = parse_config(config)
     logger.debug(f"Parsed configuration: {config}")
+    api_key = config.get("apiKey")
+    if api_key:
+        await check_api_key(api_key)
+    else:
+        logger.warning("API key not found in config.")
+        raise HTTPException(status_code=401, detail="API key not found in config.")
 
     def get_metadata():
         logger.info(f"Fetching metadata from {config['metadataProvider']}")

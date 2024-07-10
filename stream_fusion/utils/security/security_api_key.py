@@ -41,3 +41,10 @@ async def api_key_security(
             status_code=HTTP_403_FORBIDDEN,
             detail="Wrong, revoked, or expired API key.",
         )
+    
+async def check_api_key(api_key: str):
+    if not security_db_access.check_key(api_key):
+        raise HTTPException(
+            status_code=HTTP_403_FORBIDDEN,
+            detail="Wrong, revoked, or expired API key.",
+        )

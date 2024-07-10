@@ -26,6 +26,7 @@ def main() -> None:
             host=settings.host,
             port=settings.port,
             workers=settings.workers_count,
+            timeout=settings.gunicorn_timeout,
             factory=True,
             accesslog="-",
             loglevel=settings.log_level.value.lower(),

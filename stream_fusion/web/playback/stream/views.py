@@ -10,6 +10,7 @@ from stream_fusion.logging_config import logger
 from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.string_encoding import decodeb64
+from stream_fusion.utils.security import check_api_key
 from stream_fusion.web.playback.stream.schemas import (
     ErrorResponse,
     HeadResponse,
@@ -98,11 +99,18 @@ async def get_playback(
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
 ):
     try:
+        config = parse_config(config)
+        api_key = config.get("apiKey")
+        if api_key:
+            await check_api_key(api_key)
+        else:
+            logger.warning("API key not found in config.")
+            raise HTTPException(status_code=401, detail="API key not found in config.")
+        
         if not query:
             raise HTTPException(status_code=400, detail="Query required.")
-
-        config = parse_config(config)
         decoded_query = decodeb64(query)
+
         ip = request.client.host
 
         link = get_stream_link(decoded_query, config, ip, redis_cache)
@@ -159,10 +167,16 @@ async def head_playback(
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
 ):
     try:
+        config = parse_config(config)
+        api_key = config.get("apiKey")
+        if api_key:
+            await check_api_key(api_key)
+        else:
+            logger.warning("API key not found in config.")
+            raise HTTPException(status_code=401, detail="API key not found in config.")
+        
         if not query:
             raise HTTPException(status_code=400, detail="Query required.")
-
-        config = parse_config(config)
         decoded_query = decodeb64(query)
         ip = request.client.host
 
