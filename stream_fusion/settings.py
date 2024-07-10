@@ -54,6 +54,8 @@ class Settings(BaseSettings):
     zilean_api_key: str = "zilean_dmm_api_key" # TODO: check to protéct Zilane API with APIKEY
     zilean_url: str = "https://zilean.io/api/v1/dmm/search"
     zilean_max_workers: int = 4
+    # PUBLIC_CACHE
+    public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
     # DEVELOPMENT
     debug: bool = True
     dev_host: str = "0.0.0.0"

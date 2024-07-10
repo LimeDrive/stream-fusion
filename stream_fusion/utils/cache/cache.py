@@ -10,8 +10,9 @@ from typing import List
 
 from stream_fusion.logging_config import logger
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
+from stream_fusion.constants import EXCLUDED_TRACKERS
+from stream_fusion.settings import settings
 # from stream_fusion.utils.jackett.jackett_result import JackettResult
-from stream_fusion.constants import CACHER_URL, EXCLUDED_TRACKERS
 # from stream_fusion.utils.models.movie import Movie
 # from stream_fusion.utils.models.series import Series
 
@@ -71,7 +72,7 @@ from stream_fusion.constants import CACHER_URL, EXCLUDED_TRACKERS
 
 def search_public(media):
     logger.info("Searching for public cached " + media.type + " results")
-    url = CACHER_URL + "getResult/" + media.type + "/"
+    url = settings.public_cache_url + "getResult/" + media.type + "/"
     # Without that, the cache doesn't return results. Maybe make multiple requests? One for each language, just like jackett?
     cache_search = media.__dict__
     cache_search["title"] = cache_search["titles"][0]
@@ -128,7 +129,7 @@ def cache_public(torrents: List[TorrentItem], media):
             pass
 
     try:
-        url = f"{CACHER_URL}pushResult/{media.type}"
+        url = f"{settings.public_cache_url}pushResult/{media.type}"
         cache_data = json.dumps(cache_items, indent=4)
         response = requests.post(url, data=cache_data)
         response.raise_for_status()
