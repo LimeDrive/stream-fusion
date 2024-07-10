@@ -1,7 +1,7 @@
 import asyncio
 from functools import lru_cache
 import aiohttp
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import RedirectResponse, StreamingResponse
 
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
@@ -10,6 +10,10 @@ from stream_fusion.logging_config import logger
 from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.string_encoding import decodeb64
+from stream_fusion.web.playback.stream.schemas import (
+    ErrorResponse,
+    HeadResponse,
+)
 
 
 router = APIRouter()
@@ -64,7 +68,10 @@ def get_stream_link(
     return link
 
 
-router.get("/{config}/{query}")
+@router.get(
+    "/{config}/{query}",
+    responses={500: {"model": ErrorResponse}},
+)
 async def get_playback(
     config: str,
     query: str,
@@ -115,11 +122,18 @@ async def get_playback(
     except Exception as e:
         logger.error(f"Playback error: {e}")
         raise HTTPException(
-            status_code=500, detail="An error occurred while processing the request."
+            status_code=500,
+            detail=ErrorResponse(
+                detail="An error occurred while processing the request."
+            ).model_dump(),
         )
 
 
-router.head("/{config}/{query}")
+@router.head(
+    "/{config}/{query}",
+    response_model=HeadResponse,
+    responses={500: {"model": ErrorResponse}},
+)
 async def head_playback(
     config: str,
     query: str,
@@ -144,5 +158,8 @@ async def head_playback(
     except Exception as e:
         logger.error(f"HEAD request error: {e}")
         return Response(
-            status=500, detail="An error occurred while processing the request."
+            status=500,
+            content=ErrorResponse(
+                detail="An error occurred while processing the request."
+            ).model_dump_json(),
         )

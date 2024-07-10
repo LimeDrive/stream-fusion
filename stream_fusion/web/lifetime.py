@@ -28,9 +28,10 @@ def register_startup_event(
         app.middleware_stack = None
         app.middleware_stack = app.build_middleware_stack()
         
-        timeout = aiohttp.ClientTimeout(total=settings.aiohttp_timeout)
-        global_session = aiohttp.ClientSession(timeout=timeout)
-        app.state.http_session = global_session
+        # TODO: check if globals are better
+        # timeout = aiohttp.ClientTimeout(total=settings.aiohttp_timeout)
+        # global_session = aiohttp.ClientSession(timeout=timeout)
+        # app.state.http_session = global_session
 
     return _startup
 
