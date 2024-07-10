@@ -1,5 +1,4 @@
 import uvicorn
-
 from stream_fusion.gunicorn_runner import GunicornApplication
 from stream_fusion.settings import settings
 
@@ -14,8 +13,6 @@ def main() -> None:
             port=settings.port,
             reload=settings.reload,
             log_level=settings.log_level.value.lower(),
-            # TODO: check if factory is needed
-            factory=True,
         )
     else:
         # We choose gunicorn only if reload
@@ -26,7 +23,6 @@ def main() -> None:
             host=settings.host,
             port=settings.port,
             workers=settings.workers_count,
-            factory=True,
             accesslog="-",
             loglevel=settings.log_level.value.lower(),
             access_log_format='%r "-" %s "-" %Tf',

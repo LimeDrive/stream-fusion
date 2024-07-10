@@ -26,7 +26,7 @@ class UvicornWorker(BaseUvicornWorker):
         "loop": "uvloop" if uvloop is not None else "asyncio",
         "http": "httptools",
         "lifespan": "on",
-        "factory": True,
+        "factory": False,
         "proxy_headers": False,
     }
 
