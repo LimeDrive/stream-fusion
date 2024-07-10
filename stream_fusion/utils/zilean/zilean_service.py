@@ -6,15 +6,18 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from stream_fusion.logging_config import logger
 from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
+from stream_fusion.settings import settings
 
 
 class ZileanService:
     def __init__(self, config):
-        self.base_url = config["zileanUrl"]
+        self.base_url = settings.zilean_url
+        # TODO: check if possible to protect zilean endpoint.
+        self.zilean_api_key = settings.zilean_api_key
         self.search_endpoint = "/dmm/search"
         self.session = requests.Session()
         self.logger = logger
-        self.max_workers = config.get("max_workers", 4)
+        self.max_workers = settings.zilean_max_workers
 
     def search(self, media):
         if isinstance(media, Movie):

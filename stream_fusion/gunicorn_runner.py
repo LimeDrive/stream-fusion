@@ -6,6 +6,7 @@ from gunicorn.app.base import BaseApplication
 from gunicorn.util import import_app
 from uvicorn.workers import UvicornWorker as BaseUvicornWorker
 from stream_fusion.logging_config import configure_logging
+from stream_fusion.settings import settings
 
 try:
     import uvloop  # (Found nested import)
@@ -39,11 +40,12 @@ class GunicornApplication(BaseApplication):
     with custom uvicorn workers.
     """
 
-    def __init__(self, app: str, host: str, port: int, workers: int, **kwargs: Any):
+    def __init__(self, app: str, host: str, port: int, workers: int, timeout: int, **kwargs: Any):
         self.options = {
             "bind": f"{host}:{port}",
             "workers": workers,
             "worker_class": "stream_fusion.gunicorn_runner.UvicornWorker",
+            "timeout" : timeout,
             "logconfig_dict": {
                 'version': 1,
                 'disable_existing_loggers': False,

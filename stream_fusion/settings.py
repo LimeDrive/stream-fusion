@@ -21,14 +21,15 @@ class Settings(BaseSettings):
     workers_count: int = 4
     port: int = 8080
     host: str = "0.0.0.0"
-    timeout: int = 180
-    reload: bool = True
+    gunicorn_timeout: int = 180
+    aiohttp_timeout: int = 3600
+    reload: bool = False
     # LOGGING
     log_level: LogLevel = LogLevel.INFO
     log_path: str = "/app/config/logs/stream-fusion.log"
     log_redacted: bool = True
     # SECUIRITY
-    secret_api_key: str = "superkey_that_can_be_changed"
+    secret_api_key: str | None = None
     security_hide_docs: bool = True
     # SQLITE
     db_path: str = "/app/config/stream-fusion.db"
@@ -39,7 +40,7 @@ class Settings(BaseSettings):
     redis_port: int = 6379
     redis_expiration: int = 604800
     # TMDB
-    tmdb_api_key: str = "tmdb_api_key"
+    tmdb_api_key: str | None = None
     # FLARESOLVERR
     flaresolverr_host: str = "localhost"
     flaresolverr_shema: str = "http"
@@ -48,14 +49,18 @@ class Settings(BaseSettings):
     jackett_host: str = "localhost"
     jackett_shema: str = "http"
     jackett_port: int = 9117
-    jackett_api_key: str = "jackett_api_key"
+    jackett_api_key: str | None = None
     # ZILEAN DMM API
-    zilean_dmm_api_key: str = "zilean_dmm_api_key" # TODO: check to protéct Zilane API with APIKEY
-    zilean_url: str = "https://zilean.io/api/v1/dmm/search"
+    zilean_api_key: str | None = None # TODO: check to protéct Zilane API with APIKEY
+    zilean_url: str | None = None
+    zilean_max_workers: int = 4
+    # PUBLIC_CACHE
+    public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
     # DEVELOPMENT
     debug: bool = True
     dev_host: str = "0.0.0.0"
     dev_port: int = 8080
+    develop: bool = True
     # VERSION
     version_path: str = "/app/pyproject.toml"
 

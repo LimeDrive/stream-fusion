@@ -58,6 +58,7 @@ class TorrentSmartContainer:
         self.logger.info("Starting cache process for container items")
         threading.Thread(target=self.__save_to_cache).start()
 
+    # TODO: New cache system that anon the tracker ans all passkey info for acsepted privat tracker
     def __save_to_cache(self):
         self.logger.info("Saving public items to cache")
         public_torrents = list(filter(lambda x: x.privacy == "public", self.get_items()))

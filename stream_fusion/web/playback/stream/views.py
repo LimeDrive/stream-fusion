@@ -1,7 +1,7 @@
 import asyncio
 from functools import lru_cache
 import aiohttp
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse, StreamingResponse
 
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
@@ -10,10 +10,10 @@ from stream_fusion.logging_config import logger
 from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.string_encoding import decodeb64
+from stream_fusion.utils.security import check_api_key
 from stream_fusion.web.playback.stream.schemas import (
     ErrorResponse,
     HeadResponse,
-    StreamResponse,
 )
 
 
@@ -37,17 +37,36 @@ def get_adaptive_chunk_size(file_size):
         return 20 * MB  # 20 MB
 
 
-async def proxy_stream(url: str, headers: dict, proxy: str = None):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers, proxy=proxy) as response:
-            file_size = int(response.headers.get("Content-Length", 0))
-            chunk_size = get_adaptive_chunk_size(file_size)
+async def proxy_stream(request: Request, url: str, headers: dict, proxy: str = None, max_retries: int = 3):
+    """
+    Stream content from the given URL with retry logic.
+    """
+    for attempt in range(max_retries):
+        try:
+            async with request.app.state.http_session.get(url, headers=headers, proxy=proxy) as response:
+                file_size = int(response.headers.get("Content-Length", 0))
+                chunk_size = get_adaptive_chunk_size(file_size)
+                while True:
+                    try:
+                        chunk = await response.content.read(chunk_size)
+                        if not chunk:
+                            break
+                        yield chunk
+                    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+                        logger.warning(f"Chunk read error (attempt {attempt + 1}): {str(e)}")
+                        if attempt == max_retries - 1:
+                            raise
+                        await asyncio.sleep(2**attempt)  # Exponential backoff
+                        break  # Exit the read loop to retry the connection
+                else:
+                    return  # Exit the function if everything went well
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            logger.warning(f"Connection error (attempt {attempt + 1}): {str(e)}")
+            if attempt == max_retries - 1:
+                raise
+            await asyncio.sleep(2**attempt)  # Exponential backoff
 
-            while True:
-                chunk = await response.content.read(chunk_size)
-                if not chunk:
-                    break
-                yield chunk
+    raise Exception(f"Failed after {max_retries} attempts")
 
 
 def get_stream_link(
@@ -71,7 +90,6 @@ def get_stream_link(
 
 @router.get(
     "/{config}/{query}",
-    response_model=StreamResponse,
     responses={500: {"model": ErrorResponse}},
 )
 async def get_playback(
@@ -81,11 +99,18 @@ async def get_playback(
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
 ):
     try:
+        config = parse_config(config)
+        api_key = config.get("apiKey")
+        if api_key:
+            await check_api_key(api_key)
+        else:
+            logger.warning("API key not found in config.")
+            raise HTTPException(status_code=401, detail="API key not found in config.")
+        
         if not query:
             raise HTTPException(status_code=400, detail="Query required.")
-
-        config = parse_config(config)
         decoded_query = decodeb64(query)
+
         ip = request.client.host
 
         link = get_stream_link(decoded_query, config, ip, redis_cache)
@@ -97,31 +122,28 @@ async def get_playback(
 
         proxy = None  # Not yet implemented
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(link, headers=headers, proxy=proxy) as response:
-                if response.status == 206:
-                    return StreamingResponse(
-                        proxy_stream(link, headers, proxy),
-                        status_code=206,
-                        headers=StreamResponse(
-                            content_range=response.headers["Content-Range"],
-                            content_length=response.headers["Content-Length"],
-                            accept_ranges="bytes",
-                            content_type="video/mp4",
-                        ).model_dump(),
-                    )
-                elif response.status == 200:
-                    return StreamingResponse(
-                        proxy_stream(link, headers, proxy),
-                        headers=StreamResponse(
-                            content_range=None,
-                            content_length=None,
-                            accept_ranges="bytes",
-                            content_type="video/mp4",
-                        ).model_dump(),
-                    )
-                else:
-                    return RedirectResponse(link, status_code=302)
+        async with request.app.state.http_session.get(link, headers=headers, proxy=proxy) as response:
+            if response.status == 206:
+                return StreamingResponse(
+                    proxy_stream(request, link, headers, proxy, max_retries=3),
+                    status_code=206,
+                    headers={
+                        "Content-Range": response.headers["Content-Range"],
+                        "Content-Length": response.headers["Content-Length"],
+                        "Accept-Ranges": "bytes",
+                        "Content-Type": "video/mp4",
+                    },
+                )
+            elif response.status == 200:
+                return StreamingResponse(
+                    proxy_stream(request, link, headers, proxy, max_retries=3),
+                    headers={
+                        "Content-Type": "video/mp4",
+                        "Accept-Ranges": "bytes",
+                    },
+                )
+            else:
+                return RedirectResponse(link, status_code=302)
 
     except Exception as e:
         logger.error(f"Playback error: {e}")
@@ -145,10 +167,16 @@ async def head_playback(
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
 ):
     try:
+        config = parse_config(config)
+        api_key = config.get("apiKey")
+        if api_key:
+            await check_api_key(api_key)
+        else:
+            logger.warning("API key not found in config.")
+            raise HTTPException(status_code=401, detail="API key not found in config.")
+        
         if not query:
             raise HTTPException(status_code=400, detail="Query required.")
-
-        config = parse_config(config)
         decoded_query = decodeb64(query)
         ip = request.client.host
 

@@ -1,9 +1,9 @@
 NO_CONFIG = {'streams': [{'url': "#", 'title': "No configuration found"}]}
 JACKETT_ERROR = {'streams': [{'url': "#", 'title': "An error occured"}]}
 
-CACHER_URL = "https://stremio-jackett-cacher.elfhosted.com/"
+# CACHER_URL = "https://stremio-jackett-cacher.elfhosted.com/"
 
-DMM_API_URL = "http://135.181.110.62:8181"
+# DMM_API_URL = "http://135.181.110.62:8181"
 
 NO_CACHE_VIDEO_URL = "https://github.com/aymene69/stremio-jackett/raw/main/source/videos/nocache.mp4"
 
@@ -82,6 +82,5 @@ EXCLUDED_TRACKERS = ['0day.kiev', '1ptbar', '2 Fast 4 You', '2xFree', '3ChangTra
                      'XWtorrents', 'YDYPT', 'YGGcookie', 'YGGtorrent', 'Zamunda.net', 'Zelka.org', 'ZmPT (织梦)',
                      'ZOMB', 'ZonaQ', 'Ztracker']
 
-REDIS_HOST = 'redis'
-
-REDIS_PORT = 6379
+# REDIS_HOST = 'redis'
+# REDIS_PORT = 6379
