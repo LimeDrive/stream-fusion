@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     port: int = 8080
     host: str = "0.0.0.0"
     gunicorn_timeout: int = 180
-    aiohttp_timeout: int = 300
+    aiohttp_timeout: int = 3600
     reload: bool = True
     # LOGGING
     log_level: LogLevel = LogLevel.INFO

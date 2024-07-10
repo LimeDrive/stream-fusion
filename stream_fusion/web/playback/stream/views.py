@@ -36,17 +36,36 @@ def get_adaptive_chunk_size(file_size):
         return 20 * MB  # 20 MB
 
 
-async def proxy_stream(url: str, headers: dict, proxy: str = None):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers, proxy=proxy) as response:
-            file_size = int(response.headers.get("Content-Length", 0))
-            chunk_size = get_adaptive_chunk_size(file_size)
+async def proxy_stream(request: Request, url: str, headers: dict, proxy: str = None, max_retries: int = 3):
+    """
+    Stream content from the given URL with retry logic.
+    """
+    for attempt in range(max_retries):
+        try:
+            async with request.app.state.http_session.get(url, headers=headers, proxy=proxy) as response:
+                file_size = int(response.headers.get("Content-Length", 0))
+                chunk_size = get_adaptive_chunk_size(file_size)
+                while True:
+                    try:
+                        chunk = await response.content.read(chunk_size)
+                        if not chunk:
+                            break
+                        yield chunk
+                    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+                        logger.warning(f"Chunk read error (attempt {attempt + 1}): {str(e)}")
+                        if attempt == max_retries - 1:
+                            raise
+                        await asyncio.sleep(2**attempt)  # Exponential backoff
+                        break  # Exit the read loop to retry the connection
+                else:
+                    return  # Exit the function if everything went well
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            logger.warning(f"Connection error (attempt {attempt + 1}): {str(e)}")
+            if attempt == max_retries - 1:
+                raise
+            await asyncio.sleep(2**attempt)  # Exponential backoff
 
-            while True:
-                chunk = await response.content.read(chunk_size)
-                if not chunk:
-                    break
-                yield chunk
+    raise Exception(f"Failed after {max_retries} attempts")
 
 
 def get_stream_link(
@@ -95,29 +114,28 @@ async def get_playback(
 
         proxy = None  # Not yet implemented
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(link, headers=headers, proxy=proxy) as response:
-                if response.status == 206:
-                    return StreamingResponse(
-                        proxy_stream(link, headers, proxy),
-                        status_code=206,
-                        headers={
-                            "Content-Range": response.headers["Content-Range"],
-                            "Content-Length": response.headers["Content-Length"],
-                            "Accept-Ranges": "bytes",
-                            "Content-Type": "video/mp4",
-                        },
-                    )
-                elif response.status == 200:
-                    return StreamingResponse(
-                        proxy_stream(link, headers, proxy),
-                        headers={
-                            "Content-Type": "video/mp4",
-                            "Accept-Ranges": "bytes",
-                        },
-                    )
-                else:
-                    return RedirectResponse(link, status_code=302)
+        async with request.app.state.http_session.get(link, headers=headers, proxy=proxy) as response:
+            if response.status == 206:
+                return StreamingResponse(
+                    proxy_stream(request, link, headers, proxy, max_retries=3),
+                    status_code=206,
+                    headers={
+                        "Content-Range": response.headers["Content-Range"],
+                        "Content-Length": response.headers["Content-Length"],
+                        "Accept-Ranges": "bytes",
+                        "Content-Type": "video/mp4",
+                    },
+                )
+            elif response.status == 200:
+                return StreamingResponse(
+                    proxy_stream(request, link, headers, proxy, max_retries=3),
+                    headers={
+                        "Content-Type": "video/mp4",
+                        "Accept-Ranges": "bytes",
+                    },
+                )
+            else:
+                return RedirectResponse(link, status_code=302)
 
     except Exception as e:
         logger.error(f"Playback error: {e}")
