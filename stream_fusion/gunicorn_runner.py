@@ -46,6 +46,7 @@ class GunicornApplication(BaseApplication):
             "workers": workers,
             "worker_class": "stream_fusion.gunicorn_runner.UvicornWorker",
             "timeout" : timeout,
+            "forwarded_allow_ips" : "*",
             "logconfig_dict": {
                 'version': 1,
                 'disable_existing_loggers': False,

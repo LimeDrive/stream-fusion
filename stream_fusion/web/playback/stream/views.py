@@ -3,10 +3,13 @@ from functools import lru_cache
 import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi_simple_rate_limiter import rate_limiter
+from fastapi_simple_rate_limiter.database import create_redis_session
 
-from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
+from stream_fusion.services.redis.redis_config import get_redis_dependency
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
+from stream_fusion.settings import settings
 from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.string_encoding import decodeb64
@@ -19,6 +22,7 @@ from stream_fusion.web.playback.stream.schemas import (
 
 router = APIRouter()
 
+redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port)
 
 @lru_cache(maxsize=128)
 def get_adaptive_chunk_size(file_size):
@@ -92,11 +96,12 @@ def get_stream_link(
     "/{config}/{query}",
     responses={500: {"model": ErrorResponse}},
 )
+@rate_limiter(limit=1, seconds=2, redis=redis_session)
 async def get_playback(
     config: str,
     query: str,
     request: Request,
-    redis_cache: RedisCache = Depends(get_redis_cache_dependency),
+    redis_cache: RedisCache = Depends(get_redis_dependency),
 ):
     try:
         config = parse_config(config)
@@ -164,7 +169,7 @@ async def head_playback(
     config: str,
     query: str,
     request: Request,
-    redis_cache: RedisCache = Depends(get_redis_cache_dependency),
+    redis_cache: RedisCache = Depends(get_redis_dependency),
 ):
     try:
         config = parse_config(config)

@@ -158,7 +158,7 @@ This project is intended for educational and research purposes only. Users are r
 
 ## Contact
 
-[Contact information to be added]
+[![Discord](https://img.shields.io/badge/Discord-Rejoignez%20nous%20sur%20SSD!-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/jcMYfrz3sr)
 
 ---
 

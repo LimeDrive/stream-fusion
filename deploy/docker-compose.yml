@@ -1,1 +1,76 @@
-# TODO:
+version: "3.8"
+
+services:
+
+  stream-fusion:
+    image: ghcr.io/limedrive/stream-fusion:develop
+    container_name: stream-fusion
+    environment:
+      SECRET_API_KEY: 'superkey_that_can_be_changed'
+      TMDB_API_KEY: 'REDATED'
+      FLARESOLVERR_HOST: flaresolverr
+      JACKETT_HOST: jackett
+      JACKETT_API_KEY: 'REDACTED'
+      ZILEAN_URL: 'http://zilean:8181'
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LOG_LEVEL: DEBUG
+      LOG_REDACTED: False
+      TZ: Europe/London
+    ports:
+      - 8080:8080
+    volumes:
+      - ./stream-fusion:/app/config
+    depends_on:
+      - redis
+      - zilean
+      - jackett
+      - flaresolverr
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    expose:
+      - 6379
+    volumes:
+      - ./redis:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  zilean:
+    image: ipromknight/zilean:v1.0.17 # Latest version without ElasticSearch
+    restart: unless-stopped
+    expose:
+      - 8181
+    volumes:
+      - zilean_data:/app/data
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/London
+    expose:
+      - 8191
+    restart: unless-stopped
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ./jackett:/config
+      - ./blackhole:/downloads
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+
+volumes:
+  zilean_data:

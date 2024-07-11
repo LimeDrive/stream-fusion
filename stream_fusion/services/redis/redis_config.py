@@ -18,7 +18,7 @@ def create_redis_cache():
 def get_redis_cache():
     return create_redis_cache()
 
-async def get_redis_cache_dependency():
+async def get_redis_dependency():
     redis_cache = get_redis_cache()
     try:
         yield redis_cache

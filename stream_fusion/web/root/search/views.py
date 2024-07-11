@@ -2,7 +2,7 @@ import hashlib
 import time
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
+from stream_fusion.services.redis.redis_config import get_redis_dependency
 from stream_fusion.utils.cache.cache import search_public
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
@@ -41,7 +41,7 @@ async def get_results(
     stream_type: str,
     stream_id: str,
     request: Request,
-    redis_cache: RedisCache = Depends(get_redis_cache_dependency),
+    redis_cache: RedisCache = Depends(get_redis_dependency),
 ) -> SearchResponse:
     start = time.time()
     logger.info(f"Stream request: {stream_type} - {stream_id}")
