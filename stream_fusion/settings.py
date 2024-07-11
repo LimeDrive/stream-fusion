@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     aiohttp_timeout: int = 3600
     reload: bool = False
     session_key: str = "331cbfe48117fcba53d09572b10d2fc293d86131dc51be46d8aa9843c2e9f48d"
+    use_https: bool = False
     # LOGGING
     log_level: LogLevel = LogLevel.INFO
     log_path: str = "/app/config/logs/stream-fusion.log"

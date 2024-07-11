@@ -25,7 +25,7 @@
             <td>{{ log.total_queries }}</td>
             <td>
                 {% if log.is_active %}
-                <form action="{{ url_for('revoke_api_key') }}" method="post">
+                <form action="{{ url_for('revoke_api_key')(request) }}" method="post">
                     <input type="hidden" name="api_key" value="{{ log.api_key }}">
                     <button type="submit" class="btn btn-danger btn-sm">Revoke</button>
                 </form>
@@ -37,5 +37,5 @@
         {% endfor %}
     </tbody>
 </table>
-<a href="{{ url_for('create_api_key') }}" class="btn btn-primary">Create a new key</a>
+<a href="{{ url_for('create_api_key')(request) }}" class="btn btn-primary">Create a new key</a>
 {% endblock %}

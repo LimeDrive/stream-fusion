@@ -9,6 +9,7 @@ from stream_fusion.utils.security.security_secret import GhostLoadedSecret
 from stream_fusion.services.security_db import security_db_access
 from stream_fusion.web.api.auth.schemas import UsageLogs
 from stream_fusion.logging_config import logger
+from stream_fusion.settings import settings
 
 router = APIRouter()
 
@@ -18,6 +19,16 @@ SECRET_KEY_NAME = "secret-key"
 secret_header = APIKeyHeader(name=SECRET_KEY_NAME, auto_error=False)
 
 secret = GhostLoadedSecret()
+
+def custom_url_for(name: str, **path_params: any) -> str:
+    def wrapper(request: Request):
+        url = request.url_for(name, **path_params)
+        if settings.use_https:
+            return str(url.replace(scheme="https"))
+        return str(url)
+    return wrapper
+
+templates.env.globals["url_for"] = custom_url_for
 
 async def get_secret_key_from_session(request: Request):
     secret_key = request.session.get("secret_key")
@@ -41,7 +52,7 @@ async def login_page(request: Request):
 async def login(request: Request, secret_key: str = Form(...)):
     if secrets.compare_digest(secret_key, secret.value):
         request.session["secret_key"] = secret_key
-        return RedirectResponse(url="/api/admin/api-keys", status_code=303)
+        return RedirectResponse(url=custom_url_for("list_api_keys")(request), status_code=303)
     else:
         return templates.TemplateResponse("login.html", {"request": request, "error": "Clé secrète invalide"})
 
@@ -68,19 +79,19 @@ async def create_api_key_page(request: Request):
 @router.post("/create-api-key", dependencies=[Depends(session_based_security)])
 async def create_api_key(request: Request, name: str = Form(None), never_expires: bool = Form(False)):
     new_key = security_db_access.create_key(name, never_expires)
-    return RedirectResponse(url="/api/admin/api-keys", status_code=303)
+    return RedirectResponse(url=custom_url_for("list_api_keys")(request), status_code=303)
 
 @router.post("/revoke-api-key", dependencies=[Depends(session_based_security)])
 async def revoke_api_key(request: Request, api_key: str = Form(...)):
     security_db_access.revoke_key(api_key)
-    return RedirectResponse(url="/api/admin/api-keys", status_code=303)
+    return RedirectResponse(url=custom_url_for("list_api_keys")(request), status_code=303)
 
 @router.post("/renew-api-key", dependencies=[Depends(session_based_security)])
 async def renew_api_key(request: Request, api_key: str = Form(...)):
     security_db_access.renew_key(api_key)
-    return RedirectResponse(url="/api/admin/api-keys", status_code=303)
+    return RedirectResponse(url=custom_url_for("list_api_keys")(request), status_code=303)
 
 @router.get("/logout")
 async def logout(request: Request):
     request.session.clear()
-    return RedirectResponse(url="/api/admin/", status_code=303)
+    return RedirectResponse(url=custom_url_for("login_page")(request), status_code=303)

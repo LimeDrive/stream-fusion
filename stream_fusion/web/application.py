@@ -45,6 +45,7 @@ def get_app() -> FastAPI:
     )
 
     app.add_middleware(SessionMiddleware, secret_key=settings.session_key)
+    
     # Adds startup and shutdown events.
     register_startup_event(app)
     register_shutdown_event(app)

@@ -27,6 +27,7 @@ router = APIRouter()
 redis_client = redis.Redis(host=settings.redis_host, port=settings.redis_port)
 redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port)
 
+
 @lru_cache(maxsize=128)
 def get_adaptive_chunk_size(file_size):
     MB = 1024 * 1024
@@ -44,13 +45,17 @@ def get_adaptive_chunk_size(file_size):
         return 20 * MB  # 20 MB
 
 
-async def proxy_stream(request: Request, url: str, headers: dict, proxy: str = None, max_retries: int = 3):
+async def proxy_stream(
+    request: Request, url: str, headers: dict, proxy: str = None, max_retries: int = 3
+):
     """
     Stream content from the given URL with retry logic.
     """
     for attempt in range(max_retries):
         try:
-            async with request.app.state.http_session.get(url, headers=headers, proxy=proxy) as response:
+            async with request.app.state.http_session.get(
+                url, headers=headers, proxy=proxy
+            ) as response:
                 file_size = int(response.headers.get("Content-Length", 0))
                 chunk_size = get_adaptive_chunk_size(file_size)
                 while True:
@@ -60,7 +65,9 @@ async def proxy_stream(request: Request, url: str, headers: dict, proxy: str = N
                             break
                         yield chunk
                     except (aiohttp.ClientError, asyncio.TimeoutError) as e:
-                        logger.warning(f"Chunk read error (attempt {attempt + 1}): {str(e)}")
+                        logger.warning(
+                            f"Chunk read error (attempt {attempt + 1}): {str(e)}"
+                        )
                         if attempt == max_retries - 1:
                             raise
                         await asyncio.sleep(2**attempt)  # Exponential backoff
@@ -122,7 +129,7 @@ async def get_playback(
         ip = request.client.host
 
         lock_key = f"lock:stream:{decoded_query}_{ip}"
-        lock = redis_client.lock(lock_key, timeout=30)  # Timeout de 30 secondes
+        lock = redis_client.lock(lock_key, timeout=10)  # Timeout de 10 secondes
 
         try:
             if lock.acquire(blocking=False):
@@ -134,7 +141,10 @@ async def get_playback(
                 if cached_link:
                     link = cached_link
                 else:
-                    raise HTTPException(status_code=503, detail="Service temporarily unavailable. Please try again.")
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Service temporarily unavailable. Please try again.",
+                    )
 
             range_header = request.headers.get("Range")
             headers = {}
@@ -143,7 +153,9 @@ async def get_playback(
 
             proxy = None  # Not yet implemented
 
-            async with request.app.state.http_session.get(link, headers=headers, proxy=proxy) as response:
+            async with request.app.state.http_session.get(
+                link, headers=headers, proxy=proxy
+            ) as response:
                 if response.status == 206:
                     return StreamingResponse(
                         proxy_stream(request, link, headers, proxy, max_retries=3),
@@ -201,7 +213,7 @@ async def head_playback(
         else:
             logger.warning("API key not found in config.")
             raise HTTPException(status_code=401, detail="API key not found in config.")
-        
+
         if not query:
             raise HTTPException(status_code=400, detail="Query required.")
         decoded_query = decodeb64(query)
