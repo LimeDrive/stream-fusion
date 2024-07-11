@@ -1,18 +1,22 @@
 import os
 from importlib import metadata
 from pathlib import Path
+from typing import Any
 
-from fastapi import FastAPI
-from fastapi.responses import UJSONResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, UJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 
+from stream_fusion.constants import NO_CACHE_HEADERS, CustomException
 from stream_fusion.logging_config import configure_logging
 
 from stream_fusion.version import get_version
 from stream_fusion.web.api.router import api_router
 from stream_fusion.web.root.router import root_router
 from stream_fusion.web.playback.router import stream_router
+from stream_fusion.settings import settings
 from stream_fusion.web.lifetime import register_shutdown_event, register_startup_event
 
 APP_ROOT = Path(__file__).parent.parent
@@ -44,6 +48,21 @@ def get_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    app.exception_handler(CustomException)
+    async def custom_exception_handler(request: Request, exc: CustomException):
+        content = {
+            "success": False, 
+            "error": {
+                "message": exc.message
+            }
+        }
+    
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=content,
+            headers=NO_CACHE_HEADERS
+        )
+    app.add_middleware(SessionMiddleware, secret_key=settings.session_key)
     # Adds startup and shutdown events.
     register_startup_event(app)
     register_shutdown_event(app)

@@ -35,7 +35,7 @@ def get_new_api_key(
     dependencies=[Depends(secret_based_security)],
     include_in_schema=settings.security_hide_docs,
 )
-def revoke_api_key(
+def revoke(
     api_key: str = Query(..., alias="api-key", description="the api_key to revoke"),
 ):
     """
@@ -50,7 +50,7 @@ def revoke_api_key(
     dependencies=[Depends(secret_based_security)],
     include_in_schema=settings.security_hide_docs,
 )
-def renew_api_key(
+def renew(
     api_key: str = Query(..., alias="api-key", description="the API key to renew"),
     expiration_date: str = Query(
         None,

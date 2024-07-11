@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">API Keys List</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>API Key</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Expiration Date</th>
+            <th>Last Use</th>
+            <th>Total Requests</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.api_key }}</td>
+            <td>{{ log.name or 'N/A' }}</td>
+            <td>{{ 'Active' if log.is_active else 'Inactive' }}</td>
+            <td>{{ 'Never' if log.never_expire else log.expiration_date }}</td>
+            <td>{{ log.latest_query_date or 'N/A' }}</td>
+            <td>{{ log.total_queries }}</td>
+            <td>
+                {% if log.is_active %}
+                <form action="{{ url_for('revoke_api_key') }}" method="post">
+                    <input type="hidden" name="api_key" value="{{ log.api_key }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Revoke</button>
+                </form>
+                {% else %}
+                <button class="btn btn-secondary btn-sm" disabled>Revoked</button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('create_api_key') }}" class="btn btn-primary">Create a new key</a>
+{% endblock %}

@@ -28,6 +28,8 @@ aiosqlite = "^0.20.0"
 toml = "^0.10.2"
 jsonpickle = "^3.2.2"
 fastapi-simple-rate-limiter = "^0.0.4"
+itsdangerous = "^2.2.0"
+email-validator = "^2.2.0"
 
 
 [build-system]

@@ -6,6 +6,7 @@ from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi_simple_rate_limiter import rate_limiter
 from fastapi_simple_rate_limiter.database import create_redis_session
 
+from stream_fusion.constants import CustomException
 from stream_fusion.services.redis.redis_config import get_redis_dependency
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
@@ -96,7 +97,7 @@ def get_stream_link(
     "/{config}/{query}",
     responses={500: {"model": ErrorResponse}},
 )
-@rate_limiter(limit=1, seconds=2, redis=redis_session)
+@rate_limiter(limit=1, seconds=2, redis=redis_session, exception=CustomException)
 async def get_playback(
     config: str,
     query: str,
@@ -190,7 +191,7 @@ async def head_playback(
         if redis_cache.exists(cache_key):
             return Response(status_code=status.HTTP_200_OK)
         else:
-            await asyncio.sleep(0.2)
+            await asyncio.sleep(0.4)
             return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         logger.error(f"HEAD request error: {e}")

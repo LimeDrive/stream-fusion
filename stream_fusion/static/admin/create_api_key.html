@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Create a new API Key</h1>
+<form action="{{ url_for('create_api_key') }}" method="post">
+    <div class="mb-3">
+        <label for="name" class="form-label">Key Name</label>
+        <input type="text" class="form-control" id="name" name="name">
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="never_expires" name="never_expires">
+        <label class="form-check-label" for="never_expires">Never expires</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+{% endblock %}
