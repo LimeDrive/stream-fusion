@@ -26,3 +26,41 @@ def detect_languages(torrent_name):
         return ["en"]
 
     return languages
+
+
+def detect_french_languages(torrent_name):
+    french_patterns = {
+        "VFF": r"\b(?:VFF|TRUEFRENCH)\b",
+        "VF2": r"\b(?:VF2)\b",
+        "VFQ": r"\b(?:VFQ)\b",
+        "VFI": r"\b(?:VFI)\b",
+        "VOSTFR  ": r"\b(?:VOSTFR|SUBFRENCH)\b",
+    }
+
+    myfrench = ""
+    for french, pattern in french_patterns.items():
+        if re.search(pattern, torrent_name, re.IGNORECASE):
+            myfrench = french
+
+    if len(myfrench) == 0:
+        return "VF"
+
+    return myfrench
+
+
+def detect_hdr(torrent_name):
+    hdr_patterns = {
+        "HDR": r"\bHDR(?:10\+?|10Plus|10p?)?\b",
+        "DV": r"\bDV|DoVi\b",
+        "IMAX": r"\bIMAX\b",
+    }
+
+    hdrs = []
+    for hdr, pattern in hdr_patterns.items():
+        if re.search(pattern, torrent_name, re.IGNORECASE):
+            hdrs.append(hdr)
+
+    if len(hdrs) == 0:
+        return [""]
+
+    return hdrs

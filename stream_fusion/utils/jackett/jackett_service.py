@@ -12,6 +12,8 @@ from stream_fusion.utils.jackett.jackett_result import JackettResult
 from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
 from stream_fusion.utils.detection import detect_languages
+from stream_fusion.utils.detection import detect_french_languages
+from stream_fusion.utils.detection import detect_hdr
 from stream_fusion.logging_config import logger
 from stream_fusion.settings import settings
 
@@ -271,6 +273,8 @@ class JackettService:
             
             result.parsed_data = parsed_result
             result.languages = detect_languages(result.raw_title)
+            result.frenchlanguage = detect_french_languages(result.raw_title)
+            result.typehdr = detect_hdr(result.raw_title)
             result.type = media.type
 
             if isinstance(media, Series):
