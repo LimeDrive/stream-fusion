@@ -19,8 +19,8 @@ class TorrentItem:
         self.seeders = seeders  # The number of seeders
         self.languages = languages  # Language of the torrent
         self.indexer = indexer  # Indexer of the torrent
-        self.frenchlanguage = None # French Language Type
-        self.typehdr = None # HDR / DV
+        self.frenchlanguage = frenchlanguage # French Language Type
+        self.typehdr = typehdr # HDR / DV
         self.type = type  # "series" or "movie"
         self.privacy = privacy  # "public" or "private"
 
