@@ -477,6 +477,20 @@ typer = ">=0.12.3"
 standard = ["fastapi", "uvicorn[standard] (>=0.15.0)"]
 
 [[package]]
+name = "fastapi-simple-rate-limiter"
+version = "0.0.4"
+description = "Rate limiter to limit the number of API requests in FastAPI"
+optional = false
+python-versions = "<4.0,>=3.10"
+files = [
+    {file = "fastapi_simple_rate_limiter-0.0.4-py3-none-any.whl", hash = "sha256:2e7e23897793a1e22ad31c4c4674c2f2ace464624c16f998265d9fe36e0f0faa"},
+    {file = "fastapi_simple_rate_limiter-0.0.4.tar.gz", hash = "sha256:fa4e473728ecded6f433240697f7422d84ceeaa92521d0c72b00989c0a573cc8"},
+]
+
+[package.dependencies]
+redis = ">=5.0.1,<6.0.0"
+
+[[package]]
 name = "frozenlist"
 version = "1.4.1"
 description = "A list-like structure which implements collections.abc.MutableSequence"
@@ -2460,4 +2474,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ee9c95e5603a23661a82e8d4df62fce700e7249e0cd145453c22c44625cf3359"
+content-hash = "c5e9c1b211faf9a6a50430711cd2f661f588c9bfc360b3be53958444de96f320"
