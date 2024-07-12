@@ -17,8 +17,6 @@ class JackettResult:
 
         # Extra processed details for further filtering
         self.languages = None  # Language of the torrent
-        self.frenchlanguage = None # French Language Type
-        self.typehdr = None # HDR / DV
         self.type = None  # series or movie
 
         self.parsed_data = None  # Ranked result
@@ -32,8 +30,6 @@ class JackettResult:
             self.link,
             self.seeders,
             self.languages,
-            self.frenchlanguage,
-            self.typehdr,
             self.indexer,
             self.privacy,
             self.type,

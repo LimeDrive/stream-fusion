@@ -2,10 +2,13 @@ import json
 import queue
 import threading
 from typing import List
+from RTN import ParsedData
 
 from stream_fusion.utils.models.media import Media
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.utils.string_encoding import encodeb64
+from stream_fusion.utils.detection import detect_audios_type
+from stream_fusion.logging_config import logger
 
 
 INSTANTLY_AVAILABLE = "[⚡]"
@@ -53,6 +56,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
         name = f"{DOWNLOAD_REQUIRED}\n"
 
     parsed_data = torrent_item.parsed_data.data
+    logger.debug(f"Parsed data: {parsed_data}")
 
     resolution = parsed_data.resolution[0] if parsed_data.resolution else "Unknow"
     name += f"{resolution}"
@@ -62,24 +66,30 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
-    title = f"{torrent_item.raw_title}\n"
+    title = f"{parsed_data.raw_title}\n"
 
-    #if torrent_item.file_name is not None:
-    #    title += f"{torrent_item.file_name}\n"
+    if media.type == "series" and torrent_item.file_name is not None:
+       title += f"{torrent_item.file_name}\n"
 
-    title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
+    title += f"👥  {torrent_item.seeders}   💾  {size_in_gb}GB   🔍  {torrent_item.indexer}\n"
     
     if parsed_data.codec:
-        title += f"🎥 {', '.join(parsed_data.codec)}   {'.'.join(torrent_item.typehdr)}\n"
+        title += f"🎥  {', '.join(parsed_data.codec)}   {'.'.join(parsed_data.hdr)}\n"
     else:
-        title += f"🎥 {'.'.join(torrent_item.typehdr)}\n"
+        title += f"🎥  {'.'.join(parsed_data.hdr)}\n"
+
+    audio_type = detect_audios_type(parsed_data.raw_title, torrent_item.languages)
+    audio_info = []
+
+    if audio_type:
+        audio_info.append(audio_type)
 
     if parsed_data.audio:
-        title += f"🎧 {torrent_item.frenchlanguage}   {', '.join(parsed_data.audio)}\n"
-    else:
-        title += f"🎧 {torrent_item.frenchlanguage}\n"
+        audio_info.extend(parsed_data.audio)
 
-    # Gestion des langues
+    if audio_info:
+        title += f"🎧  {' | '.join(audio_info)}\n"
+    
     if torrent_item.languages:
         title += "/".join(get_emoji(language) for language in torrent_item.languages)
     else:

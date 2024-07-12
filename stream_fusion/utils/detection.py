@@ -28,39 +28,85 @@ def detect_languages(torrent_name):
     return languages
 
 
-def detect_french_languages(torrent_name):
-    french_patterns = {
-        "VFF": r"\b(?:VFF|TRUEFRENCH)\b",
-        "VF2": r"\b(?:VF2)\b",
-        "VFQ": r"\b(?:VFQ)\b",
-        "VFI": r"\b(?:VFI)\b",
-        "VOSTFR  ": r"\b(?:VOSTFR|SUBFRENCH)\b",
+def detect_audios_type(raw_title, languages):
+    language_specific_patterns = {
+        "fr": {
+            "VFF": r"\b(?:VFF|TRUEFRENCH)\b",
+            "VF2": r"\b(?:VF2)\b",
+            "VFQ": r"\b(?:VFQ)\b",
+            "VFI": r"\b(?:VFI)\b",
+            "VOF": r"\b(?:VOF)\b",
+            "VQ": r"\b(?:VOQ|VQ)\b",
+            "VOSTFR": r"\b(?:VOSTFR|SUBFRENCH)\b",
+            "FRENCH": r"\b(?:FRENCH|FR)\b"
+        },
+        "en": {
+            "ENG": r"\b(?:ENG|ENGLISH)\b",
+            "VO": r"\b(?:VO|OV)\b",
+            "SUBBED": r"\b(?:SUB|SUBBED|SUBTITLE[SD])\b"
+        },
+        "es": {
+            "ESP": r"\b(?:ESP|SPANISH)\b"
+        },
+        "de": {
+            "GER": r"\b(?:GER|GERMAN|DEUTSCH)\b"
+        },
+        "it": {
+            "ITA": r"\b(?:ITA|ITALIAN)\b"
+        },
+        "ja": {
+            "JAP": r"\b(?:JAP|JAPANESE)\b"
+        },
+        "ko": {
+            "KOR": r"\b(?:KOR|KOREAN)\b"
+        },
+        "zh": {
+            "CHI": r"\b(?:CHI|CHINESE|MANDARIN)\b"
+        },
+        "ru": {
+            "RUS": r"\b(?:RUS|RUSSIAN)\b"
+        },
+        "pt": {
+            "POR": r"\b(?:POR|PORTUGUESE)\b"
+        },
+        "nl": {
+            "DUT": r"\b(?:DUT|DUTCH)\b"
+        },
+        "sv": {
+            "SWE": r"\b(?:SWE|SWEDISH)\b"
+        },
+        "da": {
+            "DAN": r"\b(?:DAN|DANISH)\b"
+        },
+        "no": {
+            "NOR": r"\b(?:NOR|NORWEGIAN)\b"
+        },
+        "fi": {
+            "FIN": r"\b(?:FIN|FINNISH)\b"
+        }
     }
-
-    myfrench = ""
-    for french, pattern in french_patterns.items():
-        if re.search(pattern, torrent_name, re.IGNORECASE):
-            myfrench = french
-
-    if len(myfrench) == 0:
+    
+    if not languages:
         return "VF"
+    
+    if isinstance(languages, str):
+        languages = [languages]
 
-    return myfrench
+    if "multi" in languages:
+        for lang_patterns in language_specific_patterns.values():
+            for audio_type, pattern in lang_patterns.items():
+                if re.search(pattern, raw_title, re.IGNORECASE):
+                    return audio_type
+    else:
+        for language in languages:
+            patterns = language_specific_patterns.get(language, {})
+            for audio_type, pattern in patterns.items():
+                if re.search(pattern, raw_title, re.IGNORECASE):
+                    return audio_type
 
-
-def detect_hdr(torrent_name):
-    hdr_patterns = {
-        "HDR": r"\bHDR(?:10\+?|10Plus|10p?)?\b",
-        "DV": r"\bDV|DoVi\b",
-        "IMAX": r"\bIMAX\b",
+    default_types = {
+        "fr": "VF",
+        "en": "VO",
+        "multi": "MULTI"
     }
-
-    hdrs = []
-    for hdr, pattern in hdr_patterns.items():
-        if re.search(pattern, torrent_name, re.IGNORECASE):
-            hdrs.append(hdr)
-
-    if len(hdrs) == 0:
-        return [""]
-
-    return hdrs
+    return default_types.get(languages[0], "VO")

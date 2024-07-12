@@ -7,7 +7,7 @@ from stream_fusion.logging_config import logger
 
 
 class TorrentItem:
-    def __init__(self, raw_title, size, magnet, info_hash, link, seeders, languages, frenchlanguage, typehdr, indexer,
+    def __init__(self, raw_title, size, magnet, info_hash, link, seeders, languages, indexer,
                  privacy, type=None, parsed_data=None):
         self.logger = logger
 
@@ -19,8 +19,6 @@ class TorrentItem:
         self.seeders = seeders  # The number of seeders
         self.languages = languages  # Language of the torrent
         self.indexer = indexer  # Indexer of the torrent
-        self.frenchlanguage = frenchlanguage # French Language Type
-        self.typehdr = typehdr # HDR / DV
         self.type = type  # "series" or "movie"
         self.privacy = privacy  # "public" or "private"
 
@@ -53,8 +51,6 @@ class TorrentItem:
             'link': self.link,
             'seeders': self.seeders,
             'languages': self.languages,
-            'frenchlanguage' : self.frenchlanguage,
-            'typehdr' : self.typehdr,
             'indexer': self.indexer,
             'type': self.type,
             'privacy': self.privacy,
@@ -80,8 +76,6 @@ class TorrentItem:
             link=data['link'],
             seeders=data['seeders'],
             languages=data['languages'],
-            frenchlanguage=data['frenchlanguage'],
-            typehdr=data['typehdr'],
             indexer=data['indexer'],
             privacy=data['privacy'],
             type=data['type']

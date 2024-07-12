@@ -3,8 +3,6 @@ from RTN import parse
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.logging_config import logger
 from stream_fusion.utils.detection import detect_languages
-from stream_fusion.utils.detection import detect_french_languages
-from stream_fusion.utils.detection import detect_hdr
 
 
 class ZileanResult:
@@ -21,8 +19,6 @@ class ZileanResult:
 
         # Extra processed details for further filtering
         self.languages = None  # Language of the torrent
-        self.frenchlanguage = None # French Language Type
-        self.typehdr = None # HDR / DV
         self.type = None  # series or movie
 
         self.parsed_data = None  # Ranked result
@@ -36,8 +32,6 @@ class ZileanResult:
             self.link,
             self.seeders,
             self.languages,
-            self.frenchlanguage,
-            self.typehdr,
             self.indexer,
             self.privacy,
             self.type,
@@ -59,8 +53,6 @@ class ZileanResult:
         self.magnet = "magnet:?xt=urn:btih:" + self.info_hash
         self.link = self.magnet
         self.languages = detect_languages(self.raw_title)
-        self.frenchlanguage = detect_french_languages(self.raw_title)
-        self.typehdr = detect_hdr(self.raw_title)
         self.seeders = 0
         self.size = api_cached_item['filesize']
         self.type = media.type
