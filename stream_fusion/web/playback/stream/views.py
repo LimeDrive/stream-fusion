@@ -16,6 +16,7 @@ from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.string_encoding import decodeb64
 from stream_fusion.utils.security import check_api_key
+from stream_fusion.constants import NO_CACHE_VIDEO_URL
 from stream_fusion.web.playback.stream.schemas import (
     ErrorResponse,
     HeadResponse,
@@ -96,9 +97,9 @@ def get_stream_link(
     debrid_service = get_debrid_service(config)
     link = debrid_service.get_stream_link(decoded_query, config, ip)
 
-    redis_cache.set(cache_key, link, expiration=3600)  # Cache for 1 hour
-    logger.info(f"Stream link generated and cached: {link}")
-
+    if link != NO_CACHE_VIDEO_URL:
+        redis_cache.set(cache_key, link, expiration=3600)  # Cache for 1 hour
+        logger.info(f"Stream link generated and cached: {link}")
     return link
 
 
@@ -129,13 +130,13 @@ async def get_playback(
         ip = request.client.host
 
         lock_key = f"lock:stream:{decoded_query}_{ip}"
-        lock = redis_client.lock(lock_key, timeout=10)  # Timeout de 10 secondes
+        lock = redis_client.lock(lock_key, timeout=60)
 
         try:
             if lock.acquire(blocking=False):
                 link = get_stream_link(decoded_query, config, ip, redis_cache)
             else:
-                await asyncio.sleep(2)
+                await asyncio.sleep(10)
                 cache_key = f"stream_link:{decoded_query}_{ip}"
                 cached_link = redis_cache.get(cache_key)
                 if cached_link:

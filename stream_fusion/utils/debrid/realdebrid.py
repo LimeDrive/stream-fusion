@@ -37,14 +37,13 @@ class RealDebrid(BaseDebrid):
         logger.info(f"Getting torrent info for: {torrent_id}")
         url = f"{self.base_url}/rest/1.0/torrents/info/{torrent_id}"
         torrent_info = self.get_json_response(url, headers=self.headers)
-
         if not torrent_info or 'files' not in torrent_info:
             return None
-
         return torrent_info
 
     def select_files(self, torrent_id, file_id):
         logger.info(f"Selecting file(s): {file_id}")
+        self._torrent_rate_limit()
         url = f"{self.base_url}/rest/1.0/torrents/selectFiles/{torrent_id}"
         data = {"files": str(file_id)}
         requests.post(url, headers=self.headers, data=data)
@@ -63,7 +62,7 @@ class RealDebrid(BaseDebrid):
                 return torrent['id']
         return False
 
-    def wait_for_link(self, torrent_id, timeout=30, interval=5):
+    def wait_for_link(self, torrent_id, timeout=60, interval=5):
         start_time = time.time()
         while time.time() - start_time < timeout:
             torrent_info = self.get_torrent_info(torrent_id)
@@ -74,6 +73,7 @@ class RealDebrid(BaseDebrid):
         return None
 
     def get_availability_bulk(self, hashes_or_magnets, ip=None):
+        self._torrent_rate_limit()
         if len(hashes_or_magnets) == 0:
             logger.info("No hashes to be sent to Real-Debrid.")
             return dict()
@@ -145,6 +145,7 @@ class RealDebrid(BaseDebrid):
         return unrestrict_response['download']
 
     def __get_cached_torrent_ids(self, info_hash):
+        self._torrent_rate_limit()
         url = f"{self.base_url}/rest/1.0/torrents"
         torrents = self.get_json_response(url, headers=self.headers)
 
