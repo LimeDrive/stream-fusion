@@ -5,7 +5,7 @@ import redis
 from tenacity import retry, stop_after_attempt, wait_fixed
 from requests.utils import dict_from_cookiejar, cookiejar_from_dict
 
-from stream_fusion.utils.yggfilx.ygg_auth import ygg_login
+from stream_fusion.services.ygg_conn.ygg_auth import ygg_login
 from stream_fusion.settings import settings
 from stream_fusion.logging_config import logger
 
