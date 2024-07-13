@@ -87,7 +87,7 @@ class YggflixAPI:
         """Get details of a TV show."""
         return self._make_request("GET", f"/tvshow/{tvshow_id}")
     
-    def get_tvshow_torrrents(self, tvshow_id: int):
+    def get_tvshow_torrents(self, tvshow_id: int):
         """Get torrents for a TV show."""
         return self._make_request("GET", f"/tvshow/{tvshow_id}/torrents")
     

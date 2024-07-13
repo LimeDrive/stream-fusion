@@ -62,6 +62,7 @@ class Settings(BaseSettings):
     ygg_pass: str = "PassForTest"
     ygg_passkey: str = "mTCw9hPXVHVbGAGgIK71pm9jrzAoPtD3"
     yggflix_url: str = "https://yggflix.fr"
+    yggflix_max_workers: int = 4
     # PUBLIC_CACHE
     public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
     # DEVELOPMENT
