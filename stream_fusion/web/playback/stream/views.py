@@ -147,10 +147,15 @@ async def get_playback(
                         detail="Service temporarily unavailable. Please try again.",
                     )
 
-            range_header = request.headers.get("Range")
             headers = {}
+            range_header = request.headers.get("range")
             if range_header:
-                headers["Range"] = range_header
+                range_value = range_header.strip().split("=")[1]
+                start, end = range_value.split("-")
+                start = int(start)
+                end = int(end) if end else ""
+                range = f"bytes={start}-{end}"
+                headers["Range"] = range
 
             proxy = None  # Not yet implemented
 
