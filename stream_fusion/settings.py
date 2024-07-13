@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     zilean_api_key: str | None = None # TODO: check to protéct Zilane API with APIKEY
     zilean_url: str | None = None
     zilean_max_workers: int = 4
+    # YGGTORRENT
+    ygg_url: str = "https://ygg.re"
+    ygg_user: str = "Users@StreamFusion"
+    ygg_pass: str = "PassForTest"
+    ygg_passkey: str = "mTCw9hPXVHVbGAGgIK71pm9jrzAoPtD3"
     # PUBLIC_CACHE
     public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
     # DEVELOPMENT

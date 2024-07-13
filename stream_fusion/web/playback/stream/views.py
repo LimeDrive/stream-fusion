@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi_simple_rate_limiter import rate_limiter
 from fastapi_simple_rate_limiter.database import create_redis_session
 
-from stream_fusion.services.redis.redis_config import get_redis_dependency
+from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
 from stream_fusion.settings import settings
@@ -112,7 +112,7 @@ async def get_playback(
     config: str,
     query: str,
     request: Request,
-    redis_cache: RedisCache = Depends(get_redis_dependency),
+    redis_cache: RedisCache = Depends(get_redis_cache_dependency),
 ):
     try:
         config = parse_config(config)
@@ -204,7 +204,7 @@ async def head_playback(
     config: str,
     query: str,
     request: Request,
-    redis_cache: RedisCache = Depends(get_redis_dependency),
+    redis_cache: RedisCache = Depends(get_redis_cache_dependency),
 ):
     try:
         config = parse_config(config)
