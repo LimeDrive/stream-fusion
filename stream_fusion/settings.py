@@ -61,6 +61,7 @@ class Settings(BaseSettings):
     ygg_user: str = "Users@StreamFusion"
     ygg_pass: str = "PassForTest"
     ygg_passkey: str = "mTCw9hPXVHVbGAGgIK71pm9jrzAoPtD3"
+    yggflix_url: str = "https://yggflix.fr"
     # PUBLIC_CACHE
     public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
     # DEVELOPMENT
