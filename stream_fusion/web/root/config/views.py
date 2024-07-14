@@ -20,11 +20,12 @@ async def root():
     return RedirectResponse(url="/configure")
 
 
-@router.get("/configure")
-@router.get("/{config}/configure")
 async def configure(request: Request):
     logger.info("Serving configuration page")
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "secret_api_key": settings.session_key
+    })
 
 
 # @router.get("/static/{file_path:path}", response_model=StaticFileResponse)

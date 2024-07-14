@@ -7,15 +7,13 @@ from stream_fusion.services.fspy import FlareSolverr
 from stream_fusion.settings import settings
 from stream_fusion.logging_config import logger
 
-# YGG Basic Login playload
-ygg_playload = {"id": settings.ygg_user, "pass": settings.ygg_pass}
 # Urls
 URL_AUTH = f"{settings.ygg_url}/auth/process_login"
 URL_LOGIN = f"{settings.ygg_url}/auth/login"
 
 
 def ygg_basic_login(
-    session: requests.Session, ygg_playload: dict = ygg_playload
+    session: requests.Session, ygg_playload: dict
 ) -> requests.Session:
     """
     This function performs a basic login to YGG (Your Great Great Website) using the provided session and payload.
@@ -45,7 +43,7 @@ def ygg_basic_login(
 
 
 def ygg_cloudflare_login(
-    session: requests.Session, ygg_playload: dict = ygg_playload
+    session: requests.Session, ygg_playload: dict
 ) -> requests.Session:
     """
     This function performs a login to YGG (Your Great Great Website) using the provided session and payload,
@@ -144,7 +142,7 @@ def ygg_cloudflare_login(
 )
 @timeout_decorator.timeout(60, exception_message=f"Timeout after 60 seconds")
 def ygg_login(
-    session=requests.Session(), ygg_playload: dict = ygg_playload
+    ygg_playload: dict, session=requests.Session() 
 ) -> requests.Session:
     """
     This function performs a login to YGG (Your Great Great Website) using the provided session and payload.

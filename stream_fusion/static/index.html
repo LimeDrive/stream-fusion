@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        const secretKey = "{{ session_key }}";
+    </script>
+    <script src="/static/js/config.js"></script>
     <title>SteamFusion</title>
     <style>
         /* Supprimez ou commentez les styles du body ici */
@@ -128,6 +133,19 @@
                                     to find more results.</p>
                             </div>
                         </div>
+
+                        <div class="relative flex gap-x-3">
+                            <div class="flex h-6 items-center">
+                                <input id="yggflix" name="yggflix" type="checkbox"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                    onchange="updateProviderFields(true)">
+                            </div>
+                            <div class="text-sm leading-6">
+                                <label for="yggflix" class="font-medium text-white">Enable YggTorrent API</label>
+                                <p class="text-gray-500 dark:text-gray-300">Use Yggtorrent API and internal cf bypass
+                                    to find more results.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div id="debrid-fields" style="display: none;">
@@ -198,6 +216,35 @@
                                 <label for="cacheUrl" class="block text-sm font-medium leading-6 text-white text-white">Public Cache
                                     URL</label>
                                 <input type="text" name="cacheUrl" id="cacheUrl"
+                                    class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ygg-fields" style="display: none;">
+                    <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                        <h2 class="text-white font-semibold leading-7">YggTorrent Login</h2>
+                        <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Enter your YggTorrent account information here.</p>
+                
+                        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                            <div class="sm:col-span-6">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="yggUsername" class="block text-sm font-medium leading-6 text-white">YggTorrent Username</label>
+                                        <input type="text" name="yggUsername" id="yggUsername"
+                                            class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                    </div>
+                                    <div>
+                                        <label for="yggPassword" class="block text-sm font-medium leading-6 text-white">YggTorrent Password</label>
+                                        <input type="password" name="yggPassword" id="yggPassword"
+                                            class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-4">
+                                <label for="yggPasskey" class="block text-sm font-medium leading-6 text-white">YggTorrent PassKey</label>
+                                <input type="text" name="yggPasskey" id="yggPasskey"
                                     class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                             </div>
                         </div>

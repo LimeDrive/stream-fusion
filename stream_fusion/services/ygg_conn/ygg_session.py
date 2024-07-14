@@ -11,11 +11,13 @@ from stream_fusion.logging_config import logger
 
 
 class YggSessionManager:
-    def __init__(self, redis_url):
+    def __init__(self, config):
         self.redis_url = f"redis://{settings.redis_host}:{settings.redis_port}"
-        self.redis = redis.Redis.from_url(redis_url, decode_responses=True)
+        self.redis = redis.Redis.from_url(self.redis_url, decode_responses=True)
         self.session_expiry = 7200  # 2 hour
         self.session_id = f"ygg_session:{settings.ygg_user}"
+        self.ygg_playload = {"id": config.get("yggUsername"), "pass": config.get("yggPassword")}
+
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(0.3))
     def check_redis_connection(self):
@@ -27,7 +29,7 @@ class YggSessionManager:
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(0.3))
     def new_session(self):
-        ygg_session = ygg_login()
+        ygg_session = ygg_login(self.ygg_playload)
         session_data = {
             "cookies": pickle.dumps(dict_from_cookiejar(ygg_session.cookies)),
             "headers": pickle.dumps(dict(ygg_session.headers)),

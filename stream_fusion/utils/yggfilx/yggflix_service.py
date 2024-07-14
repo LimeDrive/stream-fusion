@@ -1,9 +1,9 @@
-import re
-
+from typing import List, Union
 from RTN import parse
+
 from stream_fusion.logging_config import logger
-from stream_fusion.services.ygg_conn.ygg_session import YggSessionManager
 from stream_fusion.utils.detection import detect_languages
+from stream_fusion.utils.yggfilx.yggflix_result import YggflixResult
 from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
 from stream_fusion.settings import settings
@@ -11,54 +11,102 @@ from stream_fusion.utils.yggfilx.yggflix_api import YggflixAPI
 
 
 class YggflixService:
-    def __init__(self, config):
-        self.yggflix = YggflixAPI()
-        self.has_tmdb = True if config.get("metadataProvider", "") == "tmdb" else False
+    """Service for searching media on Yggflix."""
 
-    def search(self, media: Movie | Series):
+    def __init__(self, config: dict):
+        self.yggflix = YggflixAPI()
+        self.has_tmdb = config.get("metadataProvider") == "tmdb"
+        self.ygg_url = settings.ygg_url
+        self.ygg_passkey = config.get("yggPasskey")
+
+    def search(self, media: Union[Movie, Series]) -> List[YggflixResult]:
+        """
+        Search for a media (movie or series) on Yggflix.
+
+        Args:
+            media (Union[Movie, Series]): The media to search for.
+
+        Returns:
+            List[YggflixResult]: List of search results.
+
+        Raises:
+            TypeError: If the media type is neither Movie nor Series.
+        """
         if isinstance(media, Movie):
             results = self.__search_movie(media)
         elif isinstance(media, Series):
             results = self.__search_series(media)
         else:
-            raise TypeError("Only Movie and Series are allowed as media!")
-        
+            raise TypeError("Only Movie and Series types are allowed as media!")
+
         return self.__post_process_results(results, media)
-    
-    def __search_movie(self, media: Movie):
+
+    def __filter_out_no_seeders(self, results: List[dict]) -> List[dict]:
+        """Filter out results with less than 5 seeders."""
+        return [result for result in results if result.get("seeders", 0) >= 5]
+
+    def __process_download_link(self, id: int) -> str:
+        """Generate the download link for a given torrent."""
+        return (
+            f"{self.ygg_url}/engine/download_torrent?id={id}&passkey={self.ygg_passkey}"
+        )
+
+    def __search_movie(self, media: Movie) -> List[dict]:
+        """Search for a movie on Yggflix."""
+        if not self.has_tmdb:
+            raise ValueError("Please use TMDB metadata provider for Yggflix")
+
         try:
-            if self.has_tmdb:
-                logger.info(f"Searching yggflix for movie: {media.titles[0]}")
-                api_results = self.yggflix.get_movie_torrents(media.id)
-            else:
-                raise Exception("Please use TMDB to use yggflix")
+            logger.info(f"Searching Yggflix for movie: {media.titles[0]}")
+            return self.yggflix.get_movie_torrents(media.id)
         except Exception as e:
-            logger.error(f"Error searching yggflix for movie: {media.titles[0]}")
+            logger.error(
+                f"Error searching Yggflix for movie: {media.titles[0]}", exc_info=True
+            )
+            return []
 
-        results = []
+    def __search_series(self, media: Series) -> List[dict]:
+        """Search for a series on Yggflix."""
+        if not self.has_tmdb:
+            raise ValueError("Please use TMDB metadata provider for Yggflix")
 
-    def __search_series(self, media: Series):
         try:
-            if self.has_tmdb:
-                logger.info(f"Searching yggflix for movie: {media.titles[0]}")
-                api_results = self.yggflix.get_tvshow_torrents(media.id)
-            else:
-                raise Exception("Please use TMDB to use yggflix")
+            logger.info(f"Searching Yggflix for series: {media.titles[0]}")
+            return self.yggflix.get_tvshow_torrents(media.id)
         except Exception as e:
-            logger.error(f"Error searching yggflix for movie: {media.titles[0]}")
+            logger.error(
+                f"Error searching Yggflix for series: {media.titles[0]}", exc_info=True
+            )
+            return []
 
-        results = []
-        
-    def __post_process_results(self, results, media):
+    def __post_process_results(
+        self, results: List[dict], media: Union[Movie, Series]
+    ) -> List[YggflixResult]:
+        """Process raw search results and convert them to YggflixResult objects."""
+        if not results:
+            logger.info(f"No results found on Yggflix for: {media.titles[0]}")
+            return []
+
+        results = self.__filter_out_no_seeders(results)
+        logger.info(f"{len(results)} results found on Yggflix for: {media.titles[0]}")
+
+        items = []
         for result in results:
-            parsed_result = parse(result.raw_title)
-            
-            result.parsed_data = parsed_result
-            result.languages = detect_languages(result.raw_title)
-            result.type = media.type
+            item = YggflixResult(
+                raw_title=result.get("title", ""),
+                size=result.get("size", 0),
+                link=(
+                    self.__process_download_link(result.get("id"))
+                    if result.get("id")
+                    else None
+                ),
+                indexer="API - Yggtorrent",
+                seeders=result.get("seeders", 0),
+                privacy="private",
+                languages=detect_languages(result.get("title", "")),
+                type=media.type,
+                parsed_data=parse(result.get("title", "")),
+            )
+            items.append(item)
 
-            if isinstance(media, Series):
-                result.season = media.season
-                result.episode = media.episode
-
-        return results
+        return items

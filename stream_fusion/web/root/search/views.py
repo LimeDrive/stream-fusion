@@ -116,7 +116,7 @@ async def get_results(
 
     def get_search_results(media, config):
         search_results = []
-        torrent_service = TorrentService()
+        torrent_service = TorrentService(config)
 
         def perform_search(update_cache=False):
             nonlocal search_results
