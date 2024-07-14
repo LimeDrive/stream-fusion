@@ -102,9 +102,7 @@ function getLink(method) {
         return false;
     }
 
-    // Encrypt data
-    const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
-    const encodedData = btoa(encryptedData);
+    const encodedData = btoa(JSON.stringify(data));
     const stremio_link = `${window.location.host}/${encodedData}/manifest.json`;
 
     if (method === 'link') {
