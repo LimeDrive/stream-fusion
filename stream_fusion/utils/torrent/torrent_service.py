@@ -20,9 +20,12 @@ from stream_fusion.settings import settings
 
 class TorrentService:
     def __init__(self, config):
+        self.config = config
         self.logger = logger
         self.__session = requests.Session()
-        self.__ygg_session = YggSessionManager(config).get_or_create_session()
+        if self.config["yggflix"]:
+            self.__ygg_session_manager = YggSessionManager(config)
+            self.__ygg_session = self.__ygg_session_manager.get_session()
 
     def convert_and_process(self, results: List[JackettResult | ZileanResult | YggflixResult]):
         threads = []
@@ -57,6 +60,8 @@ class TorrentService:
         return torrent_items_result
     
     def __process_ygg_web_url(self, result: TorrentItem):
+        if not self.config["yggflix"]:
+            logger.error("Yggflix is not enabled in the config. Skipping processing of Yggflix URL.")
         try:
             response = self.__ygg_session.get(result.link, allow_redirects=False, timeout=40)
         except requests.exceptions.RequestException:

@@ -69,4 +69,14 @@ class YggSessionManager:
         session = self.get_session()
         if session is None:
             session = self.new_session()
+
+        test_session = session.get(settings.ygg_url)
+        if test_session.status_code != 200 or "login" in test_session.url:
+            session = self.new_session()
+            self.save_session(session)
+            logger.info("Session YGG expirée, création d'une nouvelle session")
+        else:
+            self.save_session(session)
+            logger.info("Session YGG valide, réutilisation de la session")
+
         return session
