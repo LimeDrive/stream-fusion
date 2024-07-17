@@ -47,6 +47,8 @@ class YggflixService:
 
     def __process_download_link(self, id: int) -> str:
         """Generate the download link for a given torrent."""
+        if settings.ygg_lime_fix:
+            return f"{settings.ygg_proxy_url}/api/torrent/{str(id)}?passkey={self.ygg_passkey}"
         return (
             f"{self.ygg_url}/engine/download_torrent?id={id}&passkey={self.ygg_passkey}"
         )
@@ -58,7 +60,8 @@ class YggflixService:
 
         try:
             logger.info(f"Searching Yggflix for movie: {media.titles[0]}")
-            return self.yggflix.get_movie_torrents(media.id)
+            # media_id = media.id[2:] if media.id.startswith("tt") else media.id
+            return self.yggflix.get_movie_torrents(media.tmdb_id)
         except Exception as e:
             logger.error(
                 f"Error searching Yggflix for movie: {media.titles[0]}", exc_info=True
@@ -72,7 +75,8 @@ class YggflixService:
 
         try:
             logger.info(f"Searching Yggflix for series: {media.titles[0]}")
-            return self.yggflix.get_tvshow_torrents(media.id)
+            # media_id = media.id[2:] if media.id.startswith("tt") else media.id
+            return self.yggflix.get_tvshow_torrents(int(media.tmdb_id))
         except Exception as e:
             logger.error(
                 f"Error searching Yggflix for series: {media.titles[0]}", exc_info=True
@@ -92,21 +96,22 @@ class YggflixService:
 
         items = []
         for result in results:
-            item = YggflixResult(
-                raw_title=result.get("title", ""),
-                size=result.get("size", 0),
-                link=(
-                    self.__process_download_link(result.get("id"))
-                    if result.get("id")
-                    else None
-                ),
-                indexer="API - Yggtorrent",
-                seeders=result.get("seeders", 0),
-                privacy="private",
-                languages=detect_languages(result.get("title", "")),
-                type=media.type,
-                parsed_data=parse(result.get("title", "")),
+            item = YggflixResult()
+
+            item.raw_title=result["title"]
+            item.size=result.get("size", 0)
+            item.link=(
+                self.__process_download_link(result.get("id"))
+                if result.get("id")
+                else None
             )
+            item.indexer="API - Yggtorrent"
+            item.seeders=result.get("seeders", 0)
+            item.privacy="private"
+            item.languages=detect_languages(item.raw_title)
+            item.type=media.type
+            item.parsed_data=parse(item.raw_title)
+
             items.append(item)
 
         return items

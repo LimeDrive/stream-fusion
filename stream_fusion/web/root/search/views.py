@@ -16,6 +16,8 @@ from stream_fusion.utils.filter_results import (
 )
 from stream_fusion.utils.jackett.jackett_result import JackettResult
 from stream_fusion.utils.jackett.jackett_service import JackettService
+from stream_fusion.utils.yggfilx.yggflix_result import YggflixResult
+from stream_fusion.utils.yggfilx.yggflix_service import YggflixService
 from stream_fusion.utils.metdata.cinemeta import Cinemeta
 from stream_fusion.utils.metdata.tmdb import TMDB
 from stream_fusion.utils.models.movie import Movie
@@ -162,6 +164,27 @@ async def get_results(
                         zilean_search_results
                     )
                     search_results = merge_items(search_results, zilean_search_results)
+
+            if config["yggflix"] and len(search_results) < int(
+                config["minCachedResults"]
+            ):
+                yggflix_service = YggflixService(config)
+                yggflix_search_results = yggflix_service.search(media)
+                if yggflix_search_results:
+                    logger.info(
+                        f"Found {len(yggflix_search_results)} results from YggFlix"
+                    )
+                    # yggflix_search_results = [
+                    #     YggflixResult().convert_to_torrent_item(torrent)
+                    #     for torrent in yggflix_search_results
+                    # ]
+                    yggflix_search_results = filter_items(
+                        yggflix_search_results, media, config=config
+                    )
+                    yggflix_search_results = torrent_service.convert_and_process(
+                        yggflix_search_results
+                    )
+                    search_results = merge_items(search_results, yggflix_search_results)
 
             if config["jackett"] and len(search_results) < int(
                 config["minCachedResults"]

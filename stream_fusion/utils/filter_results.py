@@ -183,23 +183,26 @@ def sort_items(items, config):
 def merge_items(
     cache_items: List[TorrentItem], search_items: List[TorrentItem]
 ) -> List[TorrentItem]:
+    # Log the number of items being merged
     logger.info(
         f"Merging cached items ({len(cache_items)}) and search items ({len(search_items)})"
     )
     merged_dict = {}
 
     def add_to_merged(item):
-        if item.raw_title not in merged_dict:
-            merged_dict[item.raw_title] = item
-        else:
-            if item.seeders > merged_dict[item.raw_title].seeders:
-                merged_dict[item.raw_title] = item
+        key = (item.info_hash, item.size)
+        if key not in merged_dict or item.seeders > merged_dict[key].seeders:
+            merged_dict[key] = item
 
+    # Process cache items
     for item in cache_items:
         add_to_merged(item)
+    # Process search items
     for item in search_items:
         add_to_merged(item)
 
+    # Convert the dictionary values to a list
     merged_items = list(merged_dict.values())
+    # Log the total number of unique items after merging
     logger.info(f"Merging complete. Total unique items: {len(merged_items)}")
     return merged_items

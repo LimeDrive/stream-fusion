@@ -4,6 +4,7 @@ from stream_fusion.utils.metdata.metadata_provider_base import MetadataProvider
 from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
 from stream_fusion.settings import settings
+from stream_fusion.logging_config import logger
 
 class TMDB(MetadataProvider):
     def get_metadata(self, id, type):
@@ -17,11 +18,13 @@ class TMDB(MetadataProvider):
             url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={settings.tmdb_api_key}&external_source=imdb_id&language={lang}"
             response = requests.get(url)
             data = response.json()
+            logger.debug(data)
 
             if lang == self.config['languages'][0]:
                 if type == "movie":
                     result = Movie(
                         id=id,
+                        tmdb_id=data["movie_results"][0]["id"],
                         titles=[self.replace_weird_characters(data["movie_results"][0]["title"])],
                         year=data["movie_results"][0]["release_date"][:4],
                         languages=self.config['languages']
@@ -29,6 +32,7 @@ class TMDB(MetadataProvider):
                 else:
                     result = Series(
                         id=id,
+                        tmdb_id = data["movie_results"][0]["id"],
                         titles=[self.replace_weird_characters(data["tv_results"][0]["name"])],
                         season="S{:02d}".format(int(full_id[1])),
                         episode="E{:02d}".format(int(full_id[2])),

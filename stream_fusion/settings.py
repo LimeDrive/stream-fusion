@@ -58,9 +58,12 @@ class Settings(BaseSettings):
     zilean_max_workers: int = 4
     # YGGTORRENT
     ygg_url: str = "https://ygg.re"
-    ygg_user: str = "Users@StreamFusion"
-    ygg_pass: str = "PassForTest"
-    ygg_passkey: str = "mTCw9hPXVHVbGAGgIK71pm9jrzAoPtD3"
+    ygg_user: str | None = None
+    ygg_pass: str | None = None
+    ygg_passkey: str | None = None
+    ygg_lime_fix: bool = True
+    ygg_proxy_url: str | None = None
+    ygg_proxy_apikey: str | None = None
     yggflix_url: str = "https://yggflix.fr"
     yggflix_max_workers: int = 4
     # PUBLIC_CACHE

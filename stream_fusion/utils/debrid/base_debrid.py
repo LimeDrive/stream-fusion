@@ -96,6 +96,11 @@ class BaseDebrid:
             ygg_session = self.__ygg_session_manager.get_or_create_session()
             response = ygg_session.get(download_url)
             response.raise_for_status()
+        elif download_url.startswith(settings.ygg_proxy_url):
+            headers = {'accept': 'application/json',
+                       'api-key': settings.ygg_proxy_apikey}
+            response = requests.get(download_url, headers=headers)
+            response.raise_for_status()
         else:
             response = requests.get(download_url)
             response.raise_for_status()
