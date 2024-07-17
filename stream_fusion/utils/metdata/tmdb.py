@@ -32,7 +32,7 @@ class TMDB(MetadataProvider):
                 else:
                     result = Series(
                         id=id,
-                        tmdb_id = data["movie_results"][0]["id"],
+                        tmdb_id = data["tv_results"][0]["id"],
                         titles=[self.replace_weird_characters(data["tv_results"][0]["name"])],
                         season="S{:02d}".format(int(full_id[1])),
                         episode="E{:02d}".format(int(full_id[2])),
