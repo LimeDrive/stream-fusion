@@ -4,6 +4,8 @@ import time
 import requests
 
 from stream_fusion.logging_config import logger
+from stream_fusion.settings import settings
+from stream_fusion.services.ygg_conn import YggSessionManager
 
 
 class BaseDebrid:
@@ -11,6 +13,7 @@ class BaseDebrid:
         self.config = config
         self.logger = logger
         self.__session = requests.Session()
+        self.__ygg_session_manager = YggSessionManager(config)
         
         # Limiteurs de débit
         self.global_limit = 250
@@ -89,8 +92,18 @@ class BaseDebrid:
         return False
 
     def donwload_torrent_file(self, download_url):
-        response = requests.get(download_url)
-        response.raise_for_status()
+        if download_url.startswith(settings.ygg_url):
+            ygg_session = self.__ygg_session_manager.get_or_create_session()
+            response = ygg_session.get(download_url)
+            response.raise_for_status()
+        elif download_url.startswith(settings.ygg_proxy_url):
+            headers = {'accept': 'application/json',
+                       'api-key': settings.ygg_proxy_apikey}
+            response = requests.get(download_url, headers=headers)
+            response.raise_for_status()
+        else:
+            response = requests.get(download_url)
+            response.raise_for_status()
 
         return response.content
 

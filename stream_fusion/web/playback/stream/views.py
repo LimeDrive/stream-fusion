@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi_simple_rate_limiter import rate_limiter
 from fastapi_simple_rate_limiter.database import create_redis_session
 
-from stream_fusion.services.redis.redis_config import get_redis_dependency
+from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
 from stream_fusion.settings import settings
@@ -112,16 +112,16 @@ async def get_playback(
     config: str,
     query: str,
     request: Request,
-    redis_cache: RedisCache = Depends(get_redis_dependency),
+    redis_cache: RedisCache = Depends(get_redis_cache_dependency),
 ):
     try:
         config = parse_config(config)
         api_key = config.get("apiKey")
-        if api_key:
-            await check_api_key(api_key)
-        else:
+        if not api_key:
             logger.warning("API key not found in config.")
             raise HTTPException(status_code=401, detail="API key not found in config.")
+
+        await check_api_key(api_key)
 
         if not query:
             raise HTTPException(status_code=400, detail="Query required.")
@@ -136,57 +136,61 @@ async def get_playback(
             if lock.acquire(blocking=False):
                 link = get_stream_link(decoded_query, config, ip, redis_cache)
             else:
-                await asyncio.sleep(10)
                 cache_key = f"stream_link:{decoded_query}_{ip}"
-                cached_link = redis_cache.get(cache_key)
-                if cached_link:
-                    link = cached_link
+                for _ in range(30):
+                    await asyncio.sleep(1)
+                    cached_link = redis_cache.get(cache_key)
+                    if cached_link:
+                        link = cached_link
+                        break
                 else:
                     raise HTTPException(
                         status_code=503,
                         detail="Service temporarily unavailable. Please try again.",
                     )
-
-            range_header = request.headers.get("Range")
-            headers = {}
-            if range_header:
-                headers["Range"] = range_header
-
-            proxy = None  # Not yet implemented
-
-            async with request.app.state.http_session.get(
-                link, headers=headers, proxy=proxy
-            ) as response:
-                if response.status == 206:
-                    return StreamingResponse(
-                        proxy_stream(request, link, headers, proxy, max_retries=3),
-                        status_code=206,
-                        headers={
-                            "Content-Range": response.headers["Content-Range"],
-                            "Content-Length": response.headers["Content-Length"],
-                            "Accept-Ranges": "bytes",
-                            "Content-Type": "video/mp4",
-                        },
-                    )
-                elif response.status == 200:
-                    return StreamingResponse(
-                        proxy_stream(request, link, headers, proxy, max_retries=3),
-                        headers={
-                            "Content-Type": "video/mp4",
-                            "Accept-Ranges": "bytes",
-                        },
-                    )
-                else:
-                    return RedirectResponse(link, status_code=302)
-
         finally:
             try:
                 lock.release()
             except LockError:
                 pass
 
+        headers = {}
+        range_header = request.headers.get("range")
+        if range_header and "=" in range_header:
+            range_value = range_header.strip().split("=")[1]
+            range_parts = range_value.split("-")
+            
+            start = int(range_parts[0]) if range_parts[0] else 0
+            
+            if len(range_parts) > 1 and range_parts[1]:
+                end = int(range_parts[1])
+                range_str = f"bytes={start}-{end}"
+            else:
+                range_str = f"bytes={start}-"
+            
+            headers["Range"] = range_str
+
+        proxy = None  # Not yet implemented
+
+        async with request.app.state.http_session.get(
+            link, headers=headers, proxy=proxy
+        ) as response:
+            stream_headers = {
+                "Content-Type": "video/mp4",
+                "Accept-Ranges": "bytes",
+            }
+
+            if response.status == 206:
+                stream_headers["Content-Range"] = response.headers["Content-Range"]
+
+            return StreamingResponse(
+                proxy_stream(request, link, headers, proxy, max_retries=3),
+                status_code=response.status,
+                headers=stream_headers,
+            )
+
     except Exception as e:
-        logger.error(f"Playback error: {e}")
+        logger.error(f"Playback error: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=ErrorResponse(
@@ -204,7 +208,7 @@ async def head_playback(
     config: str,
     query: str,
     request: Request,
-    redis_cache: RedisCache = Depends(get_redis_dependency),
+    redis_cache: RedisCache = Depends(get_redis_cache_dependency),
 ):
     try:
         config = parse_config(config)

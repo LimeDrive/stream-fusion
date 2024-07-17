@@ -4,194 +4,122 @@ const languages = ['en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'in', 'nl', 'hu', '
 
 document.addEventListener('DOMContentLoaded', function () {
     updateProviderFields();
+    loadData();
 });
 
 function setElementDisplay(elementId, displayStatus) {
     const element = document.getElementById(elementId);
-    if (!element) {
-        return;
-    }
-    element.style.display = displayStatus;
-}
-
-function updateProviderFields(isChangeEvent = false) {
-    if (document.getElementById('debrid').checked) {
-        setElementDisplay('debrid-fields', 'block');
-    } else {
-        setElementDisplay('debrid-fields', 'none');
-    }
-    if (document.getElementById('cache')?.checked) {
-        setElementDisplay('cache-fields', 'block');
-    } else {
-        setElementDisplay('cache-fields', 'none');
+    if (element) {
+        element.style.display = displayStatus;
     }
 }
 
-// document.getElementById('service').addEventListener('change', function() {
-//     updateProviderFields(true);
-// });
+function updateProviderFields() {
+    setElementDisplay('debrid-fields', document.getElementById('debrid').checked ? 'block' : 'none');
+    setElementDisplay('cache-fields', document.getElementById('cache')?.checked ? 'block' : 'none');
+    setElementDisplay('ygg-fields', document.getElementById('yggflix')?.checked ? 'block' : 'none');
+}
 
 function loadData() {
     const currentUrl = window.location.href;
     let data = currentUrl.match(/\/([^\/]+)\/configure$/);
     if (data && data[1].startsWith("ey")) {
-        data = atob(data[1]);
-        data = JSON.parse(data);
-        if (document.getElementById('jackett')) {
+        try {
+            // Decrypt data from URL
+            const decryptedData = CryptoJS.AES.decrypt(atob(data[1]), secretApiKey).toString(CryptoJS.enc.Utf8);
+            data = JSON.parse(decryptedData);
+            
+            // Fill form fields with decrypted data
             document.getElementById('jackett').checked = data.jackett;
-        }
-        if (document.getElementById('cache')) {
             document.getElementById('cache').checked = data.cache;
-        }
-        if (document.getElementById('cache-fields')) {
             document.getElementById('cacheUrl').value = data.cacheUrl;
-        }
-        if (document.getElementById('zilean')) {
             document.getElementById('zilean').checked = data.zilean;
+            document.getElementById('yggflix').checked = data.yggflix;
+            document.getElementById('debrid_api_key').value = data.debridKey;
+            document.getElementById('yggPasskey').value = data.yggPasskey;
+            document.getElementById('yggUsername').value = data.yggUsername;
+            document.getElementById('yggPassword').value = data.yggPassword;
+            document.getElementById('service').value = data.service;
+            document.getElementById('exclusion-keywords').value = (data.exclusionKeywords || []).join(', ');
+            document.getElementById('maxSize').value = data.maxSize;
+            document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
+            document.getElementById('maxResults').value = data.maxResults;
+            document.getElementById('minCachedResults').value = data.minCachedResults;
+            document.getElementById('torrenting').checked = data.torrenting;
+            document.getElementById('debrid').checked = data.debrid;
+            document.getElementById('tmdb').checked = data.metadataProvider === 'tmdb';
+            document.getElementById('cinemeta').checked = data.metadataProvider === 'cinemeta';
+
+            sorts.forEach(sort => {
+                document.getElementById(sort).checked = data.sort === sort;
+            });
+
+            qualityExclusions.forEach(quality => {
+                document.getElementById(quality).checked = data.exclusion.includes(quality);
+            });
+
+            languages.forEach(language => {
+                document.getElementById(language).checked = data.languages.includes(language);
+            });
+
+            updateProviderFields();
+        } catch (error) {
+            console.error("Error decrypting data:", error);
         }
-        document.getElementById('debrid_api_key').value = data.debridKey;
-        document.getElementById('service').value = data.service;
-        document.getElementById('exclusion-keywords').value = (data.exclusionKeywords || []).join(', ');
-        document.getElementById('maxSize').value = data.maxSize;
-        document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
-        document.getElementById('maxResults').value = data.maxResults;
-        document.getElementById('minCachedResults').value = data.minCachedResults;
-        document.getElementById('torrenting').checked = data.torrenting;
-        document.getElementById('debrid').checked = data.debrid;
-        document.getElementById('tmdb').checked = data.metadataProvider === 'tmdb';
-        document.getElementById('cinemeta').checked = data.metadataProvider === 'cinemeta';
-
-        sorts.forEach(sort => {
-            if (data.sort === sort) {
-                document.getElementById(sort).checked = true;
-            }
-        });
-
-        qualityExclusions.forEach(quality => {
-            if (data.exclusion.includes(quality)) {
-                document.getElementById(quality).checked = true;
-            }
-        })
-
-        languages.forEach(language => {
-            if (data.languages.includes(language)) {
-                document.getElementById(language).checked = true;
-            }
-        });
-
     }
 }
-
-let showLanguageCheckBoxes = true;
-
-function showCheckboxes() {
-    let checkboxes = document.getElementById("languageCheckBoxes");
-
-    if (showLanguageCheckBoxes) {
-        checkboxes.style.display = "block";
-        showLanguageCheckBoxes = false;
-    } else {
-        checkboxes.style.display = "none";
-        showLanguageCheckBoxes = true;
-    }
-}
-
-loadData();
 
 function getLink(method) {
-    const addonHost = new URL(window.location.href).protocol.replace(':', '') + "://" + new URL(window.location.href).host
-    const apiKey = document.getElementById('ApiKey').value;
-    const debridApi = document.getElementById('debrid_api_key').value;
-    const cacheUrl = document.getElementById('cacheUrl').value;
-    const service = document.getElementById('service').value;
-    const exclusionKeywords = document.getElementById('exclusion-keywords').value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword !== '');
-    let maxSize = document.getElementById('maxSize').value;
-    let resultsPerQuality = document.getElementById('resultsPerQuality').value;
-    let maxResults = document.getElementById('maxResults').value;
-    let minCachedResults = document.getElementById('minCachedResults').value;
-    const jackett = document.getElementById('jackett')?.checked;
-    const cache = document.getElementById('cache')?.checked;
-    const zilean = document.getElementById('zilean')?.checked;
-    const torrenting = document.getElementById('torrenting').checked;
-    const debrid = document.getElementById('debrid').checked;
-    const metadataProvider = document.getElementById('tmdb').checked ? 'tmdb' : 'cinemeta';
-    const selectedQualityExclusion = [];
-
-    qualityExclusions.forEach(quality => {
-        console.log(quality, document.getElementById(quality).checked);
-        if (document.getElementById(quality).checked) {
-            selectedQualityExclusion.push(quality);
-        }
-    });
-
-    const selectedLanguages = [];
-    languages.forEach(language => {
-        if (document.getElementById(language).checked) {
-            selectedLanguages.push(language);
-        }
-    });
-
-    let filter;
-    sorts.forEach(sort => {
-        if (document.getElementById(sort).checked) {
-            filter = sort;
-        }
-    });
-
-    if (maxSize === '' || isNaN(maxSize)) {
-        maxSize = 16;
-    }
-    if (maxResults === '' || isNaN(maxResults)) {
-        maxResults = 5;
-    }
-    if (resultsPerQuality === '' || isNaN(resultsPerQuality)) {
-        resultsPerQuality = 5;
-    }
-    if (minCachedResults === '' || isNaN(minCachedResults)) {
-        minCachedResults = 5;
-    }
-    let data = {
-        addonHost,
-        apiKey,
-        service,
-        'debridKey': debridApi,
-        maxSize,
-        exclusionKeywords,
-        'languages': selectedLanguages,
-        'sort': filter,
-        resultsPerQuality,
-        maxResults,
-        minCachedResults,
-        'exclusion': selectedQualityExclusion,
-        cacheUrl,
-        jackett,
-        cache,
-        zilean,
-        torrenting,
-        debrid,
-        metadataProvider
+    const data = {
+        addonHost: new URL(window.location.href).origin,
+        apiKey: document.getElementById('ApiKey').value,
+        service: document.getElementById('service').value,
+        debridKey: document.getElementById('debrid_api_key').value,
+        maxSize: parseInt(document.getElementById('maxSize').value) || 16,
+        exclusionKeywords: document.getElementById('exclusion-keywords').value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword !== ''),
+        languages: languages.filter(lang => document.getElementById(lang).checked),
+        sort: sorts.find(sort => document.getElementById(sort).checked),
+        resultsPerQuality: parseInt(document.getElementById('resultsPerQuality').value) || 5,
+        maxResults: parseInt(document.getElementById('maxResults').value) || 5,
+        minCachedResults: parseInt(document.getElementById('minCachedResults').value) || 5,
+        exclusion: qualityExclusions.filter(quality => document.getElementById(quality).checked),
+        cacheUrl: document.getElementById('cacheUrl').value,
+        jackett: document.getElementById('jackett')?.checked,
+        cache: document.getElementById('cache')?.checked,
+        zilean: document.getElementById('zilean')?.checked,
+        yggflix: document.getElementById('yggflix')?.checked,
+        yggUsername: document.getElementById('yggUsername')?.value,
+        yggPassword: document.getElementById('yggPassword')?.value,
+        yggPasskey: document.getElementById('yggPasskey')?.value,
+        torrenting: document.getElementById('torrenting').checked,
+        debrid: document.getElementById('debrid').checked,
+        metadataProvider: document.getElementById('tmdb').checked ? 'tmdb' : 'cinemeta'
     };
-    if ((cache && (cacheUrl === '')) || (debrid && debridApi === '') || languages.length === 0 || (apiKey === '')) {
+
+    // Check if all required fields are filled
+    if ((data.cache && !data.cacheUrl) || (data.debrid && !data.debridKey) || data.languages.length === 0 || !data.apiKey || (data.yggflix && (!data.yggPasskey || !data.yggUsername || !data.yggPassword))) {
         alert('Please fill all required fields');
         return false;
     }
-    let stremio_link = `${window.location.host}/${btoa(JSON.stringify(data))}/manifest.json`;
+
+    const encodedData = btoa(JSON.stringify(data));
+    const stremio_link = `${window.location.host}/${encodedData}/manifest.json`;
 
     if (method === 'link') {
         window.open(`stremio://${stremio_link}`, "_blank");
     } else if (method === 'copy') {
         const link = window.location.protocol + '//' + stremio_link;
-
-        if (!navigator.clipboard) {
-            alert('Your browser does not support clipboard');
-            console.log(link);
-            return;
-        }
-
         navigator.clipboard.writeText(link).then(() => {
             alert('Link copied to clipboard');
         }, () => {
             alert('Error copying link to clipboard');
         });
     }
+}
+
+let showLanguageCheckBoxes = true;
+function showCheckboxes() {
+    let checkboxes = document.getElementById("languageCheckBoxes");
+    checkboxes.style.display = showLanguageCheckBoxes ? "block" : "none";
+    showLanguageCheckBoxes = !showLanguageCheckBoxes;
 }

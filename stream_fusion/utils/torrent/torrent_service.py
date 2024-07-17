@@ -11,24 +11,35 @@ from RTN import parse
 
 from stream_fusion.utils.jackett.jackett_result import JackettResult
 from stream_fusion.utils.zilean.zilean_result import ZileanResult
+from stream_fusion.utils.yggfilx.yggflix_result import YggflixResult
+from stream_fusion.services.ygg_conn import YggSessionManager
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.utils.general import get_info_hash_from_magnet
 from stream_fusion.logging_config import logger
+from stream_fusion.settings import settings
 
 class TorrentService:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.logger = logger
         self.__session = requests.Session()
+        # if self.config["yggflix"]:
+        #     self.__ygg_session_manager = YggSessionManager(config)
+        #     self.__ygg_session = self.__ygg_session_manager.get_session()
 
-    def convert_and_process(self, results: List[JackettResult | ZileanResult]):
+    def convert_and_process(self, results: List[JackettResult | ZileanResult | YggflixResult]):
         threads = []
         torrent_items_queue = queue.Queue()
 
-        def thread_target(result: JackettResult | ZileanResult):
+        def thread_target(result: JackettResult | ZileanResult | YggflixResult):
             torrent_item = result.convert_to_torrent_item()
 
             if torrent_item.link.startswith("magnet:"):
                 processed_torrent_item = self.__process_magnet(torrent_item)
+            # elif torrent_item.link.startswith(settings.ygg_url):
+            #     processed_torrent_item = self.__process_ygg_web_url(torrent_item)
+            elif torrent_item.link.startswith(settings.ygg_proxy_url):
+                processed_torrent_item = self.__process_ygg_proxy_url(torrent_item)
             else:
                 processed_torrent_item = self.__process_web_url(torrent_item)
 
@@ -49,12 +60,57 @@ class TorrentService:
             torrent_items_result.append(torrent_items_queue.get())
 
         return torrent_items_result
+    
+    def __process_ygg_web_url(self, result: TorrentItem):
+        if not self.config["yggflix"]:
+            logger.error("Yggflix is not enabled in the config. Skipping processing of Yggflix URL.")
+        try:
+            response = self.__ygg_session.get(result.link, allow_redirects=False, timeout=40)
+        except requests.exceptions.RequestException:
+            self.logger.error(f"Error while processing url: {result.link}")
+            return result
+        except requests.exceptions.ReadTimeout:
+            self.logger.error(f"Timeout while processing url: {result.link}")
+            return result
+        
+        if response.status_code == 200:
+            return self.__process_torrent(result, response.content)
+        else:
+            self.logger.error(f"Error code {response.status_code} while processing ygg url: {result.link}")
+
+        return result
+    
+
+    def __process_ygg_proxy_url(self, result: TorrentItem): 
+        if not self.config["yggflix"]:
+            logger.error("Yggflix is not enabled in the config. Skipping processing of Yggflix URL.")
+
+
+        try:
+            headers = {
+                'accept': 'application/json',
+                'api-key': settings.ygg_proxy_apikey
+                }
+            response = self.__session.get(result.link, allow_redirects=False, timeout=20, headers=headers)
+            time.sleep(0.3) # Add a delay of 0.3 seconds between requests faire usage for small VPS
+        except requests.exceptions.RequestException:
+            self.logger.error(f"Error while processing url: {result.link}")
+            return result
+        except requests.exceptions.ReadTimeout:
+            self.logger.error(f"Timeout while processing url: {result.link}")
+            return result
+        
+        if response.status_code == 200:
+            return self.__process_torrent(result, response.content)
+        else:
+            self.logger.error(f"Error code {response.status_code} while processing ygg url: {result.link}")
+
+        return result
 
     def __process_web_url(self, result: TorrentItem):
         try:
-            # TODO: is the timeout enough?
             time.sleep(0.2)
-            response = self.__session.get(result.link, allow_redirects=False, timeout=40)
+            response = self.__session.get(result.link, allow_redirects=False, timeout=40) # flaresolverr and Jackett timeouts
         except requests.exceptions.RequestException:
             self.logger.error(f"Error while processing url: {result.link}")
             return result
