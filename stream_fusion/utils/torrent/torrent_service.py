@@ -91,7 +91,7 @@ class TorrentService:
                 'accept': 'application/json',
                 'api-key': settings.ygg_proxy_apikey
                 }
-            response = self.__session.get(result.link, allow_redirects=False, timeout=20, headers=headers)
+            response = self.__session.get(result.link, timeout=20, headers=headers)
             time.sleep(0.1) # Add a delay of 0.1 seconds between requests faire usage for small VPS
         except requests.exceptions.RequestException:
             self.logger.error(f"Error while processing url: {result.link}")
