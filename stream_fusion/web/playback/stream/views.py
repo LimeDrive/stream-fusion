@@ -1,12 +1,11 @@
 import redis
 import asyncio
-from functools import lru_cache
-import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from redis.exceptions import LockError
 from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi_simple_rate_limiter import rate_limiter
 from fastapi_simple_rate_limiter.database import create_redis_session
+from starlette.background import BackgroundTask
 
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.local_redis import RedisCache
@@ -29,49 +28,29 @@ redis_client = redis.Redis(host=settings.redis_host, port=settings.redis_port)
 redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port)
 
 
-@lru_cache(maxsize=128)
-def get_adaptive_chunk_size(file_size):
-    MB = 1024 * 1024
-    GB = 1024 * MB
+class ProxyStreamer:
+    def __init__(self, request: Request, url: str, headers: dict):
+        self.request = request
+        self.url = url
+        self.headers = headers
+        self.response = None
 
-    if file_size < 1 * GB:
-        chunk_size = 1 * MB
-    elif file_size < 3 * GB:
-        chunk_size = 2 * MB
-    elif file_size < 9 * GB:
-        chunk_size = 5 * MB
-    elif file_size < 20 * GB:
-        chunk_size = 10 * MB
-    else:
-        chunk_size = 20 * MB
-    return chunk_size
+    async def stream_content(self):
+        async with self.request.app.state.http_session.get(
+            self.url, headers=self.headers
+        ) as self.response:
+            async for chunk in self.response.content.iter_any():
+                yield chunk
 
-async def proxy_stream(request: Request, url: str, headers: dict, max_retries: int = 3):
-    logger.debug(f"Starting proxy_stream for URL: {url}")
-    for attempt in range(max_retries):
-        try:
-            logger.debug(f"Attempt {attempt + 1} to get content from URL")
-            async with request.app.state.http_session.get(url, headers=headers) as response:
-                file_size = int(response.headers.get("Content-Length", 0))
-                chunk_size = get_adaptive_chunk_size(file_size)
+    async def close(self):
+        if self.response:
+            await self.response.release()
+        logger.debug("Streaming connection closed")
 
-                async for chunk in response.content.iter_chunked(chunk_size): 
-                    # iter_chunked is will return max size chunk, 
-                    # but if chunk send by the server is less than chunk_size, 
-                    # it will return that size.
-                    yield chunk
-                return
-        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
-            logger.warning(f"Connection error (attempt {attempt + 1}): {str(e)}")
-            if attempt == max_retries - 1:
-                logger.error("Max retries reached, raising exception")
-                raise
-            await asyncio.sleep(2**attempt)
 
-    logger.error(f"Failed after {max_retries} attempts")
-    raise Exception(f"Failed after {max_retries} attempts")
-
-def get_stream_link(decoded_query: str, config: dict, ip: str, redis_cache: RedisCache) -> str:
+def get_stream_link(
+    decoded_query: str, config: dict, ip: str, redis_cache: RedisCache
+) -> str:
     logger.debug(f"Getting stream link for query: {decoded_query}, IP: {ip}")
     cache_key = f"stream_link:{decoded_query}_{ip}"
 
@@ -91,6 +70,7 @@ def get_stream_link(decoded_query: str, config: dict, ip: str, redis_cache: Redi
     else:
         logger.debug("Stream link not cached (NO_CACHE_VIDEO_URL)")
     return link
+
 
 @router.get("/{config}/{query}", responses={500: {"model": ErrorResponse}})
 @rate_limiter(limit=20, seconds=60, redis=redis_session)
@@ -150,7 +130,9 @@ async def get_playback(
 
         if not settings.proxied_link:
             logger.debug(f"Redirecting to non-proxied link: {link}")
-            return RedirectResponse(url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY)
+            return RedirectResponse(
+                url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY
+            )
 
         logger.debug("Preparing to proxy stream")
         headers = {}
@@ -159,20 +141,17 @@ async def get_playback(
             logger.debug(f"Range header found: {range_header}")
             range_value = range_header.strip().split("=")[1]
             range_parts = range_value.split("-")
-
             start = int(range_parts[0]) if range_parts[0] else 0
-
-            if len(range_parts) > 1 and range_parts[1]:
-                end = int(range_parts[1])
-                range_str = f"bytes={start}-{end}"
-            else:
-                range_str = f"bytes={start}-"
-
-            headers["Range"] = range_str
+            end = int(range_parts[1]) if len(range_parts) > 1 and range_parts[1] else ""
+            headers["Range"] = f"bytes={start}-{end}"
             logger.debug(f"Range header set: {headers['Range']}")
 
+        streamer = ProxyStreamer(request, link, headers)
+
         logger.debug(f"Initiating request to: {link}")
-        async with request.app.state.http_session.get(link, headers=headers) as response:
+        async with request.app.state.http_session.head(
+            link, headers=headers
+        ) as response:
             logger.debug(f"Response status: {response.status}")
             stream_headers = {
                 "Content-Type": "video/mp4",
@@ -195,9 +174,10 @@ async def get_playback(
 
             logger.debug("Preparing streaming response")
             return StreamingResponse(
-                proxy_stream(request, link, headers, max_retries=3),
-                status_code=response.status,
+                streamer.stream_content(),
+                status_code=206 if "Range" in headers else 200,
                 headers=stream_headers,
+                background=BackgroundTask(streamer.close),
             )
 
     except Exception as e:
@@ -249,6 +229,11 @@ async def head_playback(
         for _ in range(30):
             if redis_cache.exists(cache_key):
                 link = redis_cache.get(cache_key)
+
+                if (
+                    not settings.proxied_link
+                ):  # advoid send HEAD request if link are send directly
+                    return Response(status_code=status.HTTP_200_OK, headers=headers)
 
                 async with request.app.state.http_session.head(link) as response:
                     if response.status == 200:

@@ -174,10 +174,6 @@ async def get_results(
                     logger.info(
                         f"Found {len(yggflix_search_results)} results from YggFlix"
                     )
-                    # yggflix_search_results = [
-                    #     YggflixResult().convert_to_torrent_item(torrent)
-                    #     for torrent in yggflix_search_results
-                    # ]
                     yggflix_search_results = filter_items(
                         yggflix_search_results, media, config=config
                     )
