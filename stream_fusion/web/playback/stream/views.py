@@ -46,40 +46,23 @@ def get_adaptive_chunk_size(file_size):
         return 20 * MB  # 20 MB
 
 
-async def proxy_stream(
-    request: Request, url: str, headers: dict, proxy: str = None, max_retries: int = 3
-):
-    """
-    Stream content from the given URL with retry logic.
-    """
+async def proxy_stream(request: Request, url: str, headers: dict, max_retries: int = 3):
     for attempt in range(max_retries):
         try:
             async with request.app.state.http_session.get(
-                url, headers=headers, proxy=proxy
+                url, headers=headers
             ) as response:
                 file_size = int(response.headers.get("Content-Length", 0))
                 chunk_size = get_adaptive_chunk_size(file_size)
-                while True:
-                    try:
-                        chunk = await response.content.read(chunk_size)
-                        if not chunk:
-                            break
-                        yield chunk
-                    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
-                        logger.warning(
-                            f"Chunk read error (attempt {attempt + 1}): {str(e)}"
-                        )
-                        if attempt == max_retries - 1:
-                            raise
-                        await asyncio.sleep(2**attempt)  # Exponential backoff
-                        break  # Exit the read loop to retry the connection
-                else:
-                    return  # Exit the function if everything went well
+
+                async for chunk in response.content.iter_chunked(chunk_size):
+                    yield chunk
+                return
         except (aiohttp.ClientError, asyncio.TimeoutError) as e:
             logger.warning(f"Connection error (attempt {attempt + 1}): {str(e)}")
             if attempt == max_retries - 1:
                 raise
-            await asyncio.sleep(2**attempt)  # Exponential backoff
+            await asyncio.sleep(2**attempt)
 
     raise Exception(f"Failed after {max_retries} attempts")
 
@@ -154,37 +137,49 @@ async def get_playback(
             except LockError:
                 pass
 
+        if not settings.proxied_link:
+            return RedirectResponse(
+                url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY
+            )
+
         headers = {}
         range_header = request.headers.get("range")
         if range_header and "=" in range_header:
             range_value = range_header.strip().split("=")[1]
             range_parts = range_value.split("-")
-            
+
             start = int(range_parts[0]) if range_parts[0] else 0
-            
+
             if len(range_parts) > 1 and range_parts[1]:
                 end = int(range_parts[1])
                 range_str = f"bytes={start}-{end}"
             else:
                 range_str = f"bytes={start}-"
-            
+
             headers["Range"] = range_str
 
-        proxy = None  # Not yet implemented
-
         async with request.app.state.http_session.get(
-            link, headers=headers, proxy=proxy
+            link, headers=headers
         ) as response:
             stream_headers = {
                 "Content-Type": "video/mp4",
                 "Accept-Ranges": "bytes",
+                "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+                "Pragma": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Disposition": "inline",
+                "Access-Control-Allow-Origin": "*",
             }
 
             if response.status == 206:
                 stream_headers["Content-Range"] = response.headers["Content-Range"]
 
+            stream_headers["Content-Length"] = response.headers.get("Content-Length")
+            stream_headers["ETag"] = response.headers.get("ETag")
+            stream_headers["Last-Modified"] = response.headers.get("Last-Modified")
+
             return StreamingResponse(
-                proxy_stream(request, link, headers, proxy, max_retries=3),
+                proxy_stream(request, link, headers, max_retries=3),
                 status_code=response.status,
                 headers=stream_headers,
             )
@@ -202,7 +197,7 @@ async def get_playback(
 @router.head(
     "/{config}/{query}",
     response_model=HeadResponse,
-    responses={500: {"model": ErrorResponse}},
+    responses={500: {"model": ErrorResponse}, 202: {"model": None}},
 )
 async def head_playback(
     config: str,
@@ -223,14 +218,34 @@ async def head_playback(
             raise HTTPException(status_code=400, detail="Query required.")
         decoded_query = decodeb64(query)
         ip = request.client.host
-
         cache_key = f"stream_link:{decoded_query}_{ip}"
 
-        if redis_cache.exists(cache_key):
-            return Response(status_code=status.HTTP_200_OK)
-        else:
-            await asyncio.sleep(0.4)
-            return Response(status_code=status.HTTP_200_OK)
+        headers = {
+            "Content-Type": "video/mp4",
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+        }
+
+        max_attempts = 10
+        for _ in range(max_attempts):
+            if redis_cache.exists(cache_key):
+                link = redis_cache.get(cache_key)
+
+                async with request.app.state.http_session.head(link) as response:
+                    if response.status == 200:
+                        headers["Content-Length"] = response.headers.get(
+                            "Content-Length", "0"
+                        )
+                        return Response(status_code=status.HTTP_200_OK, headers=headers)
+
+            await asyncio.sleep(0.5)
+
+        return Response(status_code=status.HTTP_202_ACCEPTED, headers=headers)
+
     except Exception as e:
         logger.error(f"HEAD request error: {e}")
         return Response(
