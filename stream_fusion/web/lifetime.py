@@ -19,7 +19,7 @@ def register_startup_event(
         proxy_url = settings.playback_proxy
         if proxy_url:
             parsed_url = URL(proxy_url)
-            if parsed_url.scheme in ('socks5', 'socks4'):
+            if parsed_url.scheme in ('socks5', 'socks5h', 'socks4'):
                 connector = ProxyConnector.from_url(proxy_url, limit=100, limit_per_host=50)
             elif parsed_url.scheme in ('http', 'https'):
                 connector = aiohttp.TCPConnector(limit=100, limit_per_host=50, proxy=proxy_url)
