@@ -1,7 +1,6 @@
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import logging
 
 from stream_fusion.settings import settings
 from stream_fusion.logging_config import logger

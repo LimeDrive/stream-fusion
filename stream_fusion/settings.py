@@ -68,6 +68,10 @@ class Settings(BaseSettings):
     ygg_proxy_apikey: str | None = None
     yggflix_url: str = "https://yggflix.fr"
     yggflix_max_workers: int = 4
+    # SHAREWOOD
+    sharewood_url: str = "https://sharewood.tv"
+    sharewood_max_workers: int = 4
+    sharewood_passkey: str | None = None
     # PUBLIC_CACHE
     public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
     # DEVELOPMENT
