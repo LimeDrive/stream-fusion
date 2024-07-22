@@ -37,9 +37,9 @@ class TorrentService:
 
             if torrent_item.link.startswith("magnet:"):
                 processed_torrent_item = self.__process_magnet(torrent_item)
-            elif torrent_item.link.startswith(settings.sharewood_url):
+            elif settings.sharewood_url and torrent_item.link.startswith(settings.sharewood_url):
                 processed_torrent_item = self.__process_sharewood_web_url(torrent_item)
-            elif torrent_item.link.startswith(settings.ygg_proxy_url):
+            elif settings.ygg_proxy_url and torrent_item.link.startswith(settings.ygg_proxy_url):
                 processed_torrent_item = self.__process_ygg_proxy_url(torrent_item)
             else:
                 processed_torrent_item = self.__process_web_url(torrent_item)

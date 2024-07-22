@@ -1,6 +1,7 @@
 const sorts = ['quality', 'sizedesc', 'sizeasc', 'qualitythensize'];
 const qualityExclusions = ['4K', '2160p', '1080p', '720p', '480p', 'rips', 'cam', 'unknown'];
-const languages = ['en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'in', 'nl', 'hu', 'la', 'multi'];
+const languages = ['en', 'fr', 'multi'];
+// 'es', 'de', 'it', 'pt', 'ru', 'in', 'nl', 'hu', 'la',
 
 document.addEventListener('DOMContentLoaded', function () {
     updateProviderFields();
@@ -18,6 +19,7 @@ function updateProviderFields() {
     setElementDisplay('debrid-fields', document.getElementById('debrid').checked ? 'block' : 'none');
     setElementDisplay('cache-fields', document.getElementById('cache')?.checked ? 'block' : 'none');
     setElementDisplay('ygg-fields', document.getElementById('yggflix')?.checked ? 'block' : 'none');
+    setElementDisplay('sharewood-fields', document.getElementById('sharewood')?.checked ? 'block' : 'none');
 }
 
 function loadData() {
@@ -35,7 +37,9 @@ function loadData() {
             document.getElementById('cacheUrl').value = data.cacheUrl;
             document.getElementById('zilean').checked = data.zilean;
             document.getElementById('yggflix').checked = data.yggflix;
+            document.getElementById('sharewood').checked = data.sharewood;
             document.getElementById('debrid_api_key').value = data.debridKey;
+            document.getElementById('sharewoodPasskey').value = data.sharewoodPasskey;
             document.getElementById('yggPasskey').value = data.yggPasskey;
             document.getElementById('yggUsername').value = data.yggUsername;
             document.getElementById('yggPassword').value = data.yggPassword;
@@ -75,6 +79,7 @@ function getLink(method) {
         apiKey: document.getElementById('ApiKey').value,
         service: document.getElementById('service').value,
         debridKey: document.getElementById('debrid_api_key').value,
+        sharewoodPasskey: document.getElementById('sharewoodPasskey').value,
         maxSize: parseInt(document.getElementById('maxSize').value) || 16,
         exclusionKeywords: document.getElementById('exclusion-keywords').value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword !== ''),
         languages: languages.filter(lang => document.getElementById(lang).checked),
@@ -88,6 +93,7 @@ function getLink(method) {
         cache: document.getElementById('cache')?.checked,
         zilean: document.getElementById('zilean')?.checked,
         yggflix: document.getElementById('yggflix')?.checked,
+        sharewood: document.getElementById('sharewood')?.checked,
         yggUsername: document.getElementById('yggUsername')?.value,
         yggPassword: document.getElementById('yggPassword')?.value,
         yggPasskey: document.getElementById('yggPasskey')?.value,
@@ -97,10 +103,41 @@ function getLink(method) {
     };
 
     // Check if all required fields are filled
-    if ((data.cache && !data.cacheUrl) || (data.debrid && !data.debridKey) || data.languages.length === 0 || !data.apiKey || (data.yggflix && (!data.yggPasskey || !data.yggUsername || !data.yggPassword))) {
+    if (
+        (data.cache && !data.cacheUrl) || 
+        (data.debrid && !data.debridKey) || 
+        data.languages.length === 0 || 
+        !data.apiKey || 
+        (data.yggflix && (!data.yggPasskey || !data.yggUsername || !data.yggPassword)) ||
+        (data.sharewood && !data.sharewoodPasskey)
+    ) {
         alert('Please fill all required fields');
         return false;
     }
+        // Fonctions de validation
+        function validatePasskey(passkey) {
+            return /^[a-zA-Z0-9]{40}$/.test(passkey);
+        }
+    
+        function validateApiKey(apiKey) {
+            return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(apiKey);
+        }
+    
+        // Validation des champs
+        if (data.yggflix && !validatePasskey(data.yggPasskey)) {
+            alert('Ygg Passkey doit contenir exactement 40 caractères alphanumériques');
+            return false;
+        }
+    
+        if (data.sharewood && !validatePasskey(data.sharewoodPasskey)) {
+            alert('Sharewood Passkey doit contenir exactement 40 caractères alphanumériques');
+            return false;
+        }
+    
+        if (!validateApiKey(data.apiKey)) {
+            alert('APIKEY doit être un UUID v4 valide');
+            return false;
+        }
 
     const encodedData = btoa(JSON.stringify(data));
     const stremio_link = `${window.location.host}/${encodedData}/manifest.json`;
