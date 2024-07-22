@@ -116,7 +116,7 @@ function getLink(method) {
     }
         // Fonctions de validation
         function validatePasskey(passkey) {
-            return /^[a-zA-Z0-9]{40}$/.test(passkey);
+            return /^[a-zA-Z0-9]{32}$/.test(passkey);
         }
     
         function validateApiKey(apiKey) {
@@ -125,12 +125,12 @@ function getLink(method) {
     
         // Validation des champs
         if (data.yggflix && !validatePasskey(data.yggPasskey)) {
-            alert('Ygg Passkey doit contenir exactement 40 caractères alphanumériques');
+            alert('Ygg Passkey doit contenir exactement 32 caractères alphanumériques');
             return false;
         }
     
         if (data.sharewood && !validatePasskey(data.sharewoodPasskey)) {
-            alert('Sharewood Passkey doit contenir exactement 40 caractères alphanumériques');
+            alert('Sharewood Passkey doit contenir exactement 32 caractères alphanumériques');
             return false;
         }
     

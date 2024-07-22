@@ -39,10 +39,10 @@
                     alt="logo" class="w-[150px] h-[150px]">
             </div>
             <div class="space-y-6">
-                <p class="dark:text-white text-center">StreamFusion FR Optimized Addon</p>
+                <p class="dark:text-white text-center">StreamFusion configuration</p>
                 <h1 class="text-base font-semibold leading-7 text-gray-900 dark:text-white"
-                    style="text-align: center;font-size: 2rem;">
-                    Addon configuration</h1>
+                    style="text-align: center;font-size: 1.3rem;">
+                    FRENCH Optimized - Stremio Addon</h1>
                 <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                     <h2 class="text-white font-semibold leading-7">Api-Key Settings</h2>
                     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Enter your API key information
@@ -111,7 +111,7 @@
 
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
-                                <input id="cache" name="cache" type="checkbox"
+                                <input id="cache" name="cache" type="checkbox" checked
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                     onchange="updateProviderFields(true)">
                             </div>
@@ -119,12 +119,15 @@
                                 <label for="cache" class="font-medium text-white">Enable Public Caching</label>
                                 <p class="text-gray-500 dark:text-gray-300">Activate public caching for faster search
                                     results.</p>
+                                <p class="text-gray-500 dark:text-gray-300"><span
+                                    class="font-bold text-red-600 dark:text-red-500">The cache server are the historical one from 
+                                    stremio-jackett app, only public torrent are cached on it</span></p>
                             </div>
                         </div>
 
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
-                                <input id="zilean" name="zilean" type="checkbox"
+                                <input id="zilean" name="zilean" type="checkbox" checked
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                             </div>
                             <div class="text-sm leading-6">
@@ -157,6 +160,9 @@
                                 <label for="sharewood" class="font-medium text-white">Enable Sharewood API</label>
                                 <p class="text-gray-500 dark:text-gray-300">Use Sharewood API
                                     to find more results.</p>
+                                <p class="text-gray-500 dark:text-gray-300"><span
+                                    class="font-bold text-red-600 dark:text-red-500">Warning: The Sharewood API are not stable and very limited,
+                                     you may prefere to disable it to save time on search</span></p>
                             </div>
                         </div>
                     </div>
@@ -195,7 +201,7 @@
                     <div class="mt-10 space-y-10">
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
-                                <input id="tmdb" name="metadata_provider" type="radio" value="tmdb"
+                                <input id="tmdb" name="metadata_provider" type="radio" value="tmdb" checked
                                     class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                             </div>
                             <div class="text-sm leading-6">
@@ -321,7 +327,7 @@
                                 want to exclude</p>
                             <div class="mt-6 space-y-6">
                                 <div class="flex items-center gap-x-3">
-                                    <input id="cam" name="cam" type="checkbox"
+                                    <input id="cam" name="cam" type="checkbox" checked
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="cam" class="block text-sm font-medium leading-6 text-white">Exclude CAM
                                         quality</label>
@@ -401,7 +407,7 @@
                             <div class="mt-2">
                                 <div id="languageCheckBoxes" class="flex flex-wrap gap-4">
                                     <label class="inline-flex items-center">
-                                        <input id="en" type="checkbox" name="language" value="en" checked
+                                        <input id="en" type="checkbox" name="language" value="en"
                                             class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         <span class="ml-2 text-white">English</span>
                                     </label>

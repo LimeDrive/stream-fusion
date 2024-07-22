@@ -16,9 +16,9 @@ class SharewoodService:
     """Service for searching media on Sharewood."""
 
     def __init__(self, config: dict):
-        self.sharewood = SharewoodAPI()
         self.sharewood_url = settings.sharewood_url
         self.sharewood_passkey = config.get("sharewoodPasskey")
+        self.sharewood = SharewoodAPI(self.sharewood_passkey)
 
     def search(self, media: Union[Movie, Series]) -> List[SharewoodResult]:
         """
@@ -42,7 +42,7 @@ class SharewoodService:
 
         return self.__post_process_results(results, media)
 
-    def __convert_size(self, size_str):
+    def __convert_size(self, size):
         units = {
             "b": 1,
             "kb": 1e3,
@@ -56,13 +56,24 @@ class SharewoodService:
             "tib": 1024**4,
             "pib": 1024**5,
         }
-        value, unit = size_str.split()
-        value = float(value)
-        unit = unit.lower()
-        if unit not in units:
-            raise ValueError(f"Unité non supportée : {unit}")
-        size = value * units[unit]
-        return int(size)
+        
+        if isinstance(size, int):
+            return size  # Si c'est déjà un entier, on le retourne tel quel
+        
+        if isinstance(size, str):
+            size = size.lower().replace(',', '.')  # Remplace la virgule par un point pour les nombres décimaux
+            parts = size.split()
+            if len(parts) == 1:
+                # Si une seule partie, on suppose que c'est en octets
+                return int(float(parts[0]))
+            elif len(parts) == 2:
+                value, unit = parts
+                value = float(value)
+                if unit not in units:
+                    raise ValueError(f"None support unit : {unit}")
+                return int(value * units[unit])
+        
+        raise ValueError(f"unkound size format : {size}")
 
     def __clean_title(self, title):
         pronouns_to_remove = [
@@ -171,7 +182,7 @@ class SharewoodService:
 
     def __process_download_link(self, id: int) -> str:
         """Generate the download link for a given torrent."""
-        return f"{self.sharewood_url}/{self.sharewood_passkey}/{id}/download"
+        return f"{self.sharewood_url}/api/{self.sharewood_passkey}/{id}/download"
 
     def __generate_magnet_link(self, info_hash: str, name: str) -> str:
         """Generate the magnet link for a given torrent."""
@@ -193,6 +204,7 @@ class SharewoodService:
 
         items = []
         for result in results:
+            logger.debug(f"Processing result: {result}")
             item = SharewoodResult()
 
             item.raw_title = result.get("name", "...")

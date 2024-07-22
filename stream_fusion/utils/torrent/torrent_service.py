@@ -86,8 +86,8 @@ class TorrentService:
             logger.error("Sharewood is not enabled in the config. Skipping processing of Sharewood URL.")
         
         try:
-            response = self.__session.get(result.link, timeout=5)
             time.sleep(1) # API limit 1 request per second
+            response = self.__session.get(result.link, allow_redirects=True, timeout=5)
         except requests.exceptions.RequestException:
             self.logger.error(f"Error while processing url: {result.link}")
             return result
@@ -98,7 +98,7 @@ class TorrentService:
         if response.status_code == 200:
             return self.__process_torrent(result, response.content)
         else:
-            self.logger.error(f"Error code {response.status_code} while processing ygg url: {result.link}")
+            self.logger.error(f"Error code {response.status_code} while processing sharewood url: {result.link}")
 
         return result
 

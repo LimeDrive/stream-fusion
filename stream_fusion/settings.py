@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     yggflix_url: str = "https://yggflix.fr"
     yggflix_max_workers: int = 4
     # SHAREWOOD
-    sharewood_url: str = "https://sharewood.tv"
+    sharewood_url: str = "https://www.sharewood.tv"
     sharewood_max_workers: int = 4
     sharewood_passkey: str | None = None
     # PUBLIC_CACHE
