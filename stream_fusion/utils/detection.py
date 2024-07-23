@@ -5,7 +5,7 @@ def detect_languages(torrent_name):
     language_patterns = {
         "fr": r"\b(?:FR(?:ench|a|e|anc[eê]s)?|V(?:O?F(?:F|I|i)?|O?Q)|TRUEFRENCH|VOST(?:FR)?|SUBFRENCH)\b",
         "en": r"\b(?:EN(?:G(?:LISH)?)?|VOST(?:EN)?|SUBBED)\b",
-        "es": r"\b(?:ES(?:P(?:ANISH)?)?|VOSE|SUBESP)\b",
+        # "es": r"\b(?:ES(?:P(?:ANISH)?)?|VOSE|SUBESP)\b",
         # "de": r"\b(?:DE(?:UTSCH|RMAN)?|GER(?:MAN)?|SUBGER)\b",
         # "it": r"\b(?:IT(?:A(?:LIAN)?)?|SUBITA)\b",
         # "pt": r"\b(?:PT(?:-BR)?|POR(?:TUGUESE)?|LEGENDADO)\b",
