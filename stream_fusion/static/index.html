@@ -39,10 +39,10 @@
                     alt="logo" class="w-[150px] h-[150px]">
             </div>
             <div class="space-y-6">
-                <p class="dark:text-white text-center">StreamFusion</p>
+                <p class="dark:text-white text-center">StreamFusion configuration</p>
                 <h1 class="text-base font-semibold leading-7 text-gray-900 dark:text-white"
-                    style="text-align: center;font-size: 2rem;">
-                    Addon configuration</h1>
+                    style="text-align: center;font-size: 1.3rem;">
+                    FRENCH Optimized - Stremio Addon</h1>
                 <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                     <h2 class="text-white font-semibold leading-7">Api-Key Settings</h2>
                     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Enter your API key information
@@ -111,7 +111,7 @@
 
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
-                                <input id="cache" name="cache" type="checkbox"
+                                <input id="cache" name="cache" type="checkbox" checked
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                     onchange="updateProviderFields(true)">
                             </div>
@@ -119,12 +119,15 @@
                                 <label for="cache" class="font-medium text-white">Enable Public Caching</label>
                                 <p class="text-gray-500 dark:text-gray-300">Activate public caching for faster search
                                     results.</p>
+                                <p class="text-gray-500 dark:text-gray-300"><span
+                                    class="font-bold text-red-600 dark:text-red-500">The cache server are the historical one from 
+                                    stremio-jackett app, only public torrent are cached on it</span></p>
                             </div>
                         </div>
 
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
-                                <input id="zilean" name="zilean" type="checkbox"
+                                <input id="zilean" name="zilean" type="checkbox" checked
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                             </div>
                             <div class="text-sm leading-6">
@@ -144,6 +147,22 @@
                                 <label for="yggflix" class="font-medium text-white">Enable YggTorrent API</label>
                                 <p class="text-gray-500 dark:text-gray-300">Use Yggtorrent API and internal cf bypass
                                     to find more results.</p>
+                            </div>
+                        </div>
+
+                        <div class="relative flex gap-x-3">
+                            <div class="flex h-6 items-center">
+                                <input id="sharewood" name="sharewood" type="checkbox"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                    onchange="updateProviderFields(true)">
+                            </div>
+                            <div class="text-sm leading-6">
+                                <label for="sharewood" class="font-medium text-white">Enable Sharewood API</label>
+                                <p class="text-gray-500 dark:text-gray-300">Use Sharewood API
+                                    to find more results.</p>
+                                <p class="text-gray-500 dark:text-gray-300"><span
+                                    class="font-bold text-red-600 dark:text-red-500">Warning: The Sharewood API are not stable and very limited,
+                                     you may prefere to disable it to save time on search</span></p>
                             </div>
                         </div>
                     </div>
@@ -182,7 +201,7 @@
                     <div class="mt-10 space-y-10">
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
-                                <input id="tmdb" name="metadata_provider" type="radio" value="tmdb"
+                                <input id="tmdb" name="metadata_provider" type="radio" value="tmdb" checked
                                     class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                             </div>
                             <div class="text-sm leading-6">
@@ -215,7 +234,23 @@
                             <div class="sm:col-span-4">
                                 <label for="cacheUrl" class="block text-sm font-medium leading-6 text-white text-white">Public Cache
                                     URL</label>
-                                <input type="text" name="cacheUrl" id="cacheUrl"
+                                <input type="text" name="cacheUrl" id="cacheUrl" value="https://stremio-jackett-cacher.elfhosted.com/"
+                                    class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sharewood-fields" style="display: none;">
+                    <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                        <h2 class="text-white font-semibold leading-7">Sharewood Configuration</h2>
+                        <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Enter your Sharewood passkey
+                            here.</p>
+
+                        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                            <div class="sm:col-span-4">
+                                <label for="sharewoodPasskey" class="block text-sm font-medium leading-6 text-white text-white">Passkey</label>
+                                <input type="text" name="sharewoodPasskey" id="sharewoodPasskey"
                                     class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                             </div>
                         </div>
@@ -279,7 +314,7 @@
                                         size ascending</label>
                                 </div>
                                 <div class="flex items-center gap-x-3">
-                                    <input id="qualitythensize" name="sorting" type="radio"
+                                    <input id="qualitythensize" name="sorting" type="radio" checked
                                         class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="qualitythensize" class="block text-sm font-medium leading-6 text-white">Filter
                                         results by quality then size descending</label>
@@ -292,12 +327,12 @@
                                 want to exclude</p>
                             <div class="mt-6 space-y-6">
                                 <div class="flex items-center gap-x-3">
-                                    <input id="cam" name="cam" type="checkbox"
+                                    <input id="cam" name="cam" type="checkbox" checked
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="cam" class="block text-sm font-medium leading-6 text-white">Exclude CAM
                                         quality</label>
                                 </div>
-                                <div class="flex items-center gap-x-3">
+                                <!-- <div class="flex items-center gap-x-3">
                                     <input id="exclude_ts" name="exclude_ts" type="checkbox"
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="exclude_ts" class="block text-sm font-medium leading-6 text-white">Exclude TS
@@ -314,7 +349,7 @@
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="exclude_scr" class="block text-sm font-medium leading-6 text-white">Exclude SCR
                                         (Screener) quality</label>
-                                </div>
+                                </div> -->
                                 <div class="flex items-center gap-x-3">
                                     <input id="rips" name="rips" type="checkbox"
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
@@ -328,14 +363,14 @@
                             <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Check resolution that you
                                 want to exclude</p>
                             <div class="mt-6 space-y-6">
-                                <div class="flex items-center gap-x-3">
+                                <!-- <div class="flex items-center gap-x-3">
                                     <input id="4K" name="4K" type="checkbox"
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="4K" class="block text-sm font-medium leading-6 text-white">Exclude 4K
                                         resolution</label>
-                                </div>
+                                </div> -->
                                 <div class="flex items-center gap-x-3">
-                                    <input id="2160p" name="2160p" type="checkbox"
+                                    <input id="2160p" name="2160p" type="checkbox" checked
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="2160p" class="block text-sm font-medium leading-6 text-white">Exclude 2160p
                                         resolution</label>
@@ -359,7 +394,7 @@
                                         resolution</label>
                                 </div>
                                 <div class="flex items-center gap-x-3">
-                                    <input id="unknown" name="unknown" type="checkbox"
+                                    <input id="unknown" name="unknown" type="checkbox" checked
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="unknown" class="block text-sm font-medium leading-6 text-white">Exclude unknown
                                         resolution from title</label>
@@ -377,11 +412,11 @@
                                         <span class="ml-2 text-white">English</span>
                                     </label>
                                     <label class="inline-flex items-center">
-                                        <input id="fr" type="checkbox" name="language" value="fr"
+                                        <input id="fr" type="checkbox" name="language" value="fr" checked
                                             class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         <span class="ml-2 text-white">Français</span>
                                     </label>
-                                    <label class="inline-flex items-center">
+                                    <!-- <label class="inline-flex items-center">
                                         <input id="es" type="checkbox" name="language" value="es"
                                             class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         <span class="ml-2 text-white">Español</span>
@@ -425,9 +460,9 @@
                                         <input id="la" type="checkbox" name="language" value="la"
                                             class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         <span class="ml-2 text-white">Latin</span>
-                                    </label>
+                                    </label> -->
                                     <label class="inline-flex items-center">
-                                        <input id="multi" type="checkbox" name="language" value="multi"
+                                        <input id="multi" type="checkbox" name="language" value="multi" checked
                                             class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         <span class="ml-2 text-white">MULTi</span>
                                     </label>
@@ -455,28 +490,28 @@
                         <div>
                             <label for="maxSize" class="block text-sm font-medium leading-6 text-white">Maximum file size
                                 (GB)</label>
-                            <input type="number" name="maxSize" id="maxSize" min="0" step="0.1"
+                            <input type="number" name="maxSize" id="maxSize" min="0" step="0.1" value="18"
                                 class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
 
                         <div>
                             <label for="resultsPerQuality" class="block text-sm font-medium leading-6 text-white">Maximum results
                                 per quality</label>
-                            <input type="number" name="resultsPerQuality" id="resultsPerQuality" min="1"
+                            <input type="number" name="resultsPerQuality" id="resultsPerQuality" min="1" value="10"
                                 class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
 
                         <div>
                             <label for="maxResults" class="block text-sm font-medium leading-6 text-white">Maximum total
                                 results</label>
-                            <input type="number" name="maxResults" id="maxResults" min="1"
+                            <input type="number" name="maxResults" id="maxResults" min="1" value="30"
                                 class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
 
                         <div>
                             <label for="minCachedResults" class="block text-sm font-medium leading-6 text-white">Minimum cached
                                 results before new search</label>
-                            <input type="number" name="minCachedResults" id="minCachedResults" min="0"
+                            <input type="number" name="minCachedResults" id="minCachedResults" min="0" value="10"
                                 class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
                     </div>

@@ -60,7 +60,6 @@ class YggflixService:
 
         try:
             logger.info(f"Searching Yggflix for movie: {media.titles[0]}")
-            # media_id = media.id[2:] if media.id.startswith("tt") else media.id
             return self.yggflix.get_movie_torrents(media.tmdb_id)
         except Exception as e:
             logger.error(
@@ -75,7 +74,6 @@ class YggflixService:
 
         try:
             logger.info(f"Searching Yggflix for series: {media.titles[0]}")
-            # media_id = media.id[2:] if media.id.startswith("tt") else media.id
             return self.yggflix.get_tvshow_torrents(int(media.tmdb_id))
         except Exception as e:
             logger.error(
@@ -113,5 +111,6 @@ class YggflixService:
             item.parsed_data=parse(item.raw_title)
 
             items.append(item)
+            logger.debug(f"Yggflix parsed: {item.parsed_data}")
 
         return items

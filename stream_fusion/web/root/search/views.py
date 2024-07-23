@@ -16,6 +16,7 @@ from stream_fusion.utils.filter_results import (
 )
 from stream_fusion.utils.jackett.jackett_result import JackettResult
 from stream_fusion.utils.jackett.jackett_service import JackettService
+from stream_fusion.utils.sharewood.sharewood_service import SharewoodService
 from stream_fusion.utils.yggfilx.yggflix_result import YggflixResult
 from stream_fusion.utils.yggfilx.yggflix_service import YggflixService
 from stream_fusion.utils.metdata.cinemeta import Cinemeta
@@ -181,6 +182,23 @@ async def get_results(
                         yggflix_search_results
                     )
                     search_results = merge_items(search_results, yggflix_search_results)
+
+            if config["sharewood"] and len(search_results) < int(
+                config["minCachedResults"]
+            ):
+                sharewood_service = SharewoodService(config)
+                sharewood_search_results = sharewood_service.search(media)
+                if sharewood_search_results:
+                    logger.info(
+                        f"Found {len(sharewood_search_results)} results from Sharewood"
+                    )
+                    sharewood_search_results = filter_items(
+                        sharewood_search_results, media, config=config
+                    )
+                    sharewood_search_results = torrent_service.convert_and_process(
+                        sharewood_search_results
+                    )
+                    search_results = merge_items(search_results, sharewood_search_results)
 
             if config["jackett"] and len(search_results) < int(
                 config["minCachedResults"]
