@@ -22,20 +22,20 @@ class ZileanService:
         else:
             raise TypeError("Only Movie and Series are allowed as media!")
 
-    def __clean_title(self, title: str) -> str:
-        pronouns_to_remove = [
-            'le', 'la', 'les', 'l\'', 'un', 'une', 'des', 'du', 'de', 'à', 'au', 'aux',
-            'the', 'a', 'an', 'some', 'of', 'to', 'at', 'in', 'on', 'for',
-            'he', 'she', 'it', 'they', 'we', 'you', 'i', 'me', 'him', 'her', 'them', 'us',
-            'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles', 'je', 'tu', 'moi', 'toi', 'lui'
-        ]
-        title = title.lower()
-        title = re.sub(r'[^a-zA-Z0-9\s]', ' ', title)
-        words = title.split()
-        words = [word for word in words if word not in pronouns_to_remove]
-        cleaned_title = ' '.join(words)
-        cleaned_title = re.sub(r'\s+', ' ', cleaned_title).strip()
-        return cleaned_title
+    # def __clean_title(self, title: str) -> str:
+    #     pronouns_to_remove = [
+    #         'le', 'la', 'les', 'l\'', 'un', 'une', 'des', 'du', 'de', 'à', 'au', 'aux',
+    #         'the', 'a', 'an', 'some', 'of', 'to', 'at', 'in', 'on', 'for',
+    #         'he', 'she', 'it', 'they', 'we', 'you', 'i', 'me', 'him', 'her', 'them', 'us',
+    #         'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles', 'je', 'tu', 'moi', 'toi', 'lui'
+    #     ]
+    #     title = title.lower()
+    #     title = re.sub(r'[^a-zA-Z0-9\s]', ' ', title)
+    #     words = title.split()
+    #     words = [word for word in words if word not in pronouns_to_remove]
+    #     cleaned_title = ' '.join(words)
+    #     cleaned_title = re.sub(r'\s+', ' ', cleaned_title).strip()
+    #     return cleaned_title
 
     def __deduplicate_api_results(self, api_results: List[ExtractedDmmEntry]) -> List[ExtractedDmmEntry]:
         unique_results = set()
@@ -56,13 +56,13 @@ class ZileanService:
 
     def __search_movie(self, movie: Movie) -> List[ExtractedDmmEntry]:
         unique_titles = self.__remove_duplicate_titles(movie.titles)
-        clean_titles = [self.__clean_title(title) for title in unique_titles]
-        return self.__threaded_search_movie(clean_titles)
+        # clean_titles = [self.__clean_title(title) for title in unique_titles]
+        return self.__threaded_search_movie(unique_titles)
 
     def __search_series(self, series: Series) -> List[ExtractedDmmEntry]:
         unique_titles = self.__remove_duplicate_titles(series.titles)
-        clean_titles = [self.__clean_title(title) for title in unique_titles]
-        return self.__threaded_search_series(clean_titles, series)
+        # clean_titles = [self.__clean_title(title) for title in unique_titles]
+        return self.__threaded_search_series(unique_titles, series)
 
     def __threaded_search_movie(self, search_texts: List[str]) -> List[ExtractedDmmEntry]:
         results = []
