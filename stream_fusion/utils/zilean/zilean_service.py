@@ -40,14 +40,16 @@ class ZileanService:
     def __deduplicate_api_results(self, api_results: List[ExtractedDmmEntry]) -> List[ExtractedDmmEntry]:
         unique_results = set()
         deduplicated_results = []
-
         for result in api_results:
-            result_tuple = tuple(sorted(result.__dict__.items()))
-            
+            result_tuple = (
+                result.filename,
+                result.infoHash,
+                result.filesize,
+                result.parseResponse.model_dump_json() if result.parseResponse else None
+            )
             if result_tuple not in unique_results:
                 unique_results.add(result_tuple)
                 deduplicated_results.append(result)
-
         return deduplicated_results
 
     def __remove_duplicate_titles(self, titles: List[str]) -> List[str]:
@@ -89,10 +91,18 @@ class ZileanService:
 
     def __make_series_request(self, query_text: str, series: Series) -> List[ExtractedDmmEntry]:
         try:
+            season = getattr(series, 'season', None)
+            episode = getattr(series, 'episode', None)
+            
+            if season is not None:
+                season = season.lstrip('S') if isinstance(season, str) else season
+            if episode is not None:
+                episode = episode.lstrip('E') if isinstance(episode, str) else episode
+            
             return self.zilean_api.dmm_filtered(
                 query=query_text,
-                season=getattr(series, 'season', None),
-                episode=getattr(series, 'episode', None)
+                season=season,
+                episode=episode
             )
         except Exception as e:
             self.logger.exception(f"An exception occurred while searching for series '{query_text}' on Zilean: {str(e)}")

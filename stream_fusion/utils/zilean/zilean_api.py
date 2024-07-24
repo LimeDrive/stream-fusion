@@ -1,6 +1,6 @@
 import requests
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from typing import List, Optional, Tuple
+from pydantic import BaseModel, Field, ValidationError
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -19,14 +19,17 @@ class TorrentInfo(BaseModel):
     source: Optional[str] = None
     codec: Optional[str] = None
     group: Optional[str] = None
-    episodes: Optional[List[int]] = Field(default_factory=list)
-    seasons: Optional[List[int]] = Field(default_factory=list)
-    languages: Optional[List[str]] = Field(default_factory=list)
+    episodes: Tuple[int, ...] = Field(default_factory=tuple)
+    seasons: Tuple[int, ...] = Field(default_factory=tuple)
+    languages: Tuple[str, ...] = Field(default_factory=tuple)
     title: Optional[str] = None
     rawTitle: Optional[str] = None
     size: int = 0
     infoHash: Optional[str] = None
     isPossibleMovie: bool = False
+
+    class Config:
+        frozen = True
 
 
 class ExtractedDmmEntry(BaseModel):
@@ -34,6 +37,23 @@ class ExtractedDmmEntry(BaseModel):
     infoHash: str
     filesize: int
     parseResponse: Optional[TorrentInfo] = None
+
+    resolution: Optional[str] = None
+    year: Optional[int] = None
+    remastered: bool = False
+    source: Optional[str] = None
+    codec: Optional[str] = None
+    group: Optional[str] = None
+    episodes: Optional[Tuple[int, ...]] = None
+    seasons: Optional[Tuple[int, ...]] = None
+    languages: Optional[Tuple[str, ...]] = None
+    title: Optional[str] = None
+    rawTitle: Optional[str] = None
+    size: Optional[int] = None
+    isPossibleMovie: bool = False
+
+    class Config:
+        frozen = True
 
 
 class ImdbFile(BaseModel):
@@ -108,7 +128,26 @@ class ZileanAPI:
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self._request("GET", "/dmm/filtered", params=params)
-        return [ExtractedDmmEntry(**entry) for entry in response.json()]
+
+        entries = []
+        for entry in response.json():
+            for key in ["episodes", "seasons", "languages"]:
+                if key in entry and isinstance(entry[key], list):
+                    entry[key] = tuple(entry[key])
+
+            torrent_info = TorrentInfo(
+                **{k: v for k, v in entry.items() if k in TorrentInfo.__fields__}
+            )
+
+            extracted_entry = ExtractedDmmEntry(
+                filename=entry.get("rawTitle", ""),
+                infoHash=entry.get("infoHash", ""),
+                filesize=entry.get("size", 0),
+                parseResponse=torrent_info,
+            )
+            entries.append(extracted_entry)
+
+        return entries
 
     def dmm_on_demand_scrape(self) -> None:
         self._request("GET", "/dmm/on-demand-scrape")
