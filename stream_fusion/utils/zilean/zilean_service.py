@@ -6,11 +6,11 @@ from stream_fusion.logging_config import logger
 from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
 from stream_fusion.settings import settings
-from zilean_api import ZileanAPI, DmmQueryRequest, ExtractedDmmEntry
+from stream_fusion.utils.zilean.zilean_api import ZileanAPI, DmmQueryRequest, ExtractedDmmEntry
 
 class ZileanService:
     def __init__(self, config):
-        self.zilean_api = ZileanAPI(settings.zilean_url)
+        self.zilean_api = ZileanAPI()
         self.logger = logger
         self.max_workers = settings.zilean_max_workers
 

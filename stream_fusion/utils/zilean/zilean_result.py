@@ -3,6 +3,7 @@ from RTN import parse
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.logging_config import logger
 from stream_fusion.utils.detection import detect_languages
+from stream_fusion.utils.zilean.zilean_api import ExtractedDmmEntry
 
 
 class ZileanResult:
@@ -38,15 +39,15 @@ class ZileanResult:
             self.parsed_data
         )
 
-    def from_api_cached_item(self, api_cached_item, media):
-        if type(api_cached_item) is not dict:
-            logger.error(api_cached_item)
+    def from_api_cached_item(self, api_cached_item: ExtractedDmmEntry, media):
+        # if type(api_cached_item) is not dict:
+        #     logger.error(api_cached_item)
 
-        self.info_hash = api_cached_item['infoHash']
+        self.info_hash = api_cached_item.infoHash
         if len(self.info_hash) != 40:
             raise ValueError(f"The hash '{self.info_hash}' does not have the expected length of 40 characters.")
 
-        parsed_result = parse(api_cached_item['filename'])
+        parsed_result = parse(api_cached_item.filename)
 
         self.raw_title = parsed_result.raw_title
         self.indexer = "DMM API"
@@ -54,7 +55,7 @@ class ZileanResult:
         self.link = self.magnet
         self.languages = detect_languages(self.raw_title)
         self.seeders = 0
-        self.size = api_cached_item['filesize']
+        self.size = api_cached_item.filesize
         self.type = media.type
         self.privacy = "private"
         self.from_cache = True

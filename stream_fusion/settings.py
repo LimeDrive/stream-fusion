@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     zilean_api_key: str | None = None # TODO: check to protéct Zilane API with APIKEY
     zilean_url: str | None = None
     zilean_max_workers: int = 4
+    zilean_pool_connections: int = 10
+    zilean_api_pool_maxsize: int = 10
+    zilean_max_retry: int = 3
     # YGGTORRENT
     ygg_url: str = "https://ygg.re"
     ygg_user: str | None = None

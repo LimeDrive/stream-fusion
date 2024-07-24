@@ -156,7 +156,7 @@ async def get_results(
                     zilean_search_results = [
                         ZileanResult().from_api_cached_item(torrent, media)
                         for torrent in zilean_search_results
-                        if len(torrent.get("infoHash", "")) == 40
+                        if len(getattr(torrent, "infoHash", "")) == 40
                     ]
                     zilean_search_results = filter_items(
                         zilean_search_results, media, config=config
