@@ -39,12 +39,46 @@ services:
     restart: unless-stopped
 
   zilean:
-    image: ipromknight/zilean:v1.0.17 # Latest version without ElasticSearch
+    image: ipromknight/zilean:latest
+    container_name: zilean
     restart: unless-stopped
     expose:
       - 8181
+    deploy:
+      resources:
+        limits:
+          memory: 1g
     volumes:
-      - zilean_data:/app/data
+      - ./zilean_data:/app/data
+    environment:
+      - Zilean__ElasticSearch__Url=http://elasticsearch:9200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+
+  elasticsearch:
+    image: elasticsearch:8.14.3@sha256:1ddbb1ae0754278f3ab53edc24fcc5c790ebc2422cc47abea760b24abee2d88a
+    container_name: elasticsearch
+    restart: unless-stopped
+    environment:
+      ES_SETTING_DISCOVERY_TYPE: single-node
+      ES_SETTING_XPACK_SECURITY_ENABLED: false
+      ES_SETTING_BOOTSTRAP_MEMORY__LOCK: true
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    expose:
+      - 9200
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 | grep -q 'You Know, for Search'"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data:rw
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
@@ -73,4 +107,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  zilean_data:
+  elastic_data:
