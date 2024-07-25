@@ -1,8 +1,8 @@
-# StreamFusion
+# StreamFusion - FRENCH optimized -
 
 ## Description
 
-StreamFusion is an advanced plugin for Stremio that significantly enhances its streaming capabilities. It leverages torrent indexers and Jackett to integrate cached torrent sources from popular debrid services, offering a smooth and comprehensive streaming experience. This application acts as a bridge between Stremio, torrent indexers, and debrid services, providing users with a wide range of content options.
+StreamFusion is an advanced plugin for Stremio that significantly enhances its streaming capabilities for french contents. It leverages torrent indexers and Jackett to integrate cached torrent sources from popular debrid services, offering a smooth and comprehensive streaming experience. This application acts as a bridge between Stremio, torrent indexers, and debrid services, providing users with a wide range of content options.
 
 ## Key Features
 
@@ -36,9 +36,10 @@ Contributions are welcome! Please refer to our contribution guidelines for more 
 tree -I '*.pyc' -I '__pycache__'
 .
 ├── Dockerfile
+├── LICENSE
 ├── README.md
 ├── deploy
-│   └── docker-compose.yml
+│   └── docker-compose.yml
 ├── poetry.lock
 ├── poetry.toml
 ├── pyproject.toml
@@ -49,95 +50,132 @@ tree -I '*.pyc' -I '__pycache__'
     ├── gunicorn_runner.py
     ├── logging_config.py
     ├── services
-    │   ├── redis
-    │   │   └── redis_config.py
-    │   └── security_db
-    │       ├── __init__.py
-    │       └── _sqlite_access.py
+    │   ├── fspy
+    │   │   ├── __init__.py
+    │   │   ├── response_models.py
+    │   │   ├── solver.py
+    │   │   └── solver_exceptions.py
+    │   ├── redis
+    │   │   └── redis_config.py
+    │   ├── security_db
+    │   │   ├── __init__.py
+    │   │   └── _sqlite_access.py
+    │   └── ygg_conn
+    │       ├── __init__.py
+    │       ├── ygg_auth.py
+    │       └── ygg_session.py
     ├── settings.py
     ├── static
-    ├── templates
-    │   ├── config.js
-    │   └── index.html
+    │   ├── admin
+    │   │   ├── api_keys.html
+    │   │   ├── base.html
+    │   │   ├── create_api_key.html
+    │   │   └── login.html
+    │   ├── config.js
+    │   ├── docs
+    │   │   ├── redoc.standalone.js
+    │   │   ├── swagger-ui-bundle.js
+    │   │   └── swagger-ui.css
+    │   ├── index.html
+    │   ├── logo-stream-fusion.png
+    │   └── stremio-bg.jpg
     ├── utils
-    │   ├── cache
-    │   │   ├── cache_base.py
-    │   │   └── local_redis.py
-    │   ├── cache.py
-    │   ├── debrid
-    │   │   ├── alldebrid.py
-    │   │   ├── base_debrid.py
-    │   │   ├── get_debrid_service.py
-    │   │   ├── premiumize.py
-    │   │   └── realdebrid.py
-    │   ├── detection.py
-    │   ├── filter
-    │   │   ├── base_filter.py
-    │   │   ├── language_filter.py
-    │   │   ├── max_size_filter.py
-    │   │   ├── quality_exclusion_filter.py
-    │   │   ├── results_per_quality_filter.py
-    │   │   └── title_exclusion_filter.py
-    │   ├── filter_results.py
-    │   ├── general.py
-    │   ├── jackett
-    │   │   ├── jackett_indexer.py
-    │   │   ├── jackett_result.py
-    │   │   └── jackett_service.py
-    │   ├── metdata
-    │   │   ├── cinemeta.py
-    │   │   ├── metadata_provider_base.py
-    │   │   └── tmdb.py
-    │   ├── models
-    │   │   ├── media.py
-    │   │   ├── movie.py
-    │   │   └── series.py
-    │   ├── parse_config.py
-    │   ├── security
-    │   │   ├── __init__.py
-    │   │   ├── security_api_key.py
-    │   │   └── security_secret.py
-    │   ├── string_encoding.py
-    │   ├── torrent
-    │   │   ├── torrent_item.py
-    │   │   ├── torrent_service.py
-    │   │   └── torrent_smart_container.py
-    │   └── zilean
-    │       ├── zilean_result.py
-    │       └── zilean_service.py
+    │   ├── cache
+    │   │   ├── __init__.py
+    │   │   ├── cache.py
+    │   │   ├── cache_base.py
+    │   │   └── local_redis.py
+    │   ├── debrid
+    │   │   ├── __init__.py
+    │   │   ├── alldebrid.py
+    │   │   ├── base_debrid.py
+    │   │   ├── get_debrid_service.py
+    │   │   ├── premiumize.py
+    │   │   └── realdebrid.py
+    │   ├── detection.py
+    │   ├── filter
+    │   │   ├── base_filter.py
+    │   │   ├── language_filter.py
+    │   │   ├── max_size_filter.py
+    │   │   ├── quality_exclusion_filter.py
+    │   │   ├── results_per_quality_filter.py
+    │   │   └── title_exclusion_filter.py
+    │   ├── filter_results.py
+    │   ├── general.py
+    │   ├── jackett
+    │   │   ├── __init__.py
+    │   │   ├── jackett_indexer.py
+    │   │   ├── jackett_result.py
+    │   │   └── jackett_service.py
+    │   ├── metdata
+    │   │   ├── cinemeta.py
+    │   │   ├── metadata_provider_base.py
+    │   │   └── tmdb.py
+    │   ├── models
+    │   │   ├── media.py
+    │   │   ├── movie.py
+    │   │   └── series.py
+    │   ├── parse_config.py
+    │   ├── security
+    │   │   ├── __init__.py
+    │   │   ├── security_api_key.py
+    │   │   └── security_secret.py
+    │   ├── sharewood
+    │   │   ├── __init__.py
+    │   │   ├── sharewood_api.py
+    │   │   ├── sharewood_result.py
+    │   │   └── sharewood_service.py
+    │   ├── string_encoding.py
+    │   ├── torrent
+    │   │   ├── torrent_item.py
+    │   │   ├── torrent_service.py
+    │   │   └── torrent_smart_container.py
+    │   ├── yggfilx
+    │   │   ├── __init__.py
+    │   │   ├── yggflix_api.py
+    │   │   ├── yggflix_result.py
+    │   │   └── yggflix_service.py
+    │   └── zilean
+    │       ├── __init__.py
+    │       ├── zilean_api.py
+    │       ├── zilean_result.py
+    │       └── zilean_service.py
     ├── version.py
     ├── videos
-    │   └── nocache.mp4
+    │   └── nocache.mp4
     └── web
         ├── __init__.py
         ├── api
-        │   ├── __init__.py
-        │   ├── auth
-        │   │   ├── __init__.py
-        │   │   ├── schemas.py
-        │   │   └── views.py
-        │   ├── docs
-        │   │   ├── __init__.py
-        │   │   └── views.py
-        │   ├── monitoring
-        │   │   ├── __init__.py
-        │   │   └── views.py
-        │   └── router.py
+        │   ├── __init__.py
+        │   ├── admin
+        │   │   ├── __init__.py
+        │   │   └── views.py
+        │   ├── auth
+        │   │   ├── __init__.py
+        │   │   ├── schemas.py
+        │   │   └── views.py
+        │   ├── docs
+        │   │   ├── __init__.py
+        │   │   └── views.py
+        │   ├── monitoring
+        │   │   ├── __init__.py
+        │   │   └── views.py
+        │   └── router.py
         ├── application.py
         ├── lifetime.py
         ├── playback
-        │   ├── __init__.py
-        │   ├── router.py
-        │   └── stream
-        │       ├── __init__.py
-        │       ├── schemas.py
-        │       └── views.py
+        │   ├── __init__.py
+        │   ├── router.py
+        │   └── stream
+        │       ├── __init__.py
+        │       ├── schemas.py
+        │       └── views.py
         └── root
             ├── __init__.py
             ├── config
-            │   ├── __init__.py
-            │   ├── schemas.py
-            │   └── views.py
+            │   ├── __init__.py
+            │   ├── schemas.py
+            │   └── views.py
             ├── router.py
             └── search
                 ├── __init__.py
@@ -145,7 +183,7 @@ tree -I '*.pyc' -I '__pycache__'
                 ├── stremio_parser.py
                 └── views.py
 
-29 directories, 81 files
+35 directories, 113 files
 ```
 
 ## License
