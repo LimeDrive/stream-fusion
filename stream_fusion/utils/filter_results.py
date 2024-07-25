@@ -190,7 +190,7 @@ def merge_items(
     merged_dict = {}
 
     def add_to_merged(item: TorrentItem):
-        key = (item.info_hash, item.size)
+        key = (item.raw_title, item.size)
         if key not in merged_dict or item.seeders > merged_dict[key].seeders:
             merged_dict[key] = item
 
