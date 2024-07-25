@@ -3,14 +3,13 @@ from RTN import parse
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.logging_config import logger
 from stream_fusion.utils.detection import detect_languages
-from stream_fusion.utils.zilean.zilean_api import ExtractedDmmEntry
 
 
-class ZileanResult:
+class SharewoodResult:
     def __init__(self):
         self.raw_title = None  # Raw title of the torrent
         self.size = None  # Size of the torrent
-        self.link = None  # Download link for the torrent file or magnet url
+        self.link = None  # Contruct a magnet link here
         self.indexer = None  # Indexer
         self.seeders = None  # Seeders count
         self.magnet = None  # Magnet url
@@ -18,7 +17,6 @@ class ZileanResult:
         self.privacy = None  # public or private
         self.from_cache = None
 
-        # Extra processed details for further filtering
         self.languages = None  # Language of the torrent
         self.type = None  # series or movie
 
@@ -38,27 +36,3 @@ class ZileanResult:
             self.type,
             self.parsed_data
         )
-
-    def from_api_cached_item(self, api_cached_item: ExtractedDmmEntry, media):
-        # if type(api_cached_item) is not dict:
-        #     logger.error(api_cached_item)
-
-        self.info_hash = api_cached_item.infoHash
-        if len(self.info_hash) != 40:
-            raise ValueError(f"The hash '{self.info_hash}' does not have the expected length of 40 characters.")
-
-        parsed_result = parse(api_cached_item.filename)
-
-        self.raw_title = parsed_result.raw_title
-        self.indexer = "DMM API"
-        self.magnet = "magnet:?xt=urn:btih:" + self.info_hash
-        self.link = self.magnet
-        self.languages = detect_languages(self.raw_title)
-        self.seeders = 0
-        self.size = api_cached_item.filesize
-        self.type = media.type
-        self.privacy = "private"
-        self.from_cache = True
-        self.parsed_data = parsed_result
-
-        return self

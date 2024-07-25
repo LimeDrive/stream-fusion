@@ -1,29 +1,34 @@
 import os
 from collections.abc import Awaitable
 from typing import Callable
+from aiohttp_socks import ProxyConnector
 from fastapi import FastAPI
 import aiohttp
+from yarl import URL
 from stream_fusion.settings import settings
 
 
 def register_startup_event(
     app: FastAPI,
 ) -> Callable[[], Awaitable[None]]:
-    """
-    Actions to run on application startup.
-    This function uses fastAPI app to store data
-    in the state, such as db_engine and creates a global aiohttp session.
-    :param app: the fastAPI application.
-    :return: function that actually performs actions.
-    """
-
     @app.on_event("startup")
     async def _startup() -> None:
         app.middleware_stack = None
         app.middleware_stack = app.build_middleware_stack()
-        # Initialize aiohttp
+
+        proxy_url = settings.playback_proxy
+        if proxy_url:
+            parsed_url = URL(proxy_url)
+            if parsed_url.scheme in ('socks5', 'socks5h', 'socks4'):
+                connector = ProxyConnector.from_url(proxy_url, limit=100, limit_per_host=50)
+            elif parsed_url.scheme in ('http', 'https'):
+                connector = aiohttp.TCPConnector(limit=100, limit_per_host=50, proxy=proxy_url)
+            else:
+                raise ValueError(f"Unsupported proxy scheme: {parsed_url.scheme}")
+        else:
+            connector = aiohttp.TCPConnector(limit=100, limit_per_host=50)
+
         timeout = aiohttp.ClientTimeout(total=settings.aiohttp_timeout)
-        connector = aiohttp.TCPConnector(limit=100, limit_per_host=50)
         app.state.http_session = aiohttp.ClientSession(
             timeout=timeout, connector=connector
         )

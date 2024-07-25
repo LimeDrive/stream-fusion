@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Login to Admin Panel</h1>
+<form action="{{ url_for('login')(request) }}" method="post">
+    <div class="mb-3">
+        <label for="secret_key" class="form-label">Secret Key</label>
+        <input type="password" class="form-control" id="secret_key" name="secret_key" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+{% endblock %}

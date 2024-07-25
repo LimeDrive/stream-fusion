@@ -6,6 +6,8 @@ import xml.etree.ElementTree as ET
 
 import requests
 from RTN import parse
+from requests_ratelimiter import HTTPAdapter
+from urllib3 import Retry
 
 from stream_fusion.utils.jackett.jackett_indexer import JackettIndexer
 from stream_fusion.utils.jackett.jackett_result import JackettResult
@@ -23,6 +25,19 @@ class JackettService:
         self.__api_key = settings.jackett_api_key
         self.__base_url = f"{settings.jackett_shema}://{settings.jackett_host}:{settings.jackett_port}/api/v2.0"
         self.__session = requests.Session()
+        
+        adapter = HTTPAdapter(pool_connections=100, pool_maxsize=100)
+        
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "OPTIONS"]
+        )
+        adapter.max_retries = retry_strategy
+        
+        self.__session.mount("http://", adapter)
+        self.__session.mount("https://", adapter)
 
     def search(self, media):
         self.logger.info("Started Jackett search for " + media.type + " " + media.titles[0])
