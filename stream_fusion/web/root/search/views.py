@@ -164,6 +164,7 @@ async def get_results(
                     zilean_search_results = torrent_service.convert_and_process(
                         zilean_search_results
                     )
+                    logger.debug(f"Zilean final search results: {len(zilean_search_results)}")
                     search_results = merge_items(search_results, zilean_search_results)
 
             if config["yggflix"] and len(search_results) < int(

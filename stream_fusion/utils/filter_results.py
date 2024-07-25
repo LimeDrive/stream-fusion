@@ -11,35 +11,35 @@ from stream_fusion.utils.filter.title_exclusion_filter import TitleExclusionFilt
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.logging_config import logger
 
-quality_order = {"4k": 0, "2160p": 0, "1080p": 1, "720p": 2, "480p": 3}
+quality_order = {"2160p": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 
-def sort_quality(item):
+def sort_quality(item: TorrentItem):
     logger.debug(f"Evaluating quality for item: {item.raw_title}")
-    if len(item.parsed_data.data.resolution) == 0:
+    if len(item.parsed_data.resolution) == 0:
         return float("inf"), True
-    resolution = item.parsed_data.data.resolution[0]
+    resolution = item.parsed_data.resolution[0]
     priority = quality_order.get(resolution, float("inf"))
-    return priority, item.parsed_data.data.resolution is None
+    return priority, item.parsed_data.resolution is None
 
 
 def items_sort(items, config):
     logger.info(f"Starting item sorting. Sort method: {config['sort']}")
-    settings = SettingsModel(
-        require=[],
-        exclude=config["exclusionKeywords"] + config["exclusion"],
-        preferred=[],
-    )
+    # settings = SettingsModel(
+    #     require=[],
+    #     exclude=config["exclusionKeywords"] + config["exclusion"],
+    #     preferred=[],
+    # )
 
-    rtn = RTN(settings=settings, ranking_model=DefaultRanking())
-    logger.debug("Applying RTN ranking to items")
-    torrents = [rtn.rank(item.raw_title, item.info_hash) for item in items]
-    sorted_torrents = sort_torrents(set(torrents))
+    # rtn = RTN(settings=settings, ranking_model=DefaultRanking())
+    # logger.debug("Applying RTN ranking to items")
+    # torrents = [rtn.rank(item.raw_title, item.info_hash) for item in items]
+    # sorted_torrents = sort_torrents(set(torrents))
 
-    for key, value in sorted_torrents.items():
-        index = next((i for i, item in enumerate(items) if item.info_hash == key), None)
-        if index is not None:
-            items[index].parsed_data = value
+    # for key, value in sorted_torrents.items():
+    #     index = next((i for i, item in enumerate(items) if item.info_hash == key), None)
+    #     if index is not None:
+    #         items[index].parsed_data = value
 
     logger.info(f"Sorting items by method: {config['sort']}")
     if config["sort"] == "quality":
@@ -61,7 +61,8 @@ def items_sort(items, config):
 
 def filter_out_non_matching_movies(items, year):
     logger.info(f"Filtering non-matching movies for year : {year}")
-    year_pattern = re.compile(rf'\b{year}\b')
+    year_bis = str(int(year) - 1)
+    year_pattern = re.compile(rf'\b{year}|{year_bis}\b')
     filtered_items = []
     for item in items:
         logger.debug(f"Checking item: {item.raw_title}")
@@ -183,26 +184,21 @@ def sort_items(items, config):
 def merge_items(
     cache_items: List[TorrentItem], search_items: List[TorrentItem]
 ) -> List[TorrentItem]:
-    # Log the number of items being merged
     logger.info(
         f"Merging cached items ({len(cache_items)}) and search items ({len(search_items)})"
     )
     merged_dict = {}
 
-    def add_to_merged(item):
+    def add_to_merged(item: TorrentItem):
         key = (item.info_hash, item.size)
         if key not in merged_dict or item.seeders > merged_dict[key].seeders:
             merged_dict[key] = item
 
-    # Process cache items
     for item in cache_items:
         add_to_merged(item)
-    # Process search items
     for item in search_items:
         add_to_merged(item)
 
-    # Convert the dictionary values to a list
     merged_items = list(merged_dict.values())
-    # Log the total number of unique items after merging
     logger.info(f"Merging complete. Total unique items: {len(merged_items)}")
     return merged_items

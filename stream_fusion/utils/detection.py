@@ -1,7 +1,7 @@
 import re
 
 
-def detect_languages(torrent_name):
+def detect_languages(torrent_name, default_language="en"):
     language_patterns = {
         "fr": r"\b(?:FR(?:ench|a|e|anc[eê]s)?|V(?:O?F(?:F|I|i)?|O?Q)|TRUEFRENCH|VOST(?:FR)?|SUBFRENCH)\b",
         "en": r"\b(?:EN(?:G(?:LISH)?)?|VOST(?:EN)?|SUBBED)\b",
@@ -23,6 +23,6 @@ def detect_languages(torrent_name):
             languages.append(language)
 
     if len(languages) == 0:
-        return ["en"]
+        return [default_language]
 
     return languages

@@ -106,8 +106,6 @@ class TorrentService:
     def __process_ygg_proxy_url(self, result: TorrentItem): 
         if not self.config["yggflix"]:
             logger.error("Yggflix is not enabled in the config. Skipping processing of Yggflix URL.")
-
-
         try:
             headers = {
                 'accept': 'application/json',

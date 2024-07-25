@@ -106,7 +106,7 @@ class YggflixService:
             item.indexer="API - Yggtorrent"
             item.seeders=result.get("seeders", 0)
             item.privacy="private"
-            item.languages=detect_languages(item.raw_title)
+            item.languages=detect_languages(item.raw_title, default_language="fr")
             item.type=media.type
             item.parsed_data=parse(item.raw_title)
 
