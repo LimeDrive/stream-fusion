@@ -21,6 +21,6 @@ def parse_config(b64config):
         config["yggUsername"] = "FakeUsername"
 
     # Break old config on debrid untested
-    if config["service"] == "AllDebrid" or "Premiumize":
+    if config["service"] in ["AllDebrid", "Premiumize"]:
         raise Exception("Old config detected, please reconfigure")
     return config
