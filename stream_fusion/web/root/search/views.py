@@ -74,9 +74,9 @@ async def get_results(
 
     def stream_cache_key(media):
         if isinstance(media, Movie):
-            key_string = f"stream:{media.titles[0]}:{media.year}:{media.languages[0]}"
+            key_string = f"stream:{api_key}:{media.titles[0]}:{media.year}:{media.languages[0]}"
         elif isinstance(media, Series):
-            key_string = f"stream:{media.titles[0]}:{media.languages[0]}:{media.season}{media.episode}"
+            key_string = f"stream:{api_key}:{media.titles[0]}:{media.languages[0]}:{media.season}{media.episode}"
         else:
             raise TypeError("Only Movie and Series are allowed as media!")
         hashed_key = hashlib.sha256(key_string.encode("utf-8")).hexdigest()
