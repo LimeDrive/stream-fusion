@@ -93,7 +93,7 @@ EXCLUDED_TRACKERS = ['0day.kiev', '1ptbar', '2 Fast 4 You', '2xFree', '3ChangTra
 FR_RELEASE_GROUPS = [
             r"(?<=[.\s\-\[])(BlackAngel|Choco|Sicario|Tezcat74|TyrellCorp|Zapax)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(FtLi|Goldenyann|MUSTANG|Obi|PEPiTE|QUEBEC63|QC63|ROMKENT)(?=[.\s\-$$]|$)",
-            r"(?<=[.\s\-\[])(FLOP|FRATERNiTY|QTZ|PopHD|toto70300|GHT|EXTREME)(?=[.\s\-$$]|$)",
+            r"(?<=[.\s\-\[])(FLOP|FRATERNiTY|QTZ|PopHD|toto70300|GHT|EXTREME|AvALoN)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(DUSTiN|QUALiTY|Tsundere-Raws|LAZARUS|ALFA|SODAPOP)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(BDHD|MAX|SowHD|SN2P|RG|BTT|KAF|AwA|MULTiViSiON|FERVEX)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(FUJiSAN|HDForever|MARBLECAKE|MYSTERiON|ONLY|UTT|ZiT|JP48)(?=[.\s\-$$]|$)",
