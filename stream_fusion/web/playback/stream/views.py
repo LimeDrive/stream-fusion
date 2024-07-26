@@ -98,7 +98,7 @@ async def get_playback(
         ip = request.client.host
         logger.debug(f"Decoded query: {decoded_query}, Client IP: {ip}")
 
-        lock_key = f"lock:stream:{decoded_query}_{ip}"
+        lock_key = f"lock:stream:{api_key}:{decoded_query}_{ip}"
         lock = redis_client.lock(lock_key, timeout=60)
 
         try:
@@ -214,7 +214,7 @@ async def head_playback(
             raise HTTPException(status_code=400, detail="Query required.")
         decoded_query = decodeb64(query)
         ip = request.client.host
-        cache_key = f"stream_link:{decoded_query}_{ip}"
+        cache_key = f"stream_link:{api_key}:{decoded_query}_{ip}"
 
         headers = {
             "Content-Type": "video/mp4",
