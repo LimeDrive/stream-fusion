@@ -12,4 +12,11 @@ def parse_config(b64config):
     # Cut the option due to backwards compatibility
     if "anonymizeMagnets" not in config:
         config["anonymizeMagnets"] = False
+    # Cut the option due to backwards compatibility
+    if "jackett" not in config:
+        config["jackett"] = False
+    if "yggPassword" not in config:
+        config["yggPassword"] = "FakePassword"
+    if "yggUsername" not in config:
+        config["yggUsername"] = "FakeUsername"
     return config
