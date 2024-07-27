@@ -1,4 +1,5 @@
 # logging_config.py
+import os
 from loguru import logger
 from stream_fusion.settings import settings
 import sys
@@ -98,10 +99,10 @@ def configure_logging():
     )
 
     logger.add(
-        settings.log_path,
+        f"/app/config/logs/api_worker_{os.getpid()}.log",
         format=format,
         level="DEBUG",
-        rotation="2 MB",
+        rotation="5 MB",
         retention="5 days",
         compression="zip",
         enqueue=True,
