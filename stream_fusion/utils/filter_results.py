@@ -123,7 +123,7 @@ def remove_non_matching_title(items, titles):
     
     for item in items:
         for cleaned_title in cleaned_titles:
-            if title_match(cleaned_title, item.parsed_data.raw_title):
+            if title_match(cleaned_title, item.parsed_data.parsed_title):
                 filtered_items.append(item)
                 break
         else:
