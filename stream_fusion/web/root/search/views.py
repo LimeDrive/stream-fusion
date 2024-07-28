@@ -91,21 +91,21 @@ async def get_results(
 
     debrid_service = get_debrid_service(config)
 
-    def filter_all_results(results, media):
-        if media.type == "series":
-            filtered = filter_out_non_matching_series(
-                results, media.season, media.episode
-            )
-            logger.info(
-                f"Filtered series results: {len(filtered)} (from {len(results)})"
-            )
-            return filtered
-        else:
-            filtered = filter_out_non_matching_movies(results, media.year)
-            logger.info(
-                f"Filtered movie results: {len(filtered)} (from {len(results)})"
-            )
-        return results
+    # def filter_all_results(results, media):
+    #     if media.type == "series":
+    #         filtered = filter_out_non_matching_series(
+    #             results, media.season, media.episode
+    #         )
+    #         logger.info(
+    #             f"Filtered series results: {len(filtered)} (from {len(results)})"
+    #         )
+    #         return filtered
+    #     else:
+    #         filtered = filter_out_non_matching_movies(results, media.year)
+    #         logger.info(
+    #             f"Filtered movie results: {len(filtered)} (from {len(results)})"
+    #         )
+    #     return results
     
     def media_cache_key(media):
         if isinstance(media, Movie):
@@ -249,7 +249,7 @@ async def get_results(
             logger.info(f"Results retrieved from redis cache - {len(unfiltered_results)}.")
             unfiltered_results = [TorrentItem.from_dict(item) for item in unfiltered_results]
 
-        filtered_results = filter_all_results(unfiltered_results, media)
+        filtered_results = filter_items(unfiltered_results, media, config=config)
 
         if len(filtered_results) < min_results:
             logger.info(
@@ -259,7 +259,7 @@ async def get_results(
             unfiltered_results = get_search_results(media, config)
             unfiltered_results_dict = [item.to_dict() for item in unfiltered_results]
             redis_cache.set(cache_key, unfiltered_results_dict)
-            filtered_results = filter_all_results(unfiltered_results, media)
+            filtered_results = filter_items(unfiltered_results, media, config=config)
 
         logger.info(f"Final number of filtered results: {len(filtered_results)}")
         return filtered_results
