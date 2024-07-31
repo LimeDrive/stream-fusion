@@ -9,8 +9,6 @@ from stream_fusion.logging_config import logger
 from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
 from stream_fusion.utils.filter_results import (
     filter_items,
-    filter_out_non_matching_movies,
-    filter_out_non_matching_series,
     merge_items,
     sort_items,
 )

@@ -15,6 +15,126 @@ function setElementDisplay(elementId, displayStatus) {
     }
 }
 
+function startRealDebridAuth() {
+    document.getElementById('rd-auth-button').disabled = true;
+    document.getElementById('rd-auth-button').textContent = "Authentification en cours...";
+    console.log('Début de l\'authentification Real-Debrid');
+
+    fetch('/api/auth/realdebrid/device_code', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        console.log('Réponse reçue', response);
+        if (!response.ok) {
+            throw new Error('Erreur de requête');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Réponse reçue:', data);
+        document.getElementById('verification-url').href = data.direct_verification_url;
+        document.getElementById('verification-url').textContent = data.verification_url;
+        document.getElementById('user-code').textContent = data.user_code;
+        document.getElementById('auth-instructions').style.display = 'block';
+        pollForCredentials(data.device_code, data.expires_in);
+    })
+    .catch(error => {
+        console.error('Erreur détaillée:', error);
+        alert("Erreur lors de l'authentification. Veuillez réessayer.");
+        resetAuthButton();
+    });
+}
+
+function pollForCredentials(deviceCode, expiresIn) {
+    console.log('Début du polling avec device_code:', deviceCode);
+    const pollInterval = setInterval(() => {
+        fetch(`/api/auth/realdebrid/credentials?device_code=${encodeURIComponent(deviceCode)}`, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 400) {
+                    console.log('Autorisation en attente...');
+                    return null;
+                }
+                throw new Error('Erreur de requête');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.client_id && data.client_secret) {
+                clearInterval(pollInterval);
+                clearTimeout(timeoutId);
+                getToken(deviceCode, data.client_id, data.client_secret);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            console.log('Tentative suivante dans 5 secondes...');
+        });
+    }, 5000);
+
+    const timeoutId = setTimeout(() => {
+        clearInterval(pollInterval);
+        alert("Le délai d'authentification a expiré. Veuillez réessayer.");
+        resetAuthButton();
+    }, expiresIn * 1000);
+}
+
+function getToken(deviceCode, clientId, clientSecret) {
+    const url = `/api/auth/realdebrid/token?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&device_code=${encodeURIComponent(deviceCode)}`;
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erreur de requête');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.access_token && data.refresh_token) {
+            const rdCredentials = {
+                client_id: clientId,
+                client_secret: clientSecret,
+                access_token: data.access_token,
+                refresh_token: data.refresh_token
+            };
+            document.getElementById('debrid_api_key').value = JSON.stringify(rdCredentials, null, 2);
+            document.getElementById('auth-status').style.display = 'block';
+            document.getElementById('auth-instructions').style.display = 'none';
+            document.getElementById('rd-auth-button').disabled = true;
+            document.getElementById('rd-auth-button').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('rd-auth-button').textContent = "Connexion réussie";
+        } else {
+            throw new Error('Tokens non reçus');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        // Ne pas afficher d'alerte ici, car cela pourrait être une erreur temporaire
+        console.log('Erreur lors de la récupération du token. Nouvelle tentative lors du prochain polling.');
+    });
+}
+
+function resetAuthButton() {
+    const button = document.getElementById('rd-auth-button');
+    button.disabled = false;
+    button.textContent = "S'authentifier avec Real-Debrid";
+    button.classList.remove('opacity-50', 'cursor-not-allowed');
+}
+
 function updateProviderFields() {
     setElementDisplay('debrid-fields', document.getElementById('debrid').checked ? 'block' : 'none');
     setElementDisplay('cache-fields', document.getElementById('cache')?.checked ? 'block' : 'none');
@@ -41,9 +161,9 @@ function loadData() {
             document.getElementById('debrid_api_key').value = data.debridKey;
             document.getElementById('sharewoodPasskey').value = data.sharewoodPasskey;
             document.getElementById('yggPasskey').value = data.yggPasskey;
+            // document.getElementById('service').value = data.service;
             // document.getElementById('yggUsername').value = data.yggUsername;
             // document.getElementById('yggPassword').value = data.yggPassword;
-            document.getElementById('service').value = data.service;
             document.getElementById('exclusion-keywords').value = (data.exclusionKeywords || []).join(', ');
             document.getElementById('maxSize').value = data.maxSize;
             document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
@@ -77,7 +197,8 @@ function getLink(method) {
     const data = {
         addonHost: new URL(window.location.href).origin,
         apiKey: document.getElementById('ApiKey').value,
-        service: document.getElementById('service').value,
+        // service: document.getElementById('service').value,
+        service: 'Real-Debrid',
         debridKey: document.getElementById('debrid_api_key').value,
         sharewoodPasskey: document.getElementById('sharewoodPasskey').value,
         maxSize: parseInt(document.getElementById('maxSize').value) || 16,

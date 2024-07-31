@@ -6,6 +6,7 @@ from urllib.parse import unquote
 import requests
 
 from stream_fusion.constants import NO_CACHE_VIDEO_URL
+from stream_fusion.services.rd_conn.token_manager import RDTokenManager
 from stream_fusion.utils.debrid.base_debrid import BaseDebrid
 from stream_fusion.utils.general import get_info_hash_from_magnet
 from stream_fusion.utils.general import is_video_file
@@ -17,26 +18,29 @@ class RealDebrid(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
         self.base_url = "https://api.real-debrid.com"
-        self.headers = {"Authorization": f"Bearer {self.config['debridKey']}"}
+        self.token_manager = RDTokenManager(config)
+
+    def get_headers(self):
+        return {"Authorization": f"Bearer {self.token_manager.get_access_token()}"}
 
     def add_magnet(self, magnet, ip=None):
         url = f"{self.base_url}/rest/1.0/torrents/addMagnet"
         data = {"magnet": magnet}
         logger.info(f"Adding magnet to RD: {magnet}")
-        return self.get_json_response(url, method='post', headers=self.headers, data=data)
+        return self.get_json_response(url, method='post', headers=self.get_headers(), data=data)
 
     def add_torrent(self, torrent_file):
         url = f"{self.base_url}/rest/1.0/torrents/addTorrent"
-        return self.get_json_response(url, method='put', headers=self.headers, data=torrent_file)
+        return self.get_json_response(url, method='put', headers=self.get_headers(), data=torrent_file)
 
     def delete_torrent(self, id):
         url = f"{self.base_url}/rest/1.0/torrents/delete/{id}"
-        return self.get_json_response(url, method='delete', headers=self.headers)
+        return self.get_json_response(url, method='delete', headers=self.get_headers())
 
     def get_torrent_info(self, torrent_id):
         logger.info(f"Getting torrent info for: {torrent_id}")
         url = f"{self.base_url}/rest/1.0/torrents/info/{torrent_id}"
-        torrent_info = self.get_json_response(url, headers=self.headers)
+        torrent_info = self.get_json_response(url, headers=self.get_headers())
         if not torrent_info or 'files' not in torrent_info:
             return None
         return torrent_info
@@ -46,17 +50,17 @@ class RealDebrid(BaseDebrid):
         self._torrent_rate_limit()
         url = f"{self.base_url}/rest/1.0/torrents/selectFiles/{torrent_id}"
         data = {"files": str(file_id)}
-        requests.post(url, headers=self.headers, data=data)
+        requests.post(url, headers=self.get_headers(), data=data)
 
     def unrestrict_link(self, link):
         url = f"{self.base_url}/rest/1.0/unrestrict/link"
         data = {"link": link}
-        return self.get_json_response(url, method='post', headers=self.headers, data=data)
+        return self.get_json_response(url, method='post', headers=self.get_headers(), data=data)
 
     def is_already_added(self, magnet):
         hash = magnet.split("urn:btih:")[1].split("&")[0].lower()
         url = f"{self.base_url}/rest/1.0/torrents"
-        torrents = self.get_json_response(url, headers=self.headers)
+        torrents = self.get_json_response(url, headers=self.get_headers())
         for torrent in torrents:
             if torrent['hash'].lower() == hash:
                 return torrent['id']
@@ -79,7 +83,7 @@ class RealDebrid(BaseDebrid):
             return dict()
 
         url = f"{self.base_url}/rest/1.0/torrents/instantAvailability/{'/'.join(hashes_or_magnets)}"
-        return self.get_json_response(url, headers=self.headers)
+        return self.get_json_response(url, headers=self.get_headers())
 
     def get_stream_link(self, query_string, config, ip=None):
         query = json.loads(query_string)
@@ -147,7 +151,7 @@ class RealDebrid(BaseDebrid):
     def __get_cached_torrent_ids(self, info_hash):
         self._torrent_rate_limit()
         url = f"{self.base_url}/rest/1.0/torrents"
-        torrents = self.get_json_response(url, headers=self.headers)
+        torrents = self.get_json_response(url, headers=self.get_headers())
 
         logger.info(f"Searching users real-debrid downloads for {info_hash}")
         torrent_ids = []

@@ -95,7 +95,7 @@ FR_RELEASE_GROUPS = [
             r"(?<=[.\s\-\[])(FtLi|Goldenyann|MUSTANG|Obi|PEPiTE|QUEBEC63|QC63|ROMKENT|R3MiX)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(FLOP|FRATERNiTY|QTZ|PopHD|toto70300|GHT|EXTREME|AvALoN|KFL|mHDgz)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(DUSTiN|QUALiTY|Tsundere-Raws|LAZARUS|ALFA|SODAPOP|Tetine|DREAM|Winks)(?=[.\s\-$$]|$)",
-            r"(?<=[.\s\-\[])(BDHD|MAX|SowHD|SN2P|RG|BTT|KAF|AwA|MULTiViSiON|FERVEX|Foxhound|K7)(?=[.\s\-$$]|$)",
+            r"(?<=[.\s\-\[])(BDHD|MAX|SowHD|SN2P|RG|BTT|KAF|AwA|MULTiViSiON|FERVEX|Foxhound|K7|LiBERTAD)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(FUJiSAN|HDForever|MARBLECAKE|MYSTERiON|ONLY|UTT|ZiT|JP48|SEL|PATOMiEL)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(BONBON|FCK|FW|FoX|FrIeNdS|MOONLY|MTDK|PATOPESTO|Psaro|T3KASHi|TFA)(?=[.\s\-$$]|$)",
             r"(?<=[.\s\-\[])(ALLDAYiN|ARK01|HANAMi|HeavyWeight|NEO|NoNe|ONLYMOViE|Slay3R|TkHD)(?=[.\s\-$$]|$)",
