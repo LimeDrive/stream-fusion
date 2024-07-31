@@ -35,14 +35,15 @@ class RDTokenManager:
 
     def __init__(self, config):
         self.redis = redis.Redis(host=settings.redis_host, port=settings.redis_port)
-        self.rd_config = config.get('debridKey', {})
+        self.config = config
+        self.rd_config = self.config.get('debridKey', {})
         if not self.rd_config:
             raise Exception("Real Debrid configuration not found")
         
         self.client_id = self.rd_config.get('client_id')
         self.client_secret = self.rd_config.get('client_secret')
         self.refresh_token = self.rd_config.get('refresh_token')
-        self.apikey = self.rd_config.get('apiKey')
+        self.apikey = self.config.get('apiKey')
         
         if not all([self.client_id, self.client_secret, self.refresh_token, self.apikey]):
             raise Exception("Missing required Real Debrid configuration")

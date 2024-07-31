@@ -163,7 +163,7 @@ function loadData() {
             document.getElementById('yggPasskey').value = data.yggPasskey;
             document.getElementById('yggUsername').value = data.yggUsername;
             document.getElementById('yggPassword').value = data.yggPassword;
-            document.getElementById('service').value = data.service;
+            // document.getElementById('service').value = data.service;
             document.getElementById('exclusion-keywords').value = (data.exclusionKeywords || []).join(', ');
             document.getElementById('maxSize').value = data.maxSize;
             document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
@@ -197,7 +197,8 @@ function getLink(method) {
     const data = {
         addonHost: new URL(window.location.href).origin,
         apiKey: document.getElementById('ApiKey').value,
-        service: document.getElementById('service').value,
+        // service: document.getElementById('service').value,
+        service: 'Real-Debrid',
         debridKey: document.getElementById('debrid_api_key').value,
         sharewoodPasskey: document.getElementById('sharewoodPasskey').value,
         maxSize: parseInt(document.getElementById('maxSize').value) || 16,
