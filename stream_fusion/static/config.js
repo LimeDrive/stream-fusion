@@ -152,7 +152,7 @@ function loadData() {
             data = JSON.parse(decryptedData);
             
             // Fill form fields with decrypted data
-            document.getElementById('jackett').checked = data.jackett;
+            // document.getElementById('jackett').checked = data.jackett;
             document.getElementById('cache').checked = data.cache;
             document.getElementById('cacheUrl').value = data.cacheUrl;
             document.getElementById('zilean').checked = data.zilean;
@@ -161,9 +161,9 @@ function loadData() {
             document.getElementById('debrid_api_key').value = data.debridKey;
             document.getElementById('sharewoodPasskey').value = data.sharewoodPasskey;
             document.getElementById('yggPasskey').value = data.yggPasskey;
-            document.getElementById('yggUsername').value = data.yggUsername;
-            document.getElementById('yggPassword').value = data.yggPassword;
             // document.getElementById('service').value = data.service;
+            // document.getElementById('yggUsername').value = data.yggUsername;
+            // document.getElementById('yggPassword').value = data.yggPassword;
             document.getElementById('exclusion-keywords').value = (data.exclusionKeywords || []).join(', ');
             document.getElementById('maxSize').value = data.maxSize;
             document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
@@ -210,13 +210,13 @@ function getLink(method) {
         minCachedResults: parseInt(document.getElementById('minCachedResults').value) || 5,
         exclusion: qualityExclusions.filter(quality => document.getElementById(quality).checked),
         cacheUrl: document.getElementById('cacheUrl').value,
-        jackett: document.getElementById('jackett')?.checked,
+        // jackett: document.getElementById('jackett')?.checked,
         cache: document.getElementById('cache')?.checked,
         zilean: document.getElementById('zilean')?.checked,
         yggflix: document.getElementById('yggflix')?.checked,
         sharewood: document.getElementById('sharewood')?.checked,
-        yggUsername: document.getElementById('yggUsername')?.value,
-        yggPassword: document.getElementById('yggPassword')?.value,
+        // yggUsername: document.getElementById('yggUsername')?.value,
+        // yggPassword: document.getElementById('yggPassword')?.value,
         yggPasskey: document.getElementById('yggPasskey')?.value,
         torrenting: document.getElementById('torrenting').checked,
         debrid: document.getElementById('debrid').checked,
@@ -229,7 +229,7 @@ function getLink(method) {
         (data.debrid && !data.debridKey) || 
         data.languages.length === 0 || 
         !data.apiKey || 
-        (data.yggflix && (!data.yggPasskey || !data.yggUsername || !data.yggPassword)) ||
+        (data.yggflix && !data.yggPasskey) || 
         (data.sharewood && !data.sharewoodPasskey)
     ) {
         alert('Please fill all required fields');
