@@ -96,7 +96,7 @@ class RDTokenManager:
 
             data = response.json()
             self.logger.info("New access token received successfully")
-            self.redis.setex(self.token_key, 300, data["access_token"])
+            self.redis.setex(self.token_key, 43200, data["access_token"])
             self.logger.debug(
                 f"Access token stored in Redis with expiry: {data['expires_in']} seconds"
             )
