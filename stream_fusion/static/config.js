@@ -145,50 +145,49 @@ function updateProviderFields() {
 function loadData() {
     const currentUrl = window.location.href;
     let data = currentUrl.match(/\/([^\/]+)\/configure$/);
-    if (data && data[1].startsWith("ey")) {
+    if (data && data[1]) {
         try {
-            // Decrypt data from URL
-            const decryptedData = CryptoJS.AES.decrypt(atob(data[1]), secretApiKey).toString(CryptoJS.enc.Utf8);
-            data = JSON.parse(decryptedData);
+            // Decode data from URL
+            const decodedData = JSON.parse(atob(data[1]));
             
-            // Fill form fields with decrypted data
-            document.getElementById('jackett').checked = data.jackett;
-            document.getElementById('cache').checked = data.cache;
-            document.getElementById('cacheUrl').value = data.cacheUrl;
-            document.getElementById('zilean').checked = data.zilean;
-            document.getElementById('yggflix').checked = data.yggflix;
-            document.getElementById('sharewood').checked = data.sharewood;
-            document.getElementById('debrid_api_key').value = data.debridKey;
-            document.getElementById('sharewoodPasskey').value = data.sharewoodPasskey;
-            document.getElementById('yggPasskey').value = data.yggPasskey;
-            document.getElementById('yggUsername').value = data.yggUsername;
-            document.getElementById('yggPassword').value = data.yggPassword;
-            // document.getElementById('service').value = data.service;
-            document.getElementById('exclusion-keywords').value = (data.exclusionKeywords || []).join(', ');
-            document.getElementById('maxSize').value = data.maxSize;
-            document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
-            document.getElementById('maxResults').value = data.maxResults;
-            document.getElementById('minCachedResults').value = data.minCachedResults;
-            document.getElementById('torrenting').checked = data.torrenting;
-            document.getElementById('debrid').checked = data.debrid;
-            document.getElementById('tmdb').checked = data.metadataProvider === 'tmdb';
-            document.getElementById('cinemeta').checked = data.metadataProvider === 'cinemeta';
+            // Fill form fields with decoded data
+            document.getElementById('jackett').checked = decodedData.jackett;
+            document.getElementById('cache').checked = decodedData.cache;
+            document.getElementById('cacheUrl').value = decodedData.cacheUrl;
+            document.getElementById('zilean').checked = decodedData.zilean;
+            document.getElementById('yggflix').checked = decodedData.yggflix;
+            document.getElementById('sharewood').checked = decodedData.sharewood;
+            document.getElementById('debrid_api_key').value = decodedData.debridKey;
+            document.getElementById('sharewoodPasskey').value = decodedData.sharewoodPasskey;
+            document.getElementById('yggPasskey').value = decodedData.yggPasskey;
+            document.getElementById('yggUsername').value = decodedData.yggUsername;
+            document.getElementById('yggPassword').value = decodedData.yggPassword;
+            document.getElementById('ApiKey').value = decodedData.apiKey;
+            document.getElementById('exclusion-keywords').value = (decodedData.exclusionKeywords || []).join(', ');
+            document.getElementById('maxSize').value = decodedData.maxSize;
+            document.getElementById('resultsPerQuality').value = decodedData.resultsPerQuality;
+            document.getElementById('maxResults').value = decodedData.maxResults;
+            document.getElementById('minCachedResults').value = decodedData.minCachedResults;
+            document.getElementById('torrenting').checked = decodedData.torrenting;
+            document.getElementById('debrid').checked = decodedData.debrid;
+            document.getElementById('tmdb').checked = decodedData.metadataProvider === 'tmdb';
+            document.getElementById('cinemeta').checked = decodedData.metadataProvider === 'cinemeta';
 
             sorts.forEach(sort => {
-                document.getElementById(sort).checked = data.sort === sort;
+                document.getElementById(sort).checked = decodedData.sort === sort;
             });
 
             qualityExclusions.forEach(quality => {
-                document.getElementById(quality).checked = data.exclusion.includes(quality);
+                document.getElementById(quality).checked = decodedData.exclusion.includes(quality);
             });
 
             languages.forEach(language => {
-                document.getElementById(language).checked = data.languages.includes(language);
+                document.getElementById(language).checked = decodedData.languages.includes(language);
             });
 
             updateProviderFields();
         } catch (error) {
-            console.error("Error decrypting data:", error);
+            console.error("Error decoding data:", error);
         }
     }
 }
