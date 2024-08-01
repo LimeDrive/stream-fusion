@@ -52,7 +52,8 @@ def get_stream_link(
     decoded_query: str, config: dict, ip: str, redis_cache: RedisCache
 ) -> str:
     logger.debug(f"Getting stream link for query: {decoded_query}, IP: {ip}")
-    cache_key = f"stream_link:{decoded_query}_{ip}"
+    api_key = config.get("apiKey")
+    cache_key = f"stream_link:{api_key}:{decoded_query}_{ip}"
 
     cached_link = redis_cache.get(cache_key)
     if cached_link:
@@ -98,7 +99,7 @@ async def get_playback(
         ip = request.client.host
         logger.debug(f"Decoded query: {decoded_query}, Client IP: {ip}")
 
-        lock_key = f"lock:stream:{decoded_query}_{ip}"
+        lock_key = f"lock:stream:{api_key}:{decoded_query}_{ip}"
         lock = redis_client.lock(lock_key, timeout=60)
 
         try:
@@ -107,7 +108,7 @@ async def get_playback(
                 link = get_stream_link(decoded_query, config, ip, redis_cache)
             else:
                 logger.debug("Lock not acquired, waiting for cached link")
-                cache_key = f"stream_link:{decoded_query}_{ip}"
+                cache_key = f"stream_link:{api_key}:{decoded_query}_{ip}"
                 for _ in range(30):
                     await asyncio.sleep(1)
                     cached_link = redis_cache.get(cache_key)
@@ -214,7 +215,7 @@ async def head_playback(
             raise HTTPException(status_code=400, detail="Query required.")
         decoded_query = decodeb64(query)
         ip = request.client.host
-        cache_key = f"stream_link:{decoded_query}_{ip}"
+        cache_key = f"stream_link:{api_key}:{decoded_query}_{ip}"
 
         headers = {
             "Content-Type": "video/mp4",

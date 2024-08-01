@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, Query
 
+from stream_fusion.services.rd_conn.token_manager import RealDebridService
 from stream_fusion.services.security_db import security_db_access
 from stream_fusion.settings import settings
-from stream_fusion.utils.security import secret_based_security
+from stream_fusion.utils.security import secret_based_security, api_key_security
 from stream_fusion.web.api.auth.schemas import UsageLog, UsageLogs
 
 router = APIRouter()
+rd_service = RealDebridService()
 
 
 @router.get(
@@ -90,3 +92,28 @@ def get_api_key_usage_logs():
             for row in security_db_access.get_usage_stats()
         ],
     )
+
+
+@router.post(
+    "/realdebrid/device_code",
+    include_in_schema=settings.security_hide_docs,
+)
+async def get_device_code():
+    results = await rd_service.get_device_code()
+    return results
+
+
+@router.post("/realdebrid/credentials",
+    include_in_schema=settings.security_hide_docs
+)
+async def get_credentials(device_code: str):
+    results = await rd_service.get_credentials(device_code)
+    return results
+
+
+@router.post("/realdebrid/token",
+    include_in_schema=settings.security_hide_docs
+)
+async def get_token(client_id: str, client_secret: str, device_code: str):
+    results = await rd_service.get_token(client_id, client_secret, device_code)
+    return results
