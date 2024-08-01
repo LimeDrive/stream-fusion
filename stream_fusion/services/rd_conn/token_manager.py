@@ -1,3 +1,4 @@
+import hashlib
 import aiohttp
 import redis
 import requests
@@ -39,7 +40,6 @@ class RDTokenManager:
         self.config = config
         self.rd_config = self.config.get('debridKey', {})
         if not self.rd_config:
-            self.logger.error("Real Debrid configuration not found")
             raise Exception("Real Debrid configuration not found")
         
         self.client_id = self.rd_config.get('client_id')
@@ -49,13 +49,17 @@ class RDTokenManager:
         self.logger = logger
         
         if not all([self.client_id, self.client_secret, self.refresh_token, self.apikey]):
-            self.logger.error("Missing required Real Debrid configuration")
             raise Exception("Missing required Real Debrid configuration")
         
+        self.token_key = self.generate_token_key()
         self.logger.info("RDTokenManager initialized successfully")
 
+    def generate_token_key(self):
+        unique_string = f"{self.client_id}:{self.client_secret}:{self.refresh_token}"
+        return f"rd_access_token:{hashlib.sha256(unique_string.encode()).hexdigest()}"
+
     def get_access_token(self):
-        token = self.redis.get(f"rd_access_token:{self.apikey}:")
+        token = self.redis.get(self.token_key)
         if token:
             self.logger.debug("Access token found in Redis")
             return token.decode('utf-8')
@@ -76,8 +80,8 @@ class RDTokenManager:
             
             data = response.json()
             self.logger.info("New access token received successfully")
-            self.redis.setex(f"rd_access_token:{self.apikey}:", 300, data['access_token'])
-            self.logger.debug(f"Access token stored in Redis with expiry: 300 seconds")
+            self.redis.setex(self.token_key, 300, data['access_token'])
+            self.logger.debug(f"Access token stored in Redis with expiry: {data['expires_in']} seconds")
             
             return data['access_token']
         except requests.exceptions.RequestException as e:
