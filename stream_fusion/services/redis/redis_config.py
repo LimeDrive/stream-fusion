@@ -1,4 +1,7 @@
 from functools import lru_cache
+
+from fastapi import Request
+from redis import Redis
 from stream_fusion.settings import settings
 from stream_fusion.utils.cache.local_redis import RedisCache
 
@@ -27,3 +30,7 @@ async def get_redis_cache_dependency():
         yield redis_cache
     finally:
         redis_cache.close()
+
+
+def get_redis(request: Request) -> Redis:
+    return Redis(connection_pool=request.app.state.redis_pool)

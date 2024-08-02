@@ -40,13 +40,35 @@ async def get_manifest():
         id="community.limedrive.streamfusion",
         icon="https://raw.githubusercontent.com/LimeDrive/stream-fusion/limedrive-add-auth/stream_fusion/static/logo-stream-fusion.png",
         version=str(get_version()),
-        resources=["stream"],
+        resources=["catalog", "stream"],
         types=["movie", "series"],
         name="StreamFusion",
         description="StreamFusion enhances Stremio by integrating torrent indexers and debrid services,"
          " providing access to a vast array of cached torrent sources. This plugin seamlessly bridges"
          " Stremio with popular indexers and debrid platforms, offering users an expanded content"
          " library and a smooth streaming experience.",
+        catalogs=[
+            {
+                "type": "movie",
+                "id": "latest_movies",
+                "name": "Yggflix - Films Récents"
+            },
+            {
+                "type": "movie",
+                "id": "recently_added_movies",
+                "name": "YGGtorrent - Films Récemment Ajoutés"
+            },
+            {
+                "type": "series",
+                "id": "latest_tv_shows",
+                "name": "Yggflix - Séries Récentes"
+            },
+            {
+                "type": "series",
+                "id": "recently_added_tv_shows",
+                "name": "YGGtorrent - Séries Récemment Ajoutées"
+            }
+        ],
         behaviorHints={
             "configurable": True,
             "configurationRequired": True
@@ -75,5 +97,27 @@ async def get_manifest():
         description="StreamFusion enhances Stremio by integrating torrent indexers and debrid services,"
          " providing access to a vast array of cached torrent sources. This plugin seamlessly bridges"
          " Stremio with popular indexers and debrid platforms, offering users an expanded content"
-         " library and a smooth streaming experience."
+         " library and a smooth streaming experience.",
+        catalogs=[
+            {
+                "type": "movie",
+                "id": "latest_movies",
+                "name": "Yggflix - Films Récents"
+            },
+            {
+                "type": "movie",
+                "id": "recently_added_movies",
+                "name": "YGGtorrent - Films Récemment Ajoutés"
+            },
+            {
+                "type": "series",
+                "id": "latest_tv_shows",
+                "name": "Yggflix - Séries Récentes"
+            },
+            {
+                "type": "series",
+                "id": "recently_added_tv_shows",
+                "name": "YGGtorrent - Séries Récemment Ajoutées"
+            }
+        ]
     )
