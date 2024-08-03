@@ -100,7 +100,7 @@ async def get_manifest():
 async def get_manifest():
     logger.info("Serving manifest.json")
     return ManifestResponse(
-        id="eu.limehub.streamfusion",
+        id="community.limedrive.streamfusion",
         icon="https://raw.githubusercontent.com/LimeDrive/stream-fusion/limedrive-add-auth/stream_fusion/static/logo-stream-fusion.png",
         version=str(get_version()),
         resources=[
@@ -118,7 +118,7 @@ async def get_manifest():
             }
         ],
         types=["movie", "series"],
-        name="StreamFusion SSD Community Edition",
+        name="StreamFusion" + " (dev)" if settings.develop else "",
         description="StreamFusion enhances Stremio by integrating torrent indexers and debrid services,"
          " providing access to a vast array of cached torrent sources. This plugin seamlessly bridges"
          " Stremio with popular indexers and debrid platforms, offering users an expanded content"

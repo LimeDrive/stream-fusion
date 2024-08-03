@@ -102,7 +102,7 @@ def configure_logging():
         f"/app/config/logs/api_worker_{os.getpid()}.log",
         format=format,
         level="DEBUG",
-        rotation="5 MB",
+        rotation="2 MB",
         retention="5 days",
         compression="zip",
         enqueue=True,
