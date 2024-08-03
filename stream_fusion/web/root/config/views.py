@@ -42,11 +42,12 @@ async def get_manifest():
         version=str(get_version()),
         resources=[
             'catalog',
-            {
-                'name': 'meta', 
-                'types': ['movie', 'series'], 
-                'idPrefixes': ['tt']
-            },
+            ## Useless for now, TMDB addon with french content and supp cinemata are OK for.
+            # {
+            #     'name': 'meta', 
+            #     'types': ['movie', 'series'], 
+            #     'idPrefixes': ['tt']
+            # },
             {
                 'name': 'stream', 
                 'types': ['movie', 'series'], 
@@ -104,11 +105,12 @@ async def get_manifest():
         version=str(get_version()),
         resources=[
             'catalog',
-            {
-                'name': 'meta', 
-                'types': ['movie', 'series'], 
-                'idPrefixes': ['tt']
-            },
+            ## Useless for now, TMDB addon with french content and supp cinemata are OK for.
+            # {
+            #     'name': 'meta', 
+            #     'types': ['movie', 'series'], 
+            #     'idPrefixes': ['tt']
+            # },
             {
                 'name': 'stream', 
                 'types': ['movie', 'series'], 
