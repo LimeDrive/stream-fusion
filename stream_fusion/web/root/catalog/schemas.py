@@ -20,7 +20,7 @@ class Video(BaseModel):
 
 
 class Meta(BaseModel):
-    id: str = Field(alias="_id")
+    id: str  # = Field(alias="_id")
     name: str = Field(alias="title")
     type: str = Field(default="movie")
     poster: str | None = None
@@ -33,6 +33,7 @@ class Meta(BaseModel):
     description: str | None = None
     runtime: str | None = None
     website: str | None = None
+    stream: dict | None = None
     imdbRating: str | float | None = Field(None, alias="imdb_rating")
     releaseInfo: str | int | None = Field(None, alias="year")
 

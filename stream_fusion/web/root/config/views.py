@@ -40,13 +40,25 @@ async def get_manifest():
         id="community.limedrive.streamfusion",
         icon="https://raw.githubusercontent.com/LimeDrive/stream-fusion/limedrive-add-auth/stream_fusion/static/logo-stream-fusion.png",
         version=str(get_version()),
-        resources=["catalog", "stream"],
+        resources=[
+            'catalog',
+            {
+                'name': 'meta', 
+                'types': ['movie', 'series'], 
+                'idPrefixes': ['tt']
+            },
+            {
+                'name': 'stream', 
+                'types': ['movie', 'series'], 
+                'idPrefixes': ['tt']
+            }
+        ],
         types=["movie", "series"],
-        name="StreamFusion",
-        description="StreamFusion enhances Stremio by integrating torrent indexers and debrid services,"
-         " providing access to a vast array of cached torrent sources. This plugin seamlessly bridges"
-         " Stremio with popular indexers and debrid platforms, offering users an expanded content"
-         " library and a smooth streaming experience.",
+        name="StreamFusion" + " (dev)" if settings.develop else "",
+        description="StreamFusion enhances Stremio by integrating torrent indexers and debrid services, "
+                    "providing access to a vast array of cached torrent sources. This plugin seamlessly bridges "
+                    "Stremio with popular indexers and debrid platforms, offering users an expanded content "
+                    "library and a smooth streaming experience.",
         catalogs=[
             {
                 "type": "movie",
@@ -83,7 +95,6 @@ async def get_manifest():
         ]
     )
 
-
 @router.get("/{params}/manifest.json")
 async def get_manifest():
     logger.info("Serving manifest.json")
@@ -91,7 +102,19 @@ async def get_manifest():
         id="community.limedrive.streamfusion",
         icon="https://raw.githubusercontent.com/LimeDrive/stream-fusion/limedrive-add-auth/stream_fusion/static/logo-stream-fusion.png",
         version=str(get_version()),
-        resources=["stream"],
+        resources=[
+            'catalog',
+            {
+                'name': 'meta', 
+                'types': ['movie', 'series'], 
+                'idPrefixes': ['tt']
+            },
+            {
+                'name': 'stream', 
+                'types': ['movie', 'series'], 
+                'idPrefixes': ['tt']
+            }
+        ],
         types=["movie", "series"],
         name="StreamFusion" + " (dev)" if settings.develop else "",
         description="StreamFusion enhances Stremio by integrating torrent indexers and debrid services,"
