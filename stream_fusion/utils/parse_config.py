@@ -15,4 +15,15 @@ def parse_config(b64config):
             pass
     if "anonymizeMagnets" not in config:
         config["anonymizeMagnets"] = False
+    # Cut the option due to backwards compatibility
+    if "jackett" not in config:
+        config["jackett"] = False
+    if "yggPassword" not in config:
+        config["yggPassword"] = "FakePassword"
+    if "yggUsername" not in config:
+        config["yggUsername"] = "FakeUsername"
+
+    # Break old config on debrid untested
+    if config["service"] in ["AllDebrid", "Premiumize"]:
+        raise Exception("Old config detected, please reconfigure")
     return config

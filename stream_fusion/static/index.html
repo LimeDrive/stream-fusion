@@ -10,7 +10,7 @@
         const secretKey = "{{ session_key }}";
     </script>
     <script src="/static/js/config.js"></script>
-    <title>SteamFusion</title>
+    <title>SteamFusion Community</title>
     <style>
         /* Supprimez ou commentez les styles du body ici */
         .multipleSelection {
@@ -43,11 +43,19 @@
                 <p class="dark:text-white text-center">StreamFusion configuration</p>
                 <h1 class="text-base font-semibold leading-7 text-gray-900 dark:text-white"
                     style="text-align: center;font-size: 1.3rem;">
-                    FRENCH Optimized - Stremio Addon</h1>
+                    SSD Community Addon</h1>
+                <p class="mt-4 text-sm leading-6 text-gray-600 dark:text-gray-400 text-center">
+                    <strong>Note importante :</strong> Ce projet n'est pas responsable du contenu visionné et n'héberge aucun contenu.
+                        Les liens de streaming sont redistribués directement à l'utilisateur. Il est impératif d'utiliser un seul compte de débrideur 
+                        par personne, sous peine de se faire bannir du service de débridage.
+                </p>
                 <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                     <h2 class="text-white font-semibold leading-7">Api-Key Settings</h2>
                     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Enter your API key information
                         here.</p>
+                    <p class="text-gray-500 dark:text-gray-300"><span
+                        class="font-bold text-red-600 dark:text-red-500">Les clés API sont distribuées 
+                        sur le Discord de SSDV2. 🔓</span></p>
 
                     <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                         <div class="sm:col-span-4">
@@ -99,7 +107,7 @@
                         settings here.</p>
 
                     <div class="mt-10 space-y-10">
-                        <div class="relative flex gap-x-3">
+                        <!-- <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
                                 <input id="jackett" name="jackett" type="checkbox"
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
@@ -109,7 +117,7 @@
                                 <p class="text-gray-500 dark:text-gray-300">Use Jackett for more comprehensive results.
                                 </p>
                             </div>
-                        </div>
+                        </div> -->
 
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
@@ -142,7 +150,7 @@
 
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
-                                <input id="yggflix" name="yggflix" type="checkbox"
+                                <input id="yggflix" name="yggflix" type="checkbox" checked
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                     onchange="updateProviderFields(true)">
                             </div>
@@ -226,6 +234,8 @@
                             <div class="text-sm leading-6">
                                 <label for="cinemeta" class="font-medium text-white">Use Cinemeta</label>
                                 <p class="text-gray-500 dark:text-gray-300">Use Cinemeta for simple metadata.</p>
+                                <p class="text-gray-500 dark:text-gray-300"><span
+                                    class="font-bold text-red-600 dark:text-red-500">Pour YggTorrent utilisé TMDB obligatoirement.</span></p>
                             </div>
                         </div>
                     </div>
@@ -274,7 +284,7 @@
                             information here.</p>
 
                         <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div class="sm:col-span-6">
+                            <!-- <div class="sm:col-span-6">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label for="yggUsername"
@@ -291,7 +301,7 @@
                                             class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="sm:col-span-4">
                                 <label for="yggPasskey"
                                     class="block text-sm font-medium leading-6 text-white">YggTorrent PassKey</label>
