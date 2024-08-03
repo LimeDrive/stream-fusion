@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stream-fusion"
-version = "0.9.0"
+version = "0.9.3"
 description = "StreamFusion is an advanced plugin for Stremio that significantly enhances its streaming capabilities with debrid service."
 authors = ["LimeDrive <limecat@limedrive.eu>"]
 readme = "README.md"
@@ -34,6 +34,7 @@ requests-ratelimiter = "^0.7.0"
 timeout-decorator = "^0.5.0"
 tenacity = "^8.5.0"
 aiohttp-socks = "^0.8.4"
+tmdbv3api = "^1.9.0"
 
 
 [build-system]
