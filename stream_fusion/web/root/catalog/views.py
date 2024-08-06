@@ -4,7 +4,7 @@ import pickle
 from redis import Redis
 from tmdbv3api import TMDb, Movie, TV, Season, Discover, Find
 from fastapi_simple_rate_limiter import rate_limiter
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi_simple_rate_limiter.database import create_redis_session
 
 from stream_fusion.settings import settings
@@ -115,7 +115,7 @@ async def create_meta_object(details, item_type: str, imdb_id: str):
 
     if item_type == "movie":
         meta.stream = {
-            "id": imdb_id  # Vous pouvez utiliser un autre identifiant si nécessaire
+            "id": imdb_id
         }
     elif item_type == "series" and hasattr(details, "seasons"):
         meta.videos = []
