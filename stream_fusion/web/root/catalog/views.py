@@ -115,7 +115,7 @@ async def create_meta_object(details, item_type: str, imdb_id: str):
 
     if item_type == "movie":
         meta.stream = {
-            "id": imdb_id  # Vous pouvez utiliser un autre identifiant si nécessaire
+            "id": imdb_id
         }
     elif item_type == "series" and hasattr(details, "seasons"):
         meta.videos = []
@@ -149,12 +149,16 @@ async def get_tmdb_id_from_imdb(imdb_id: str) -> str:
 @router.get(
     "/{config}/catalog/{type}/{id}.json", responses={500: {"model": ErrorResponse}}
 )
+@router.get(
+    "/{config}/catalog/{type}/{id}/skip={skip}.json", responses={500: {"model": ErrorResponse}}
+)
 @rate_limiter(limit=20, seconds=60, redis=redis_session)
 async def get_catalog(
     config: str,
     type: str,
     id: str,
     request: Request,
+    skip: int = 0,
     redis_client: Redis = Depends(get_redis),
 ):
     try:
@@ -179,7 +183,8 @@ async def get_catalog(
         cached_catalog = await get_cached_item(redis_client, cache_key)
         if cached_catalog:
             logger.info(f"Catalog found in cache for key: {cache_key}")
-            return Metas.model_validate(cached_catalog)
+            full_catalog = Metas.model_validate(cached_catalog)
+            return Metas(metas=full_catalog.metas[skip:])
 
         yggflix = YggflixAPI()
         home_data = await asyncio.to_thread(yggflix.get_home)
@@ -235,7 +240,7 @@ async def get_catalog(
         await cache_item(redis_client, cache_key, catalog, 1800)
 
         logger.info(f"Catalog generated and cached for key: {cache_key}")
-        return catalog
+        return Metas(metas=catalog.metas[skip:])
 
     except Exception as e:
         logger.error(f"Catalog error: {str(e)}", exc_info=True)
