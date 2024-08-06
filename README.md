@@ -236,9 +236,54 @@ StreamFusion peut être configuré via des variables d'environnement. Voici les 
 
 Note : Les variables marquées comme requises (✅) doivent être configurées pour que StreamFusion fonctionne correctement. Les variables optionnelles (❌) peuvent être laissées à leur valeur par défaut ou ajustées selon vos besoins. Assurez-vous de gérer de manière sécurisée les variables sensibles, par exemple en utilisant des secrets Docker ou des variables d'environnement sécurisées.
 
-## Utilisation (En cours)
+## Utilisation
 
-[Guide d'utilisation à ajouter]
+Une fois StreamFusion déployé et accessible derrière un reverse proxy, suivez ces étapes pour configurer et utiliser l'addon :
+
+### Configuration initiale
+
+1. Accédez au panel d'administration :
+   - Ouvrez votre navigateur et allez à `https://votre-domaine.com/api/admin`
+   - Utilisez la `SECRET_API_KEY` que vous avez configurée pour vous connecter au panel admin.
+
+2. Création d'une clé API utilisateur :
+   - Dans le panel admin, créez une nouvelle clé API pour chaque utilisateur.
+   - Choisissez l'option "never expire" pour la durée de validité de la clé.
+
+3. Configuration de l'addon :
+   - Rendez-vous sur `https://votre-domaine.com`
+   - Vous arriverez sur la page de configuration de StreamFusion.
+   - Remplissez les informations demandées, y compris la clé API que vous venez de créer.
+
+4. Installation dans Stremio :
+   - Cliquez sur "Install" une fois la configuration terminée.
+   - Vous serez redirigé vers Stremio, ou
+   - Copiez le lien de configuration et collez-le dans la barre de recherche des plugins de Stremio.
+
+### Configurer les métadonnées en français
+
+Pour obtenir les métadonnées en français dans Stremio :
+
+1. Ajoutez d'abord l'addon TMDB dans Stremio.
+2. Ouvrez Stremio Web : https://web.stremio.com/
+3. Allez sur la page des addons.
+4. Appuyez sur F12 pour ouvrir la console du navigateur.
+5. Copiez et collez le code fourni sur [ce post Reddit](https://www.reddit.com/r/StremioAddons/comments/1d8wbul/how_to_remove_cinemeta/) dans la console.
+6. Exécutez le code pour supprimer Cinemeta.
+7. (Optionnel) Vous pouvez réinstaller Cinemeta pour améliorer la réactivité de la recherche.
+
+### Réorganiser l'ordre des plugins et catalogues
+
+Pour personnaliser l'ordre d'affichage des plugins et catalogues dans Stremio :
+
+1. Visitez [Stremio Addon Manager](https://addon-manager.dontwanttos.top/)
+2. Utilisez cet outil pour réorganiser vos addons selon vos préférences.
+
+### Conseils d'utilisation
+
+- Assurez-vous de garder votre clé API secrète et de ne pas la partager.
+- Vérifiez régulièrement les mises à jour de StreamFusion pour bénéficier des dernières fonctionnalités et corrections.
+- En cas de problème, consultez les logs de StreamFusion pour identifier d'éventuelles erreurs.
 
 ## Contribution
 
