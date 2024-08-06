@@ -4,6 +4,7 @@ from typing import Callable
 from aiohttp_socks import ProxyConnector
 from fastapi import FastAPI
 import aiohttp
+from redis import ConnectionPool
 from yarl import URL
 from stream_fusion.settings import settings
 
@@ -33,6 +34,14 @@ def register_startup_event(
             timeout=timeout, connector=connector
         )
 
+        app.state.redis_pool = ConnectionPool(
+            host=settings.redis_host,
+            port=settings.redis_port,
+            db=0,
+            max_connections=15
+        )
+
+
     return _startup
 
 
@@ -49,5 +58,6 @@ def register_shutdown_event(
     async def _shutdown() -> None:
         if app.state.http_session:
             await app.state.http_session.close()
-
+        if app.state.redis_pool:
+            app.state.redis_pool.disconnect()
     return _shutdown

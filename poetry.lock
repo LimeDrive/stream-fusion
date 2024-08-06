@@ -2040,6 +2040,20 @@ files = [
 ]
 
 [[package]]
+name = "tmdbv3api"
+version = "1.9.0"
+description = "A lightweight Python library for The Movie Database (TMDb) API."
+optional = false
+python-versions = "*"
+files = [
+    {file = "tmdbv3api-1.9.0-py3-none-any.whl", hash = "sha256:2bcd8c6e8902397860715a71045f200ecc3ee06804ecf786cb4c1e09b2deeba8"},
+    {file = "tmdbv3api-1.9.0.tar.gz", hash = "sha256:504c5da6b99c4516ff160a01576112d097f209c0534f943c15c4b56cbd92c33b"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -2578,4 +2592,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "cf7b281ca3b6143eefff635ce938f987277d131247107479f434e740870e12a0"
+content-hash = "92d53385246dc5f035d89ceaea5f2224af11d4237cf71fcfc49af8aa36838bf6"

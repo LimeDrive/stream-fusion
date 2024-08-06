@@ -1,202 +1,62 @@
-# StreamFusion - FRENCH optimized -
+# StreamFusion - Optimisé pour le contenu francophone
+
+![Licence MIT](https://img.shields.io/badge/licence-MIT-blue.svg)
+![Version](https://img.shields.io/github/v/release/limedrive/stream-fusion?include_prereleases)
+![Problèmes ouverts](https://img.shields.io/github/issues/limedrive/stream-fusion)
+![Pull Requests](https://img.shields.io/github/issues-pr/limedrive/stream-fusion)
+![Dernière mise à jour](https://img.shields.io/github/last-commit/limedrive/stream-fusion)
+
 
 ## Description
 
-StreamFusion is an advanced plugin for Stremio that significantly enhances its streaming capabilities for french contents. It leverages torrent indexers and Jackett to integrate cached torrent sources from popular debrid services, offering a smooth and comprehensive streaming experience. This application acts as a bridge between Stremio, torrent indexers, and debrid services, providing users with a wide range of content options.
+StreamFusion est un addon avancé pour Stremio qui améliore considérablement ses capacités de streaming, spécialement optimisé pour le contenu francophone. Il intègre des indexeurs de torrents via jackett, des services de debrid et des fonctionnalités avancées pour offrir une expérience de streaming fluide et complète, particulièrement adaptée au public français.
 
-## Key Features
+## Caractéristiques principales
 
-- **Torrent Indexer Integration**: Utilizes various torrent indexers and Jackett to source content.
-- **Debrid Service Integration**: Adds cached torrents from RealDebrid, AllDebrid, and Premiumize as sources for Stremio.
-- **Direct Streaming**: Uses indexers for direct streaming when cached torrents are unavailable.
-- **Advanced Cache Management**: 
-  - Utilizes Redis for efficient caching.
-  - Community cache for sharing cached torrent searches.
-- **Zilean API**: Integration of the DMM Zilean API to obtain cached torrent hashes.
-- **Stream Proxification**: All streams originate from a single IP address.
-- **Download Management**: Capable of managing torrent downloads on debrid services.
+- **Intégration d'indexeurs français** : Utilise les principaux indexeurs français, soit en direct soit via Jackett.
+- **Catalogue YggFlix** : Ajout du catalogue YggFlix directement dans Stremio.
+- **Cache public de Stremio-Jackett** : Utilisation du cache du projet d'origine pour des performances optimales.
+- **Intégration de Zilean** : Indexation de toutes les hashlist de DébridMediaManager pour accéder aux contenus en cache chez les débrideurs.
+- **FlareSolverr** : Intégration directe pour de meilleures performances face aux protections Cloudflare (actuellement en stand-by).
+- **Intégration de Real-Debrid** : Redistribution des liens de streaming en direct, ajout de torrents depuis Stremio (d'autres débrideurs seront ajoutés à l'avenir).
+- **Proxification des flux** : Option pour proxifier les flux vidéo.
+- **Sécurité renforcée** : Protection de l'application avec clé API via une interface de gestion.
+- **Tri optimisé pour le contenu français** : Résultats ciblés et de qualité, avec reconnaissance des langues et des teams.
+- **Gestion du cache avec Redis** : Amélioration des performances et de la rapidité des résultats.
+- **Déploiement Docker** : Possibilité de déploiement en self-hosted via Docker et docker-compose.
 
-## Installation (WIP)
+## Mises à jour à venir
 
-[Installation instructions to be added]
+- Ajout de qBittorrent pour utiliser les trackers privés avec les débrideurs tout en respectant les règles de ratio.
+- Amélioration du cache communautaire public pour une couverture plus complète.
 
-## Configuration (WIP)
+## Installation (En cours)
 
-[Configuration details to be added]
+[Instructions d'installation à ajouter]
 
-## Usage (WIP)
+## Configuration (En cours)
 
-[Usage guide to be added]
+[Détails de configuration à ajouter]
 
-## Contributing
+## Utilisation (En cours)
 
-Contributions are welcome! Please refer to our contribution guidelines for more details.
+[Guide d'utilisation à ajouter]
 
-```bash
-tree -I '*.pyc' -I '__pycache__'
-.
-├── Dockerfile
-├── LICENSE
-├── README.md
-├── deploy
-│   └── docker-compose.yml
-├── poetry.lock
-├── poetry.toml
-├── pyproject.toml
-└── stream_fusion
-    ├── __init__.py
-    ├── __main__.py
-    ├── constants.py
-    ├── gunicorn_runner.py
-    ├── logging_config.py
-    ├── services
-    │   ├── fspy
-    │   │   ├── __init__.py
-    │   │   ├── response_models.py
-    │   │   ├── solver.py
-    │   │   └── solver_exceptions.py
-    │   ├── redis
-    │   │   └── redis_config.py
-    │   ├── security_db
-    │   │   ├── __init__.py
-    │   │   └── _sqlite_access.py
-    │   └── ygg_conn
-    │       ├── __init__.py
-    │       ├── ygg_auth.py
-    │       └── ygg_session.py
-    ├── settings.py
-    ├── static
-    │   ├── admin
-    │   │   ├── api_keys.html
-    │   │   ├── base.html
-    │   │   ├── create_api_key.html
-    │   │   └── login.html
-    │   ├── config.js
-    │   ├── docs
-    │   │   ├── redoc.standalone.js
-    │   │   ├── swagger-ui-bundle.js
-    │   │   └── swagger-ui.css
-    │   ├── index.html
-    │   ├── logo-stream-fusion.png
-    │   └── stremio-bg.jpg
-    ├── utils
-    │   ├── cache
-    │   │   ├── __init__.py
-    │   │   ├── cache.py
-    │   │   ├── cache_base.py
-    │   │   └── local_redis.py
-    │   ├── debrid
-    │   │   ├── __init__.py
-    │   │   ├── alldebrid.py
-    │   │   ├── base_debrid.py
-    │   │   ├── get_debrid_service.py
-    │   │   ├── premiumize.py
-    │   │   └── realdebrid.py
-    │   ├── detection.py
-    │   ├── filter
-    │   │   ├── base_filter.py
-    │   │   ├── language_filter.py
-    │   │   ├── max_size_filter.py
-    │   │   ├── quality_exclusion_filter.py
-    │   │   ├── results_per_quality_filter.py
-    │   │   └── title_exclusion_filter.py
-    │   ├── filter_results.py
-    │   ├── general.py
-    │   ├── jackett
-    │   │   ├── __init__.py
-    │   │   ├── jackett_indexer.py
-    │   │   ├── jackett_result.py
-    │   │   └── jackett_service.py
-    │   ├── metdata
-    │   │   ├── cinemeta.py
-    │   │   ├── metadata_provider_base.py
-    │   │   └── tmdb.py
-    │   ├── models
-    │   │   ├── media.py
-    │   │   ├── movie.py
-    │   │   └── series.py
-    │   ├── parse_config.py
-    │   ├── security
-    │   │   ├── __init__.py
-    │   │   ├── security_api_key.py
-    │   │   └── security_secret.py
-    │   ├── sharewood
-    │   │   ├── __init__.py
-    │   │   ├── sharewood_api.py
-    │   │   ├── sharewood_result.py
-    │   │   └── sharewood_service.py
-    │   ├── string_encoding.py
-    │   ├── torrent
-    │   │   ├── torrent_item.py
-    │   │   ├── torrent_service.py
-    │   │   └── torrent_smart_container.py
-    │   ├── yggfilx
-    │   │   ├── __init__.py
-    │   │   ├── yggflix_api.py
-    │   │   ├── yggflix_result.py
-    │   │   └── yggflix_service.py
-    │   └── zilean
-    │       ├── __init__.py
-    │       ├── zilean_api.py
-    │       ├── zilean_result.py
-    │       └── zilean_service.py
-    ├── version.py
-    ├── videos
-    │   └── nocache.mp4
-    └── web
-        ├── __init__.py
-        ├── api
-        │   ├── __init__.py
-        │   ├── admin
-        │   │   ├── __init__.py
-        │   │   └── views.py
-        │   ├── auth
-        │   │   ├── __init__.py
-        │   │   ├── schemas.py
-        │   │   └── views.py
-        │   ├── docs
-        │   │   ├── __init__.py
-        │   │   └── views.py
-        │   ├── monitoring
-        │   │   ├── __init__.py
-        │   │   └── views.py
-        │   └── router.py
-        ├── application.py
-        ├── lifetime.py
-        ├── playback
-        │   ├── __init__.py
-        │   ├── router.py
-        │   └── stream
-        │       ├── __init__.py
-        │       ├── schemas.py
-        │       └── views.py
-        └── root
-            ├── __init__.py
-            ├── config
-            │   ├── __init__.py
-            │   ├── schemas.py
-            │   └── views.py
-            ├── router.py
-            └── search
-                ├── __init__.py
-                ├── schemas.py
-                ├── stremio_parser.py
-                └── views.py
+## Contribution
 
-35 directories, 113 files
-```
+Les contributions sont les bienvenues ! Veuillez vous référer à nos directives de contribution pour plus de détails.
 
-## License
+## Licence
 
-[License information to be added]
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
-## Disclaimer
+## Avertissement
 
-This project is intended for educational and research purposes only. Users are responsible for their use of the software and must comply with local copyright and intellectual property laws.
+Ce projet est destiné uniquement à des fins éducatives et de recherche. Les utilisateurs sont responsables de leur utilisation du logiciel et doivent se conformer aux lois locales sur le droit d'auteur et la propriété intellectuelle.
 
 ## Contact
 
-[![Discord](https://img.shields.io/badge/Discord-Rejoignez%20nous%20sur%20SSD!-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/jcMYfrz3sr)
+[![Discord](https://img.shields.io/badge/Discord-Rejoignez%20nous%20sur%20SSD!-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ZhWvKVmTuh)
 
 ---
 
