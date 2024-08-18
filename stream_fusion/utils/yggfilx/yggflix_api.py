@@ -1,3 +1,4 @@
+from typing import List, Optional
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -97,7 +98,7 @@ class YggflixAPI:
             dict: JSON response containing search results
         """
         return self._make_request("GET", "/search", params={"q": query})
-    
+
     def get_home(self):
         """
         Get home page data from the API.
@@ -142,7 +143,7 @@ class YggflixAPI:
             dict: JSON response containing TV show details
         """
         return self._make_request("GET", f"/tvshow/{tvshow_id}")
-    
+
     def get_tvshow_torrents(self, tvshow_id: int):
         """
         Get torrents associated with a specific TV show.
@@ -154,41 +155,48 @@ class YggflixAPI:
             dict: JSON response containing torrent information for the TV show
         """
         return self._make_request("GET", f"/tvshow/{tvshow_id}/torrents")
-    
-    def get_torrent_info(self, torrent_id: int):
+
+    def get_torrents(
+        self,
+        page: int = 1,
+        q: str = "",
+        category_id: Optional[int] = None,
+        order_by: str = "uploaded_at",
+    ) -> List[dict]:
         """
-        Get details of a specific torrent.
+        Get a list of torrents with optional filtering and sorting.
 
         Args:
-            torrent_id (int): The unique identifier of the torrent
+            page (int): Page number for pagination. Defaults to 1.
+            q (str): Search query. Defaults to an empty string.
+            category_id (int, optional): Category ID for filtering. Defaults to None.
+            order_by (str): Field to order results by. Can be "uploaded_at", "seeders", or "downloads".
+                            Defaults to "uploaded_at".
 
         Returns:
-            dict: JSON response containing torrent details
+            List[dict]: A list of torrent results.
+        """
+        params = {"page": page, "q": q, "order_by": order_by}
+        if category_id is not None:
+            params["category_id"] = category_id
+
+        return self._make_request("GET", "/torrents", params=params)
+
+    def get_torrent_detail(self, torrent_id: int) -> dict:
+        """
+        Get detailed information about a specific torrent.
+
+        Args:
+            torrent_id (int): The unique identifier of the torrent.
+
+        Returns:
+            dict: Detailed information about the torrent.
         """
         return self._make_request("GET", f"/torrent/{torrent_id}")
-    
-    def get_torrent(self, page: int = 1, query: str = None):
-        """
-        Get a list of torrents, optionally filtered by a search query.
 
-        Args:
-            page (int, optional): The page number for pagination. Defaults to 1.
-            query (str, optional): A search query to filter torrents. Defaults to None.
-
-        Returns:
-            dict: JSON response containing a list of torrents
-        """
-        url = f"/torrents?page={page}"
-        if query:
-            url += f"&q={query}"
-        return self._make_request("GET", url)
-    
-    def download_torrent(self, torrent_id: int, passkey: str):
+    def download_torrent(self, torrent_id: int, passkey: str) -> bytes:
         """
         Download a specific torrent file.
-
-        This method initiates the download of a torrent file. It requires authentication
-        via a passkey. The method returns the raw content of the .torrent file.
 
         Args:
             torrent_id (int): The unique identifier of the torrent to download.
@@ -204,11 +212,21 @@ class YggflixAPI:
         """
         if len(passkey) != 32:
             raise ValueError("Passkey must be exactly 32 characters long.")
-        
-        url = f"/torrent/{torrent_id}/download?passkey={passkey}"
-        
-        return self._make_request("GET", url)
-    
+
+        url = f"{self.base_url}/torrent/{torrent_id}/download"
+        params = {"passkey": passkey}
+
+        try:
+            response = self.session.get(url, params=params, timeout=self.timeout)
+            response.raise_for_status()
+            return response.content
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"HTTP error occurred while downloading torrent: {e}")
+            raise
+        except requests.exceptions.RequestException as e:
+            logger.error(f"An error occurred while downloading torrent: {e}")
+            raise
+
     def __del__(self):
         """
         Close the session when the object is destroyed.
