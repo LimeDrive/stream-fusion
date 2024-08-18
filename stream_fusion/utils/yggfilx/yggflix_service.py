@@ -47,11 +47,8 @@ class YggflixService:
 
     def __process_download_link(self, id: int) -> str:
         """Generate the download link for a given torrent."""
-        if settings.ygg_lime_fix:
-            return f"{settings.ygg_proxy_url}/api/torrent/{str(id)}?passkey={self.ygg_passkey}"
-        return (
-            f"{self.ygg_url}/engine/download_torrent?id={id}&passkey={self.ygg_passkey}"
-        )
+        if settings.yggflix_url:
+            return f"{settings.yggflix_url}/api/torrent/{id}/download?passkey={self.ygg_passkey}"
 
     def __search_movie(self, media: Movie) -> List[dict]:
         """Search for a movie on Yggflix."""

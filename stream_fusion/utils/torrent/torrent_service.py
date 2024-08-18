@@ -39,8 +39,8 @@ class TorrentService:
                 processed_torrent_item = self.__process_magnet(torrent_item)
             elif settings.sharewood_url and torrent_item.link.startswith(settings.sharewood_url):
                 processed_torrent_item = self.__process_sharewood_web_url(torrent_item)
-            elif settings.ygg_proxy_url and torrent_item.link.startswith(settings.ygg_proxy_url):
-                processed_torrent_item = self.__process_ygg_proxy_url(torrent_item)
+            elif settings.yggflix_url and torrent_item.link.startswith(settings.yggflix_url):
+                processed_torrent_item = self.__process_ygg_api_url(torrent_item)
             else:
                 processed_torrent_item = self.__process_web_url(torrent_item)
 
@@ -103,15 +103,11 @@ class TorrentService:
         return result
 
 
-    def __process_ygg_proxy_url(self, result: TorrentItem): 
+    def __process_ygg_api_url(self, result: TorrentItem): 
         if not self.config["yggflix"]:
             logger.error("Yggflix is not enabled in the config. Skipping processing of Yggflix URL.")
         try:
-            headers = {
-                'accept': 'application/json',
-                'api-key': settings.ygg_proxy_apikey
-                }
-            response = self.__session.get(result.link, timeout=20, headers=headers)
+            response = self.__session.get(result.link, timeout=10)
             time.sleep(0.1) # Add a delay of 0.1 seconds between requests faire usage for small VPS
         except requests.exceptions.RequestException:
             self.logger.error(f"Error while processing url: {result.link}")
@@ -122,6 +118,8 @@ class TorrentService:
         
         if response.status_code == 200:
             return self.__process_torrent(result, response.content)
+        elif response.status_code == 422:
+            self.logger.info(f"Not aviable torrent on yggflix: {result.file_name}")
         else:
             self.logger.error(f"Error code {response.status_code} while processing ygg url: {result.link}")
 
