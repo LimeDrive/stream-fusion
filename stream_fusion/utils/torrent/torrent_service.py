@@ -118,6 +118,8 @@ class TorrentService:
         
         if response.status_code == 200:
             return self.__process_torrent(result, response.content)
+        elif response.status_code == 422:
+            self.logger.info(f"Not aviable torrent on yggflix: {result.file_name}")
         else:
             self.logger.error(f"Error code {response.status_code} while processing ygg url: {result.link}")
 
