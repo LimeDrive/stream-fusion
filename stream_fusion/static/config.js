@@ -159,9 +159,9 @@ function loadData() {
             document.getElementById('sharewood').checked = decodedData.sharewood;
             document.getElementById('debrid_api_key').value = decodedData.debridKey;
             document.getElementById('sharewoodPasskey').value = decodedData.sharewoodPasskey;
-            // document.getElementById('yggPasskey').value = decodedData.yggPasskey;
+            document.getElementById('yggPasskey').value = decodedData.yggPasskey;
             // document.getElementById('yggUsername').value = decodedData.yggUsername;
-            document.getElementById('yggPassword').value = decodedData.yggPassword;
+            // document.getElementById('yggPassword').value = decodedData.yggPassword;
             document.getElementById('ApiKey').value = decodedData.apiKey;
             document.getElementById('exclusion-keywords').value = (decodedData.exclusionKeywords || []).join(', ');
             document.getElementById('maxSize').value = decodedData.maxSize;
