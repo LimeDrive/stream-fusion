@@ -4,6 +4,8 @@ import re
 import threading
 from typing import List
 
+from RTN import ParsedData
+
 from stream_fusion.constants import FR_RELEASE_GROUPS, FRENCH_PATTERNS
 from stream_fusion.utils.models.media import Media
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
@@ -75,13 +77,13 @@ def parse_to_debrid_stream(
     else:
         name = f"{DOWNLOAD_REQUIRED}\n"
 
-    parsed_data = torrent_item.parsed_data
+    parsed_data: ParsedData = torrent_item.parsed_data
 
-    resolution = parsed_data.resolution[0] if parsed_data.resolution else "Unknow"
+    resolution = parsed_data.resolution if parsed_data.resolution else "Unknow"
     name += f"{resolution}"
 
     if parsed_data.quality:
-        name += f"\n{'|'.join(parsed_data.quality)}"
+        name += f"\n {parsed_data.quality}"
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
@@ -107,9 +109,9 @@ def parse_to_debrid_stream(
     )
 
     if parsed_data.codec:
-        title += f"🎥 {', '.join(parsed_data.codec)}   "
+        title += f"🎥 {parsed_data.codec} "
     if parsed_data.audio:
-        title += f"🎧 {', '.join(parsed_data.audio)}   "
+        title += f"🎧 {' '.join(parsed_data.audio)}"
     if parsed_data.codec or parsed_data.audio:
         title += "\n"
 

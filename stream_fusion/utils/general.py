@@ -15,7 +15,7 @@ def season_episode_in_filename(filename, season, episode):
 
     parsed_name = parse(filename)
 
-    return season in parsed_name.season and episode in parsed_name.episode
+    return season in parsed_name.seasons and episode in parsed_name.episodes
 
 
 def get_info_hash_from_magnet(magnet: str):

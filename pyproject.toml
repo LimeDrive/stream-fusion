@@ -15,7 +15,6 @@ bencode-py = "^4.0.0"
 jinja2 = "^3.1.4"
 aiocron = "^1.8"
 python-dotenv = "^1.0.1"
-rank-torrent-name = "^0.2.21"
 cachetools = "^5.3.3"
 redis = "^5.0.7"
 aiohttp = "^3.9.5"
@@ -35,6 +34,8 @@ timeout-decorator = "^0.5.0"
 tenacity = "^8.5.0"
 aiohttp-socks = "^0.8.4"
 tmdbv3api = "^1.9.0"
+rank-torrent-name = "^1.0.4"
+orjson = "^3.10.7"
 
 
 [build-system]

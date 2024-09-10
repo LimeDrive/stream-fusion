@@ -103,8 +103,8 @@ def cache_public(torrents: List[TorrentItem], media):
             cache_item["hash"] = torrent.info_hash
             cache_item["indexer"] = torrent.indexer
             cache_item["quality"] = (
-                torrent.parsed_data.resolution[0]
-                if len(torrent.parsed_data.resolution) > 0
+                torrent.parsed_data.resolution
+                if torrent.parsed_data.resolution
                 else "Unknown"
             )
             cache_item["qualitySpec"] = ";".join(torrent.parsed_data.quality)

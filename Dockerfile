@@ -1,6 +1,10 @@
-FROM python:3.11.9-slim-bullseye
+FROM python:3.11-alpine
 
-RUN pip install poetry
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+RUN pip install --no-cache-dir poetry
+
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
