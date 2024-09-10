@@ -16,9 +16,9 @@ quality_order = {"2160p": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 def sort_quality(item: TorrentItem):
     logger.debug(f"Evaluating quality for item: {item.raw_title}")
-    if len(item.parsed_data.resolution) == 0:
+    if not item.parsed_data.resolution:
         return float("inf"), True
-    resolution = item.parsed_data.resolution[0]
+    resolution = item.parsed_data.resolution
     priority = quality_order.get(resolution, float("inf"))
     return priority, item.parsed_data.resolution is None
 
@@ -85,19 +85,19 @@ def filter_out_non_matching_series(items, season, episode):
 
     for item in items:
         logger.debug(f"Checking item: {item.raw_title}")
-        if len(item.parsed_data.season) == 0 and len(item.parsed_data.episode) == 0:
+        if len(item.parsed_data.seasons) == 0 and len(item.parsed_data.episodes) == 0:
             logger.debug("Item with no season and episode, skipped")
             continue
         if (
-            len(item.parsed_data.episode) == 0
-            and numeric_season in item.parsed_data.season
+            len(item.parsed_data.episodes) == 0
+            and numeric_season in item.parsed_data.seasons
         ):
             logger.debug("Season match found, episode not specified")
             filtered_items.append(item)
             continue
         if (
-            numeric_season in item.parsed_data.season
-            and numeric_episode in item.parsed_data.episode
+            numeric_season in item.parsed_data.seasons
+            and numeric_episode in item.parsed_data.episodes
         ):
             logger.debug("Exact season and episode match found")
             filtered_items.append(item)

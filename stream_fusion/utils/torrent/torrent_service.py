@@ -161,7 +161,7 @@ class TorrentService:
         result.files = metadata["info"]["files"]
 
         if result.type == "series":
-            file_details = self.__find_episode_file(result.files, result.parsed_data.season, result.parsed_data.episode)
+            file_details = self.__find_episode_file(result.files, result.parsed_data.seasons, result.parsed_data.episodes)
 
             if file_details is not None:
                 self.logger.debug("File details")
@@ -244,7 +244,7 @@ class TorrentService:
 
                 parsed_file = parse(file)
 
-                if season[0] in parsed_file.season and episode[0] in parsed_file.episode:
+                if season[0] in parsed_file.seasons and episode[0] in parsed_file.episodes:
                     episode_files.append({
                         "file_index": file_index,
                         "title": file,

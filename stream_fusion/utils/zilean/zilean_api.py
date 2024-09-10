@@ -1,6 +1,6 @@
 import requests
 from typing import List, Optional, Tuple
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -8,60 +8,46 @@ from stream_fusion.settings import settings
 from stream_fusion.logging_config import logger
 
 
-class DmmQueryRequest(BaseModel):
+class DMMQueryRequest(BaseModel):
     queryText: Optional[str] = None
 
 
-class TorrentInfo(BaseModel):
-    resolution: Optional[str] = None
-    year: Optional[int] = None
-    remastered: bool = False
-    source: Optional[str] = None
-    codec: Optional[str] = None
-    group: Optional[str] = None
-    episodes: Tuple[int, ...] = Field(default_factory=tuple)
-    seasons: Tuple[int, ...] = Field(default_factory=tuple)
-    languages: Tuple[str, ...] = Field(default_factory=tuple)
-    title: Optional[str] = None
-    rawTitle: Optional[str] = None
-    size: int = 0
-    infoHash: Optional[str] = None
-    isPossibleMovie: bool = False
-
-    class Config:
-        frozen = True
-
-
-class ExtractedDmmEntry(BaseModel):
-    filename: str
-    infoHash: str
-    filesize: int
-    parseResponse: Optional[TorrentInfo] = None
-
-    resolution: Optional[str] = None
-    year: Optional[int] = None
-    remastered: bool = False
-    source: Optional[str] = None
-    codec: Optional[str] = None
-    group: Optional[str] = None
-    episodes: Optional[Tuple[int, ...]] = None
-    seasons: Optional[Tuple[int, ...]] = None
-    languages: Optional[Tuple[str, ...]] = None
-    title: Optional[str] = None
-    rawTitle: Optional[str] = None
-    size: Optional[int] = None
-    isPossibleMovie: bool = False
-
-    class Config:
-        frozen = True
-
-
-class ImdbFile(BaseModel):
+class DMMImdbFile(BaseModel):
     imdbId: Optional[str] = None
     category: Optional[str] = None
     title: Optional[str] = None
     adult: bool = False
     year: int = 0
+
+
+class DMMImdbSearchResult(BaseModel):
+    title: Optional[str] = None
+    imdbId: Optional[str] = None
+    year: int = 0
+    score: float = 0.0
+    category: Optional[str] = None
+
+
+class DMMTorrentInfo(BaseModel):
+    info_hash: Optional[str] = None
+    resolution: Tuple[str, ...] = Field(default_factory=tuple)
+    year: Optional[int] = None
+    remastered: Optional[bool] = None
+    codec: Tuple[str, ...] = Field(default_factory=tuple)
+    audio: Tuple[str, ...] = Field(default_factory=tuple)
+    quality: Tuple[str, ...] = Field(default_factory=tuple)
+    episode: Tuple[int, ...] = Field(default_factory=tuple)
+    season: Tuple[int, ...] = Field(default_factory=tuple)
+    language: Tuple[str, ...] = Field(default_factory=tuple)
+    parsed_title: Optional[str] = None
+    raw_title: Optional[str] = None
+    size: int = 0
+    category: Optional[str] = None
+    imdb_id: Optional[str] = None
+    imdb: Optional[DMMImdbFile] = None
+
+    class Config:
+        frozen = True
 
 
 class ZileanAPI:
@@ -105,9 +91,19 @@ class ZileanAPI:
             logger.error(f"Erreur lors de la requête API : {e}")
             raise
 
-    def dmm_search(self, query: DmmQueryRequest) -> List[ExtractedDmmEntry]:
+    def _convert_to_dmm_torrent_info(self, entry: dict) -> DMMTorrentInfo:
+        for key in ['resolution', 'codec', 'audio', 'quality', 'episode', 'season', 'language']:
+            if key in entry and isinstance(entry[key], list):
+                entry[key] = tuple(entry[key])
+        
+        if 'imdb' in entry and entry['imdb']:
+            entry['imdb'] = DMMImdbFile(**entry['imdb'])
+        
+        return DMMTorrentInfo(**entry)
+
+    def dmm_search(self, query: DMMQueryRequest) -> List[DMMTorrentInfo]:
         response = self._request("POST", "/dmm/search", json=query.dict())
-        return [ExtractedDmmEntry(**entry) for entry in response.json()]
+        return [self._convert_to_dmm_torrent_info(entry) for entry in response.json()]
 
     def dmm_filtered(
         self,
@@ -117,7 +113,8 @@ class ZileanAPI:
         year: Optional[int] = None,
         language: Optional[str] = None,
         resolution: Optional[str] = None,
-    ) -> List[ExtractedDmmEntry]:
+        imdb_id: Optional[str] = None,
+    ) -> List[DMMTorrentInfo]:
         params = {
             "Query": query,
             "Season": season,
@@ -125,29 +122,11 @@ class ZileanAPI:
             "Year": year,
             "Language": language,
             "Resolution": resolution,
+            "ImdbId": imdb_id,
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self._request("GET", "/dmm/filtered", params=params)
-
-        entries = []
-        for entry in response.json():
-            for key in ["episodes", "seasons", "languages"]:
-                if key in entry and isinstance(entry[key], list):
-                    entry[key] = tuple(entry[key])
-
-            torrent_info = TorrentInfo(
-                **{k: v for k, v in entry.items() if k in TorrentInfo.__fields__}
-            )
-
-            extracted_entry = ExtractedDmmEntry(
-                filename=entry.get("rawTitle", ""),
-                infoHash=entry.get("infoHash", ""),
-                filesize=entry.get("size", 0),
-                parseResponse=torrent_info,
-            )
-            entries.append(extracted_entry)
-
-        return entries
+        return [self._convert_to_dmm_torrent_info(entry) for entry in response.json()]
 
     def dmm_on_demand_scrape(self) -> None:
         self._request("GET", "/dmm/on-demand-scrape")
@@ -157,12 +136,12 @@ class ZileanAPI:
         return response.text
 
     def imdb_search(
-        self, query: Optional[str] = None, year: Optional[int] = None
-    ) -> List[ImdbFile]:
-        params = {"Query": query, "Year": year}
+        self, query: Optional[str] = None, year: Optional[int] = None, category: Optional[str] = None
+    ) -> List[DMMImdbSearchResult]:
+        params = {"Query": query, "Year": year, "Category": category}
         params = {k: v for k, v in params.items() if v is not None}
         response = self._request("POST", "/imdb/search", params=params)
-        return [ImdbFile(**file) for file in response.json()]
+        return [DMMImdbSearchResult(**file) for file in response.json()]
 
     def __del__(self):
         self.session.close()

@@ -1,4 +1,5 @@
 from RTN import parse
+from RTN.models import ParsedData
 from urllib.parse import quote
 
 from stream_fusion.utils.models.media import Media
@@ -30,7 +31,7 @@ class TorrentItem:
 
         self.availability = False  # If it's instantly available on the debrid service
 
-        self.parsed_data = parsed_data  # Ranked result
+        self.parsed_data: ParsedData = parsed_data  # Ranked result
 
     def to_debrid_stream_query(self, media: Media) -> dict:
         return {
