@@ -1,7 +1,7 @@
 from stream_fusion.utils.filter.base_filter import BaseFilter
 from stream_fusion.logging_config import logger
 
-
+#TODO: Check if this filter is still needed and RTN changes for it.
 class ResultsPerQualityFilter(BaseFilter):
     def __init__(self, config):
         super().__init__(config)

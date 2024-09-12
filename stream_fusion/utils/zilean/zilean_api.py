@@ -1,24 +1,20 @@
 import requests
 from typing import List, Optional, Tuple
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-
 from stream_fusion.settings import settings
 from stream_fusion.logging_config import logger
 
-
 class DMMQueryRequest(BaseModel):
     queryText: Optional[str] = None
-
 
 class DMMImdbFile(BaseModel):
     imdbId: Optional[str] = None
     category: Optional[str] = None
     title: Optional[str] = None
-    adult: bool = False
-    year: int = 0
-
+    adult: Optional[bool] = None
+    year: Optional[int] = None
 
 class DMMImdbSearchResult(BaseModel):
     title: Optional[str] = None
@@ -27,28 +23,57 @@ class DMMImdbSearchResult(BaseModel):
     score: float = 0.0
     category: Optional[str] = None
 
-
 class DMMTorrentInfo(BaseModel):
-    info_hash: Optional[str] = None
-    resolution: Tuple[str, ...] = Field(default_factory=tuple)
-    year: Optional[int] = None
-    remastered: Optional[bool] = None
-    codec: Tuple[str, ...] = Field(default_factory=tuple)
-    audio: Tuple[str, ...] = Field(default_factory=tuple)
-    quality: Tuple[str, ...] = Field(default_factory=tuple)
-    episode: Tuple[int, ...] = Field(default_factory=tuple)
-    season: Tuple[int, ...] = Field(default_factory=tuple)
-    language: Tuple[str, ...] = Field(default_factory=tuple)
+    model_config = ConfigDict(populate_by_name=True)
+
+    info_hash: str
+    raw_title: str
+    size: str
     parsed_title: Optional[str] = None
-    raw_title: Optional[str] = None
-    size: int = 0
+    normalized_title: Optional[str] = None
+    trash: Optional[bool] = None
+    year: Optional[int] = None
+    resolution: Optional[str] = None
+    seasons: Tuple[int, ...] = Field(default_factory=tuple)
+    episodes: Tuple[int, ...] = Field(default_factory=tuple)
+    complete: Optional[bool] = None
+    volumes: Tuple[int, ...] = Field(default_factory=tuple)
+    languages: Tuple[str, ...] = Field(default_factory=tuple)
+    quality: Optional[str] = None
+    hdr: Tuple[str, ...] = Field(default_factory=tuple)
+    codec: Optional[str] = None
+    audio: Tuple[str, ...] = Field(default_factory=tuple)
+    channels: Tuple[str, ...] = Field(default_factory=tuple)
+    dubbed: Optional[bool] = None
+    subbed: Optional[bool] = None
+    date: Optional[str] = None
+    group: Optional[str] = None
+    edition: Optional[str] = None
+    bit_depth: Optional[str] = None
+    bitrate: Optional[str] = None
+    network: Optional[str] = None
+    extended: Optional[bool] = None
+    converted: Optional[bool] = None
+    hardcoded: Optional[bool] = None
+    region: Optional[str] = None
+    ppv: Optional[bool] = None
+    three_d: Optional[bool] = Field(None, alias='_3d')
+    site: Optional[str] = None
+    proper: Optional[bool] = None
+    repack: Optional[bool] = None
+    retail: Optional[bool] = None
+    upscaled: Optional[bool] = None
+    remastered: Optional[bool] = None
+    unrated: Optional[bool] = None
+    documentary: Optional[bool] = None
+    episode_code: Optional[str] = None
+    country: Optional[str] = None
+    container: Optional[str] = None
+    extension: Optional[str] = None
+    torrent: Optional[bool] = None
     category: Optional[str] = None
     imdb_id: Optional[str] = None
     imdb: Optional[DMMImdbFile] = None
-
-    class Config:
-        frozen = True
-
 
 class ZileanAPI:
     def __init__(
@@ -61,8 +86,8 @@ class ZileanAPI:
         if not self.base_url:
             logger.error("Zilean API URL is not set in the environment variables.")
             raise ValueError("Zilean API URL is not set in the environment variables.")
-        self.session = requests.Session()
 
+        self.session = requests.Session()
         retry_strategy = Retry(
             total=max_retries,
             backoff_factor=0.1,
@@ -92,13 +117,11 @@ class ZileanAPI:
             raise
 
     def _convert_to_dmm_torrent_info(self, entry: dict) -> DMMTorrentInfo:
-        for key in ['resolution', 'codec', 'audio', 'quality', 'episode', 'season', 'language']:
+        for key in ['seasons', 'episodes', 'volumes', 'languages', 'hdr', 'audio', 'channels']:
             if key in entry and isinstance(entry[key], list):
                 entry[key] = tuple(entry[key])
-        
         if 'imdb' in entry and entry['imdb']:
             entry['imdb'] = DMMImdbFile(**entry['imdb'])
-        
         return DMMTorrentInfo(**entry)
 
     def dmm_search(self, query: DMMQueryRequest) -> List[DMMTorrentInfo]:
