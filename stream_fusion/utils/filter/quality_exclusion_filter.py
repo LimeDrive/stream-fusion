@@ -19,22 +19,21 @@ class QualityExclusionFilter(BaseFilter):
         ]
 
     def _is_stream_allowed(self, stream) -> bool:
-        if any(q.upper() in self.excluded_qualities for q in stream.parsed_data.quality):
+        if stream.parsed_data.quality.upper() in self.excluded_qualities:
             logger.debug(f"Stream excluded due to main quality: {stream.parsed_data.quality}")
             return False
 
         if stream.parsed_data.resolution:
-            for item in stream.parsed_data.resolution:
-                item_upper = item.upper()
-                if item_upper in self.excluded_qualities:
-                    logger.debug(f"Stream excluded due to quality spec: {item}")
-                    return False
-                if self.exclude_rips and item_upper in self.RIPS:
-                    logger.debug(f"Stream excluded due to RIP: {item}")
-                    return False
-                if self.exclude_cams and item_upper in self.CAMS:
-                    logger.debug(f"Stream excluded due to CAM: {item}")
-                    return False
+            resolution_upper = stream.parsed_data.resolution.upper()
+            if resolution_upper in self.excluded_qualities:
+                logger.debug(f"Stream excluded due to quality spec: {stream.parsed_data.resolution}")
+                return False
+            if self.exclude_rips and resolution_upper in self.RIPS:
+                logger.debug(f"Stream excluded due to RIP: {stream.parsed_data.resolution}")
+                return False
+            if self.exclude_cams and resolution_upper in self.CAMS:
+                logger.debug(f"Stream excluded due to CAM: {stream.parsed_data.resolution}")
+                return False
 
         logger.debug("Stream allowed")
         return True
