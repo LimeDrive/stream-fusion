@@ -48,12 +48,50 @@ class TorrentSmartContainer:
                 if torrent_item.file_index is not None:
                     best_matching.append(torrent_item)
                     self.logger.debug("Item added to best matching (has file index)")
+                else:
+                    matching_file = self.__find_matching_file(torrent_item.full_index, self.__media.season, self.__media.episode)
+                    if matching_file:
+                        torrent_item.file_index = matching_file['file_index']
+                        torrent_item.file_name = matching_file['file_name']
+                        torrent_item.size = matching_file['size']
+                        best_matching.append(torrent_item)
+                        self.logger.debug(f"Item added to best matching (found matching file: {matching_file['file_name']})")
+                    else:
+                        self.logger.debug("No matching file found, item not added to best matching")
             else:
                 best_matching.append(torrent_item)
                 self.logger.debug("Item added to best matching (magnet link)")
         self.logger.info(f"Found {len(best_matching)} best matching items")
         return best_matching
 
+    def __find_matching_file(self, full_index, season, episode):
+        self.logger.info(f"Searching for matching file: Season {season}, Episode {episode}")
+        
+        if not full_index:
+            self.logger.warning("Full index is empty, cannot find matching file")
+            return None
+
+        # Convert season and episode to integers for comparison
+        try:
+            target_season = int(season.replace('S', ''))
+            target_episode = int(episode.replace('E', ''))
+        except ValueError:
+            self.logger.error(f"Invalid season or episode format: {season}, {episode}")
+            return None
+
+        best_match = None
+        for file_entry in full_index:
+            if target_season in file_entry['seasons'] and target_episode in file_entry['episodes']:
+                if best_match is None or file_entry['size'] > best_match['size']:
+                    best_match = file_entry
+                    self.logger.debug(f"Found potential match: {file_entry['file_name']}")
+
+        if best_match:
+            self.logger.info(f"Best matching file found: {best_match['file_name']}")
+            return best_match
+        else:
+            self.logger.warning(f"No matching file found for Season {season}, Episode {episode}")
+            return None
     def cache_container_items(self):
         self.logger.info("Starting cache process for container items")
         threading.Thread(target=self.__save_to_cache).start()
@@ -189,7 +227,7 @@ class TorrentSmartContainer:
                     file_index = self.__explore_folders(file["e"], files, file_index, type, season, episode)
                     continue
                 parsed_file = parse(file["n"])
-                if season in parsed_file.season and episode in parsed_file.episode:
+                if season in parsed_file.seasons and episode in parsed_file.episodes:
                     self.logger.debug(f"Matching series file found: {file['n']}")
                     files.append({
                         "file_index": file_index,

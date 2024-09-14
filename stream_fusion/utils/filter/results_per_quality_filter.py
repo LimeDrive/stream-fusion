@@ -12,19 +12,14 @@ class ResultsPerQualityFilter(BaseFilter):
         resolution_count = {}
 
         for item in data:
-            resolutions = getattr(item.parsed_data, 'resolution', [])
-            if not resolutions:
-                resolutions = ["?.BZH.?"]
+            resolution = getattr(item.parsed_data, 'resolution', "?.BZH.?")
             
-            for resolution in resolutions:
-                if resolution not in resolution_count:
-                    resolution_count[resolution] = 1
-                    filtered_items.append(item)
-                    break
-                elif resolution_count[resolution] < self.max_results_per_quality:
-                    resolution_count[resolution] += 1
-                    filtered_items.append(item)
-                    break
+            if resolution not in resolution_count:
+                resolution_count[resolution] = 1
+                filtered_items.append(item)
+            elif resolution_count[resolution] < self.max_results_per_quality:
+                resolution_count[resolution] += 1
+                filtered_items.append(item)
 
         logger.info(f"ResultsPerQualityFilter: input {len(data)}, output {len(filtered_items)}")
         return filtered_items
