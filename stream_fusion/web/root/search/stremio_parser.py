@@ -89,7 +89,7 @@ def parse_to_debrid_stream(
 
     title = f"{torrent_item.raw_title}\n"
 
-    if torrent_item.file_name is not None:
+    if media.type == "series" and torrent_item.file_name is not None:
         title += f"{torrent_item.file_name}\n"
 
     if torrent_item.languages:

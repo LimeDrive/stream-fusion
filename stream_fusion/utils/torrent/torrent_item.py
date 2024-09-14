@@ -28,7 +28,7 @@ class TorrentItem:
         self.torrent_download = None  # The torrent jackett download url if its None, it means that there is only a magnet link provided by Jackett. It also means, that we cant do series file filtering before debrid.
         self.trackers = []  # Trackers of the torrent
         self.file_index = None  # Index of the file inside of the torrent - it may be updated durring __process_torrent() and update_availability(). If the index is None and torrent is not None, it means that the series episode is not inside of the torrent.
-
+        self.full_index = None  # Case where we cannot call RD to get the full index. Else None
         self.availability = False  # If it's instantly available on the debrid service
 
         self.parsed_data: ParsedData = parsed_data  # Ranked result
