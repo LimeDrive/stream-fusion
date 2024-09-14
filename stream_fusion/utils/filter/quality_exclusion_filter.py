@@ -19,9 +19,12 @@ class QualityExclusionFilter(BaseFilter):
         ]
 
     def _is_stream_allowed(self, stream) -> bool:
-        if stream.parsed_data.quality.upper() in self.excluded_qualities:
-            logger.debug(f"Stream excluded due to main quality: {stream.parsed_data.quality}")
-            return False
+
+        if stream.parsed_data.quality:
+            quality_upper = stream.parsed_data.quality.upper()
+            if quality_upper in self.excluded_qualities:
+                logger.debug(f"Stream excluded due to main quality: {stream.parsed_data.quality}")
+                return False
 
         if stream.parsed_data.resolution:
             resolution_upper = stream.parsed_data.resolution.upper()
