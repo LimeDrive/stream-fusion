@@ -171,6 +171,39 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                    <h2 class="text-white font-semibold leading-7">Catalogs Providers</h2>
+                    <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Configure your catalogs
+                        preferences here.</p>
+
+                    <div class="mt-10 space-y-10">
+                        <div class="relative flex gap-x-3">
+                            <div class="flex h-6 items-center">
+                                <input id="ctg_yggflix" name="ctg_yggflix" type="checkbox"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                            </div>
+                            <div class="text-sm leading-6">
+                                <label for="ctg_yggflix" class="font-medium text-white">Enable Yggflix Catalogs</label>
+                                <p class="text-gray-500 dark:text-gray-300">Activate yggflix catalogs for discovers
+                                    contents.</p>
+                            </div>
+                        </div>
+
+                        <div class="relative flex gap-x-3">
+                            <div class="flex h-6 items-center">
+                                <input id="ctg_yggtorrent" name="ctg_yggtorrent" type="checkbox"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                            </div>
+                            <div class="text-sm leading-6">
+                                <label for="ctg_yggtorrent" class="font-medium text-white">Enable Yggtorrent Catalogs</label>
+                                <p class="text-gray-500 dark:text-gray-300">Activate yggtorrent catalogs for discovers
+                                    contents.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="debrid-fields" style="display: none;">
                     <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                         <h2 class="text-white font-semibold leading-7">Real-Debrid Configuration</h2>
@@ -352,13 +385,13 @@
                                     <label for="cam" class="block text-sm font-medium leading-6 text-white">Exclude CAM
                                         quality</label>
                                 </div>
-                                <!-- <div class="flex items-center gap-x-3">
-                                    <input id="exclude_ts" name="exclude_ts" type="checkbox"
-                                        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                                    <label for="exclude_ts" class="block text-sm font-medium leading-6 text-white">Exclude TS
-                                        (TeleSync) quality</label>
-                                </div>
                                 <div class="flex items-center gap-x-3">
+                                    <input id="hevc" name="hevc" type="checkbox"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                    <label for="hevc" class="block text-sm font-medium leading-6 text-white">Exclude HEVC
+                                        (x265, H265, HEVC codec) quality</label>
+                                </div>
+                                <!-- <div class="flex items-center gap-x-3">
                                     <input id="exclude_tc" name="exclude_tc" type="checkbox"
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                     <label for="exclude_tc" class="block text-sm font-medium leading-6 text-white">Exclude TC

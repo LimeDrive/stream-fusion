@@ -1,4 +1,5 @@
 import hashlib
+import os
 import queue
 import threading
 import time
@@ -161,7 +162,7 @@ class TorrentService:
         result.files = metadata["info"]["files"]
 
         if result.type == "series":
-            file_details = self.__find_episode_file(result.files, result.parsed_data.seasons, result.parsed_data.episodes)
+            file_details = self.__find_single_episode_file(result.files, result.parsed_data.seasons, result.parsed_data.episodes)
 
             if file_details is not None:
                 self.logger.debug("File details")
@@ -169,7 +170,10 @@ class TorrentService:
                 result.file_index = file_details["file_index"]
                 result.file_name = file_details["title"]
                 result.size = file_details["size"]
-        else:
+            else:
+                result.full_index = self.__find_full_index(result.files)
+
+        if result.type == "movie":
             result.file_index = self.__find_movie_file(result.files)
 
         return result
@@ -231,7 +235,7 @@ class TorrentService:
 
         return trackers
 
-    def __find_episode_file(self, file_structure, season, episode):
+    def __find_single_episode_file(self, file_structure, season, episode):
 
         if len(season) == 0 or len(episode) == 0:
             return None
@@ -255,6 +259,46 @@ class TorrentService:
             file_index += 1
 
         return max(episode_files, key=lambda file: file["size"])
+    
+    def __find_full_index(self, file_structure):
+        self.logger.info("Starting to build full index of video files")
+        video_formats = {".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg", ".mpeg", ".m4v", ".3gp", ".3g2",
+                        ".ogv", ".ogg", ".drc", ".gif", ".gifv", ".mng", ".avi", ".mov", ".qt", ".wmv", ".yuv", ".rm",
+                        ".rmvb", ".asf", ".amv", ".m4p", ".m4v", ".mpg", ".mp2", ".mpeg", ".mpe", ".mpv", ".mpg",
+                        ".mpeg", ".m2v", ".m4v", ".svi", ".3gp", ".3g2", ".mxf", ".roq", ".nsv", ".flv", ".f4v",
+                        ".f4p", ".f4a", ".f4b"}
+        
+        full_index = []
+        file_index = 1
+
+        for file_entry in file_structure:
+            file_path = file_entry.get("path", [])
+            if isinstance(file_path, list):
+                file_name = file_path[-1] if file_path else ""
+            else:
+                file_name = file_path
+
+            _, file_extension = os.path.splitext(file_name.lower())
+            
+            if file_extension in video_formats:
+                parsed_file = parse(file_name)
+                if len(parsed_file.seasons) == 0 or len(parsed_file.episodes) == 0:
+                    self.logger.debug(f"Skipping file without season or episode parsed: {file_name}")
+                    continue
+                full_index.append({
+                    "file_index": file_index,
+                    "file_name": file_name,
+                    "full_path": os.path.join(*file_path) if isinstance(file_path, list) else file_path,
+                    "size": file_entry.get("length", 0),
+                    "seasons": parsed_file.seasons,
+                    "episodes": parsed_file.episodes
+                })
+                self.logger.debug(f"Added file to index: {file_name}")
+            
+            file_index += 1
+        
+        self.logger.info(f"Full index built with {len(full_index)} video files")
+        return full_index
 
     def __find_movie_file(self, file_structure):
         max_size = 0
