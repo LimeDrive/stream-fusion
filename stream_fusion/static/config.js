@@ -170,6 +170,8 @@ function loadData() {
             document.getElementById('minCachedResults').value = decodedData.minCachedResults;
             document.getElementById('torrenting').checked = decodedData.torrenting;
             document.getElementById('debrid').checked = decodedData.debrid;
+            document.getElementById('ctg_yggtorrent').checked = decodedData.yggtorrentCtg;
+            document.getElementById('ctg_yggflix').checked = decodedData.yggflixCtg;
             document.getElementById('tmdb').checked = decodedData.metadataProvider === 'tmdb';
             document.getElementById('cinemeta').checked = decodedData.metadataProvider === 'cinemeta';
 
@@ -214,6 +216,8 @@ function getLink(method) {
         zilean: document.getElementById('zilean')?.checked,
         yggflix: document.getElementById('yggflix')?.checked,
         sharewood: document.getElementById('sharewood')?.checked,
+        yggtorrentCtg: document.getElementById('ctg_yggtorrent')?.checked,
+        yggflixCtg: document.getElementById('ctg_yggflix')?.checked,
         // yggUsername: document.getElementById('yggUsername')?.value,
         // yggPassword: document.getElementById('yggPassword')?.value,
         yggPasskey: document.getElementById('yggPasskey')?.value,

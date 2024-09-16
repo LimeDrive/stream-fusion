@@ -1,9 +1,11 @@
 from cachetools import TTLCache
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import  FileResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from stream_fusion.logging_config import logger
+from stream_fusion.utils.parse_config import parse_config
+from stream_fusion.utils.security.security_api_key import check_api_key
 from stream_fusion.version import get_version
 from stream_fusion.web.root.config.schemas import ManifestResponse, StaticFileResponse
 from stream_fusion.settings import settings
@@ -42,12 +44,6 @@ async def get_manifest():
         version=str(get_version()),
         resources=[
             'catalog',
-            ## Useless for now, TMDB addon with french content and supp cinemata are OK for.
-            # {
-            #     'name': 'meta', 
-            #     'types': ['movie', 'series'], 
-            #     'idPrefixes': ['tt']
-            # },
             {
                 'name': 'stream', 
                 'types': ['movie', 'series'], 
@@ -96,8 +92,51 @@ async def get_manifest():
         ]
     )
 
-@router.get("/{params}/manifest.json")
-async def get_manifest():
+@router.get("/{config}/manifest.json")
+async def get_manifest(config: str):
+    config = parse_config(config)
+    logger.debug(f"Parsed configuration: {config}")
+
+    api_key = config.get("apiKey")
+    if api_key:
+        await check_api_key(api_key)
+    else:
+        logger.warning("API key not found in config.")
+        raise HTTPException(status_code=401, detail="API key not found in config.")
+
+    yggflix_ctg = config.get("yggflixCtg", True)
+    yggtorrent_ctg = config.get("yggtorrentCtg", True)
+
+    catalogs = []
+
+    if yggflix_ctg:
+        catalogs.extend([
+            {
+                "type": "movie",
+                "id": "latest_movies",
+                "name": "Yggflix"
+            },
+            {
+                "type": "series",
+                "id": "latest_tv_shows",
+                "name": "Yggflix"
+            }
+        ])
+
+    if yggtorrent_ctg:
+        catalogs.extend([
+            {
+                "type": "movie",
+                "id": "recently_added_movies",
+                "name": "YGGtorrent - Récemment Ajoutés"
+            },
+            {
+                "type": "series",
+                "id": "recently_added_tv_shows",
+                "name": "YGGtorrent - Récemment Ajoutées"
+            }
+        ])
+
     logger.info("Serving manifest.json")
     return ManifestResponse(
         id="community.limedrive.streamfusion",
@@ -105,12 +144,6 @@ async def get_manifest():
         version=str(get_version()),
         resources=[
             'catalog',
-            ## Useless for now, TMDB addon with french content and supp cinemata are OK for.
-            # {
-            #     'name': 'meta', 
-            #     'types': ['movie', 'series'], 
-            #     'idPrefixes': ['tt']
-            # },
             {
                 'name': 'stream', 
                 'types': ['movie', 'series'], 
@@ -123,26 +156,5 @@ async def get_manifest():
          " providing access to a vast array of cached torrent sources. This plugin seamlessly bridges"
          " Stremio with popular indexers and debrid platforms, offering users an expanded content"
          " library and a smooth streaming experience.",
-        catalogs=[
-            {
-                "type": "movie",
-                "id": "latest_movies",
-                "name": "Yggflix - Films Récents"
-            },
-            {
-                "type": "movie",
-                "id": "recently_added_movies",
-                "name": "YGGtorrent - Films Récemment Ajoutés"
-            },
-            {
-                "type": "series",
-                "id": "latest_tv_shows",
-                "name": "Yggflix - Séries Récentes"
-            },
-            {
-                "type": "series",
-                "id": "recently_added_tv_shows",
-                "name": "YGGtorrent - Séries Récemment Ajoutées"
-            }
-        ]
+        catalogs=catalogs,
     )
