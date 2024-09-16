@@ -1,5 +1,5 @@
 const sorts = ['quality', 'sizedesc', 'sizeasc', 'qualitythensize'];
-const qualityExclusions = ['2160p', '1080p', '720p', '480p', 'rips', 'cam', 'unknown'];
+const qualityExclusions = ['2160p', '1080p', '720p', '480p', 'rips', 'cam', 'hevc', 'unknown'];
 const languages = ['en', 'fr', 'multi'];
 // 'es', 'de', 'it', 'pt', 'ru', 'in', 'nl', 'hu', 'la',
 
