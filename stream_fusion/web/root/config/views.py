@@ -97,12 +97,12 @@ async def get_manifest(config: str):
     config = parse_config(config)
     logger.debug(f"Parsed configuration: {config}")
 
-    api_key = config.get("apiKey")
-    if api_key:
-        await check_api_key(api_key)
-    else:
-        logger.warning("API key not found in config.")
-        raise HTTPException(status_code=401, detail="API key not found in config.")
+    # api_key = config.get("apiKey")
+    # if api_key:
+    #     await check_api_key(api_key)
+    # else:
+    #     logger.warning("API key not found in config.")
+    #     raise HTTPException(status_code=401, detail="API key not found in config.")
 
     yggflix_ctg = config.get("yggflixCtg", True)
     yggtorrent_ctg = config.get("yggtorrentCtg", True)
