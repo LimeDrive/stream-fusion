@@ -34,7 +34,7 @@ def format(record):
     pats = [
         r"/ey.*?/",
     ]
-    if record["exception"] is not None:
+    if record["exception"] is not None: # TODO: redact more logs in exception
         stack = stackprinter.format(
             record["exception"],
             suppressed_vars=[

@@ -1,5 +1,5 @@
 """Interaction with SQLite database."""
-
+# TODO: Breaking this with postgress and redis, and add method for key management
 import sqlite3
 import threading
 import uuid

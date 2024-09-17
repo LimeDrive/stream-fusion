@@ -18,6 +18,7 @@ class RealDebrid(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
         self.base_url = "https://api.real-debrid.com"
+        # TODO: We may can gove the choise btw rd_manager and personal RD Token, unique for all user.
         self.token_manager = RDTokenManager(config)
 
     def get_headers(self):

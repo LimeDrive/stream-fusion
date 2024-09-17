@@ -2,7 +2,7 @@ import json
 
 from stream_fusion.utils.string_encoding import decodeb64
 
-
+# TODO: andle venv here
 def parse_config(b64config):
     config = json.loads(decodeb64(b64config))
 

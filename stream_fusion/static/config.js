@@ -123,7 +123,6 @@ function getToken(deviceCode, clientId, clientSecret) {
     })
     .catch(error => {
         console.error('Erreur:', error);
-        // Ne pas afficher d'alerte ici, car cela pourrait être une erreur temporaire
         console.log('Erreur lors de la récupération du token. Nouvelle tentative lors du prochain polling.');
     });
 }
@@ -160,8 +159,6 @@ function loadData() {
             document.getElementById('debrid_api_key').value = decodedData.debridKey;
             document.getElementById('sharewoodPasskey').value = decodedData.sharewoodPasskey;
             document.getElementById('yggPasskey').value = decodedData.yggPasskey;
-            // document.getElementById('yggUsername').value = decodedData.yggUsername;
-            // document.getElementById('yggPassword').value = decodedData.yggPassword;
             document.getElementById('ApiKey').value = decodedData.apiKey;
             document.getElementById('exclusion-keywords').value = (decodedData.exclusionKeywords || []).join(', ');
             document.getElementById('maxSize').value = decodedData.maxSize;
@@ -218,8 +215,6 @@ function getLink(method) {
         sharewood: document.getElementById('sharewood')?.checked,
         yggtorrentCtg: document.getElementById('ctg_yggtorrent')?.checked,
         yggflixCtg: document.getElementById('ctg_yggflix')?.checked,
-        // yggUsername: document.getElementById('yggUsername')?.value,
-        // yggPassword: document.getElementById('yggPassword')?.value,
         yggPasskey: document.getElementById('yggPasskey')?.value,
         torrenting: document.getElementById('torrenting').checked,
         debrid: document.getElementById('debrid').checked,

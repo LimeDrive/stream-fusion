@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     gunicorn_timeout: int = 180
     aiohttp_timeout: int = 7200
-    proxied_link: bool = False # If True, the link will be proxied through the server.
+    proxied_link: bool = True # TODO: Doccu that is set to True to use the proxy by default, to advoid WARN from Realdebrid
     playback_proxy: str | None = None # If set, the link will be proxied through the given proxy.
     reload: bool = False
     session_key: str = "331cbfe48117fcba53d09572b10d2fc293d86131dc51be46d8aa9843c2e9f48d"
@@ -62,9 +62,6 @@ class Settings(BaseSettings):
     zilean_api_pool_maxsize: int = 10
     zilean_max_retry: int = 3
     # YGGTORRENT
-    ygg_url: str = "https://ygg.re"
-    ygg_user: str | None = None
-    ygg_pass: str | None = None
     ygg_passkey: str | None = None
     yggflix_url: str = "https://yggflix.fr"
     yggflix_max_workers: int = 4
