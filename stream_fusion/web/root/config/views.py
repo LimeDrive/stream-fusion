@@ -5,7 +5,6 @@ from fastapi.templating import Jinja2Templates
 
 from stream_fusion.logging_config import logger
 from stream_fusion.utils.parse_config import parse_config
-from stream_fusion.utils.security.security_api_key import check_api_key
 from stream_fusion.version import get_version
 from stream_fusion.web.root.config.schemas import ManifestResponse, StaticFileResponse
 from stream_fusion.settings import settings

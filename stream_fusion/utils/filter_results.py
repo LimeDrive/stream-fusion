@@ -61,16 +61,16 @@ def items_sort(items, config):
 
 def filter_out_non_matching_movies(items, year):
     logger.info(f"Filtering non-matching movies for year : {year}")
-    year_bis = str(int(year) - 1)
-    year_pattern = re.compile(rf'\b{year}|{year_bis}\b')
+    year_min = str(int(year) - 1)
+    year_max = str(int(year) + 1)
+    year_pattern = re.compile(rf'\b{year_max}|{year}|{year_min}\b')
     filtered_items = []
     for item in items:
-        logger.debug(f"Checking item: {item.raw_title}")
         if year_pattern.search(item.raw_title):
-            logger.debug("Match found")
+            logger.debug(f"Match found for year {year} in item: {item.raw_title}")
             filtered_items.append(item)
         else:
-            logger.debug("No match found")
+            logger.debug(f"No match found for year {year} in item: {item.raw_title}")
     return filtered_items
 
 def filter_out_non_matching_series(items, season, episode):
@@ -83,23 +83,27 @@ def filter_out_non_matching_series(items, season, episode):
     numeric_season = int(clean_season)
     numeric_episode = int(clean_episode)
 
+    integrale_pattern = re.compile(r'\b(INTEGRALE|COMPLET|INTEGRAL)\b', re.IGNORECASE)
+
     for item in items:
-        logger.debug(f"Checking item: {item.raw_title}")
         if len(item.parsed_data.seasons) == 0 and len(item.parsed_data.episodes) == 0:
-            logger.debug("Item with no season and episode, skipped")
+            if integrale_pattern.search(item.raw_title):
+                logger.debug(f"Integrale match found for item: {item.raw_title}")
+                filtered_items.append(item)
+            logger.debug(f"No season or episode information found for item: {item.raw_title}")
             continue
         if (
             len(item.parsed_data.episodes) == 0
             and numeric_season in item.parsed_data.seasons
         ):
-            logger.debug("Season match found, episode not specified")
+            logger.debug(f"Exact season match found for item: {item.raw_title}")
             filtered_items.append(item)
             continue
         if (
             numeric_season in item.parsed_data.seasons
             and numeric_episode in item.parsed_data.episodes
         ):
-            logger.debug("Exact season and episode match found")
+            logger.debug(f"Exact season and episode match found for item: {item.raw_title}")
             filtered_items.append(item)
             continue
 
