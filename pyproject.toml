@@ -22,7 +22,8 @@ gunicorn = "^22.0.0"
 loguru = "^0.7.2"
 stackprinter = "^0.2.12"
 pydantic-settings = "^2.3.4"
-sqlalchemy = "^2.0.31"
+sqlalchemy = {version = "^2.0.31", extras = ["asyncio"]}
+asyncpg = {version = "^0.29.0", extras = ["sa"]}
 aiosqlite = "^0.20.0"
 toml = "^0.10.2"
 jsonpickle = "^3.2.2"
@@ -36,6 +37,8 @@ aiohttp-socks = "^0.8.4"
 tmdbv3api = "^1.9.0"
 rank-torrent-name = "^1.0.4"
 orjson = "^3.10.7"
+alembic = "^1.13.2"
+ujson = "^5.10.0"
 
 
 [build-system]

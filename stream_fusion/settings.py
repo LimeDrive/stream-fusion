@@ -1,6 +1,7 @@
 import enum
 from pydantic import ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from yarl import URL
 
 
 class LogLevel(str, enum.Enum):
@@ -39,6 +40,13 @@ class Settings(BaseSettings):
     db_path: str = "/app/config/stream-fusion.db"
     db_echo: bool = False
     db_timeout: int = 15
+    # POSTGRESQL_DB
+    pg_host: str = "postgresql"
+    pg_port: int = 5432
+    pg_user: str = "streamfusion"
+    pg_pass: str = "streamfusion"
+    pg_base: str = "streamfusion"
+    pg_echo: bool = False
     # REDIS
     redis_host: str = "redis"
     redis_port: int = 6379
@@ -78,6 +86,23 @@ class Settings(BaseSettings):
     develop: bool = True
     # VERSION
     version_path: str = "/app/pyproject.toml"
+
+
+    @property
+    def pg_url(self) -> URL:
+        """
+        Assemble database URL from settings.
+
+        :return: database URL.
+        """
+        return URL.build(
+            scheme="postgresql+asyncpg",
+            host=self.pg_host,
+            port=self.pg_port,
+            user=self.pg_user,
+            password=self.pg_pass,
+            path=f"/{self.pg_base}",
+        )
 
     model_config = SettingsConfigDict(
         env_file=".env", secrets_dir="/run/secrets", env_file_encoding="utf-8"

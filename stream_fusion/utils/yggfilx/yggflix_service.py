@@ -16,7 +16,6 @@ class YggflixService:
     def __init__(self, config: dict):
         self.yggflix = YggflixAPI()
         self.has_tmdb = config.get("metadataProvider") == "tmdb"
-        self.ygg_url = settings.ygg_url
         self.ygg_passkey = config.get("yggPasskey")
 
     def search(self, media: Union[Movie, Series]) -> List[YggflixResult]:
