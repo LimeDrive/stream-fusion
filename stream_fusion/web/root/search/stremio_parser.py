@@ -17,7 +17,6 @@ DOWNLOAD_REQUIRED = "[⬇️]"
 DIRECT_TORRENT = "[🏴‍☠️]"
 
 
-# TODO: Languages
 def get_emoji(language):
     emoji_dict = {
         "fr": "🇫🇷 FRENCH",
@@ -131,7 +130,7 @@ def parse_to_debrid_stream(
                     torrent_item.file_name
                     if torrent_item.file_name is not None
                     else torrent_item.raw_title
-                ),  # TODO: Use parsed title?
+                ),
             },
         }
     )
@@ -158,7 +157,7 @@ def parse_to_debrid_stream(
                         torrent_item.file_name
                         if torrent_item.file_name is not None
                         else torrent_item.raw_title
-                    ),  # TODO: Use parsed title?
+                    ),
                 },
                 # "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
             }

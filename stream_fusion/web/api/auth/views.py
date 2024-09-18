@@ -76,7 +76,6 @@ def get_api_key_usage_logs():
     """
     Returns usage information for all API keys
     """
-    # TODO Add some sort of filtering on older keys/unused keys?
 
     return UsageLogs(
         logs=[

@@ -16,7 +16,7 @@ def search_public(media):
     cache_search = media.__dict__
     cache_search["title"] = cache_search["titles"][0]
     cache_search["language"] = cache_search["languages"][0]
-    # TODO: Wtf, why do we need to use __dict__ here? And also, why is it stuck when we use media directly?
+    #  Wtf, why do we need to use __dict__ here? And also, why is it stuck when we use media directly?
     response = requests.get(url, json=cache_search)
     return response.json()
 
