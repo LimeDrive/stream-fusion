@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from stream_fusion.settings import settings
+from stream_fusion.services.postgresql.utils import init_db_cleanup_function
 
 
 def _setup_db(app: FastAPI) -> None:  # pragma: no cover
@@ -28,6 +29,7 @@ def _setup_db(app: FastAPI) -> None:  # pragma: no cover
     )
     app.state.db_engine = engine
     app.state.db_session_factory = session_factory
+    init_db_cleanup_function(engine)
 
 
 @asynccontextmanager

@@ -2,6 +2,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from stream_fusion.logging_config import logger
 from stream_fusion.settings import settings
 
 
@@ -42,3 +43,34 @@ async def drop_database() -> None:
         )
         await conn.execute(text(disc_users))
         await conn.execute(text(f'DROP DATABASE "{settings.pg_base}"'))
+
+
+async def init_db_cleanup_function(engine):
+    async with engine.begin() as conn:
+        result = await conn.execute(text(
+            "SELECT 1 FROM pg_proc WHERE proname = 'delete_expired_api_keys'"
+        ))
+        function_exists = result.scalar() is not None
+
+        if not function_exists:
+            await conn.execute(text("""
+            CREATE OR REPLACE FUNCTION delete_expired_api_keys() RETURNS void AS $$
+            BEGIN
+                DELETE FROM api_keys
+                WHERE NOT never_expire
+                  AND expiration_date < NOW() - INTERVAL '7 days'
+                  AND (latest_query_date IS NULL OR latest_query_date < NOW() - INTERVAL '7 days');
+                RAISE NOTICE 'Deleted % expired API keys', ROW_COUNT;
+            END;
+            $$ LANGUAGE plpgsql;
+            """))
+
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_cron;"))
+
+            await conn.execute(text("""
+            SELECT cron.schedule('0 */6 * * *', $$SELECT delete_expired_api_keys()$$);
+            """))
+
+            logger.info("API key cleanup function created and scheduled.")
+        else:
+            logger.info("API key cleanup function already exists.")
