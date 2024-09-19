@@ -249,3 +249,22 @@ class APIKeyDAO:
             await self.session.rollback()
             logger.error(f"Error updating name for API key {api_key}: {str(e)}")
             raise HTTPException(status_code=500, detail="Internal server error")
+
+    async def revoke_key(self, api_key: uuid.UUID) -> bool:
+        try:
+            query = select(APIKeyModel).where(APIKeyModel.api_key == str(api_key))
+            result = await self.session.execute(query)
+            db_key = result.scalar_one_or_none()
+
+            if db_key:
+                db_key.is_active = False
+                await self.session.commit()
+                logger.success(f"Revoked API key: {api_key}")
+                return True
+            else:
+                logger.warning(f"API key not found for revocation: {api_key}")
+                return False
+        except Exception as e:
+            await self.session.rollback()
+            logger.error(f"Error revoking API key {api_key}: {str(e)}")
+            raise HTTPException(status_code=500, detail="Internal server error")
