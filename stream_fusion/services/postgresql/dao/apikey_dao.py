@@ -14,6 +14,7 @@ from stream_fusion.services.postgresql.schemas import (
     APIKeyUpdate,
     APIKeyInDB,
 )
+from stream_fusion.utils.general import datetime_to_timestamp, timestamp_to_datetime
 
 class APIKeyDAO:
     """Class for accessing API key table."""
@@ -25,17 +26,17 @@ class APIKeyDAO:
     async def create_key(self, api_key_create: APIKeyCreate) -> APIKeyInDB:
         try:
             api_key = str(uuid.uuid4())
-            expiration_date = (
+            expiration_timestamp = (
                 None
                 if api_key_create.never_expire
-                else datetime.now(timezone.utc) + timedelta(days=self.expiration_limit)
+                else datetime_to_timestamp(datetime.now(timezone.utc) + timedelta(days=self.expiration_limit))
             )
 
             new_key = APIKeyModel(
                 api_key=api_key,
                 is_active=True,
                 never_expire=api_key_create.never_expire,
-                expiration_date=expiration_date,
+                expiration_date=expiration_timestamp,
                 name=api_key_create.name,
             )
 
@@ -44,7 +45,16 @@ class APIKeyDAO:
             await self.session.refresh(new_key)
 
             logger.success(f"Created new API key: {api_key}")
-            return APIKeyInDB.model_validate(new_key)
+            return APIKeyInDB(
+                id=new_key.id,
+                api_key=new_key.api_key,
+                is_active=new_key.is_active,
+                never_expire=new_key.never_expire,
+                expiration_date=timestamp_to_datetime(new_key.expiration_date),
+                latest_query_date=timestamp_to_datetime(new_key.latest_query_date),
+                total_queries=new_key.total_queries,
+                name=new_key.name
+            )
         except Exception as e:
             await self.session.rollback()
             logger.error(f"Error creating API key: {str(e)}")
@@ -54,7 +64,19 @@ class APIKeyDAO:
         try:
             query = select(APIKeyModel).limit(limit).offset(offset)
             result = await self.session.execute(query)
-            keys = [APIKeyInDB.model_validate(key) for key in result.scalars().all()]
+            keys = [
+                APIKeyInDB(
+                    id=key.id,
+                    api_key=key.api_key,
+                    is_active=key.is_active,
+                    never_expire=key.never_expire,
+                    expiration_date=timestamp_to_datetime(key.expiration_date),
+                    latest_query_date=timestamp_to_datetime(key.latest_query_date),
+                    total_queries=key.total_queries,
+                    name=key.name
+                )
+                for key in result.scalars().all()
+            ]
             logger.info(f"Retrieved {len(keys)} API keys")
             return keys
         except Exception as e:
@@ -68,7 +90,16 @@ class APIKeyDAO:
             db_key = result.scalar_one_or_none()
             if db_key:
                 logger.info(f"Retrieved API key: {api_key}")
-                return APIKeyInDB.model_validate(db_key)
+                return APIKeyInDB(
+                    id=db_key.id,
+                    api_key=db_key.api_key,
+                    is_active=db_key.is_active,
+                    never_expire=db_key.never_expire,
+                    expiration_date=timestamp_to_datetime(db_key.expiration_date),
+                    latest_query_date=timestamp_to_datetime(db_key.latest_query_date),
+                    total_queries=db_key.total_queries,
+                    name=db_key.name
+                )
             else:
                 logger.warning(f"API key not found: {api_key}")
                 return None
@@ -80,7 +111,19 @@ class APIKeyDAO:
         try:
             query = select(APIKeyModel).where(APIKeyModel.name == name)
             result = await self.session.execute(query)
-            keys = [APIKeyInDB.model_validate(key) for key in result.scalars().all()]
+            keys = [
+                APIKeyInDB(
+                    id=key.id,
+                    api_key=key.api_key,
+                    is_active=key.is_active,
+                    never_expire=key.never_expire,
+                    expiration_date=timestamp_to_datetime(key.expiration_date),
+                    latest_query_date=timestamp_to_datetime(key.latest_query_date),
+                    total_queries=key.total_queries,
+                    name=key.name
+                )
+                for key in result.scalars().all()
+            ]
             logger.info(f"Retrieved {len(keys)} API keys with name: {name}")
             return keys
         except Exception as e:
@@ -103,20 +146,29 @@ class APIKeyDAO:
                 db_key.is_active = update_data.is_active
 
             if not db_key.never_expire and update_data.expiration_date:
-                db_key.expiration_date = update_data.expiration_date
+                db_key.expiration_date = datetime_to_timestamp(update_data.expiration_date)
 
             await self.session.commit()
             await self.session.refresh(db_key)
 
             logger.info(f"Updated API key: {api_key}")
-            return APIKeyInDB.model_validate(db_key)
+            return APIKeyInDB(
+                id=db_key.id,
+                api_key=db_key.api_key,
+                is_active=db_key.is_active,
+                never_expire=db_key.never_expire,
+                expiration_date=timestamp_to_datetime(db_key.expiration_date),
+                latest_query_date=timestamp_to_datetime(db_key.latest_query_date),
+                total_queries=db_key.total_queries,
+                name=db_key.name
+            )
         except HTTPException:
             raise
         except Exception as e:
             await self.session.rollback()
             logger.error(f"Error updating API key {api_key}: {str(e)}")
             raise HTTPException(status_code=500, detail="Internal server error")
-
+        
     async def delete_key(self, api_key: uuid.UUID) -> bool:
         try:
             query = select(APIKeyModel).where(APIKeyModel.api_key == str(api_key))
@@ -146,14 +198,13 @@ class APIKeyDAO:
                 logger.warning(f"Invalid or inactive API key: {api_key}")
                 return False
 
-            if not db_key.never_expire and db_key.expiration_date < datetime.now(
-                timezone.utc
-            ):
+            current_time = datetime_to_timestamp(datetime.now(timezone.utc))
+            if not db_key.never_expire and db_key.expiration_date < current_time:
                 logger.warning(f"Expired API key: {api_key}")
                 return False
 
             db_key.total_queries += 1
-            db_key.latest_query_date = datetime.now(timezone.utc)
+            db_key.latest_query_date = current_time
             await self.session.commit()
 
             logger.debug(f"Valid API key used: {api_key}")
@@ -168,36 +219,44 @@ class APIKeyDAO:
             query = select(APIKeyModel).where(APIKeyModel.api_key == str(api_key))
             result = await self.session.execute(query)
             db_key = result.scalar_one_or_none()
-
             if not db_key:
                 logger.warning(f"API key not found for renewal: {api_key}")
                 raise HTTPException(status_code=404, detail="API key not found")
-
-            current_time = datetime.now(timezone.utc)
-
-            if db_key.never_expire:
-                logger.warning(f"Attempted to renew non-expiring key: {api_key}")
-                raise HTTPException(
-                    status_code=400,
-                    detail="This key never expires and doesn't need renewal",
-                )
-
-            if db_key.expiration_date and db_key.expiration_date > current_time:
-                logger.warning(f"Attempted to renew non-expired key: {api_key}")
-                raise HTTPException(
-                    status_code=400, detail="This key hasn't expired yet"
-                )
-
-            db_key.expiration_date = current_time + timedelta(
-                days=self.expiration_limit
-            )
+            
+            # Set is_active to True regardless of expiration status
             db_key.is_active = True
-
+            
+            current_time = datetime_to_timestamp(datetime.now(timezone.utc))
+            
+            if db_key.never_expire:
+                logger.info(f"Renewing a non-expiring key: {api_key}")
+            else:
+                if db_key.expiration_date and db_key.expiration_date > current_time:
+                    logger.warning(f"Attempted to renew non-expired key: {api_key}")
+                    raise HTTPException(
+                        status_code=400, detail="This key hasn't expired yet"
+                    )
+                
+                # Update the expiration date only if it's not a non-expiring key
+                db_key.expiration_date = datetime_to_timestamp(
+                    datetime.now(timezone.utc) + timedelta(days=self.expiration_limit)
+                )
+            
             await self.session.commit()
             await self.session.refresh(db_key)
-
+            
             logger.success(f"Renewed API key: {api_key}")
-            return APIKeyInDB.model_validate(db_key)
+            
+            return APIKeyInDB(
+                id=db_key.id,
+                api_key=db_key.api_key,
+                is_active=db_key.is_active,
+                never_expire=db_key.never_expire,
+                expiration_date=timestamp_to_datetime(db_key.expiration_date),
+                latest_query_date=timestamp_to_datetime(db_key.latest_query_date),
+                total_queries=db_key.total_queries,
+                name=db_key.name
+            )
         except HTTPException:
             raise
         except Exception as e:
@@ -209,7 +268,19 @@ class APIKeyDAO:
         try:
             query = select(APIKeyModel).order_by(APIKeyModel.latest_query_date.desc())
             result = await self.session.execute(query)
-            keys = [APIKeyInDB.model_validate(key) for key in result.scalars().all()]
+            keys = [
+                APIKeyInDB(
+                    id=key.id,
+                    api_key=key.api_key,
+                    is_active=key.is_active,
+                    never_expire=key.never_expire,
+                    expiration_date=timestamp_to_datetime(key.expiration_date),
+                    latest_query_date=timestamp_to_datetime(key.latest_query_date),
+                    total_queries=key.total_queries,
+                    name=key.name
+                )
+                for key in result.scalars().all()
+            ]
             logger.info(f"Retrieved usage stats for {len(keys)} API keys")
             return keys
         except Exception as e:
@@ -220,7 +291,19 @@ class APIKeyDAO:
         try:
             query = select(APIKeyModel).where(APIKeyModel.is_active == True)
             result = await self.session.execute(query)
-            keys = [APIKeyInDB.model_validate(key) for key in result.scalars().all()]
+            keys = [
+                APIKeyInDB(
+                    id=key.id,
+                    api_key=key.api_key,
+                    is_active=key.is_active,
+                    never_expire=key.never_expire,
+                    expiration_date=timestamp_to_datetime(key.expiration_date),
+                    latest_query_date=timestamp_to_datetime(key.latest_query_date),
+                    total_queries=key.total_queries,
+                    name=key.name
+                )
+                for key in result.scalars().all()
+            ]
             logger.info(f"Retrieved {len(keys)} active API keys")
             return keys
         except Exception as e:
@@ -242,7 +325,16 @@ class APIKeyDAO:
             await self.session.refresh(db_key)
 
             logger.info(f"Updated name for API key: {api_key}")
-            return APIKeyInDB.model_validate(db_key)
+            return APIKeyInDB(
+                id=db_key.id,
+                api_key=db_key.api_key,
+                is_active=db_key.is_active,
+                never_expire=db_key.never_expire,
+                expiration_date=timestamp_to_datetime(db_key.expiration_date),
+                latest_query_date=timestamp_to_datetime(db_key.latest_query_date),
+                total_queries=db_key.total_queries,
+                name=db_key.name
+            )
         except HTTPException:
             raise
         except Exception as e:

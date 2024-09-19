@@ -1,10 +1,12 @@
 from cachetools import TTLCache
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import  FileResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from stream_fusion.logging_config import logger
+from stream_fusion.services.postgresql.dao.apikey_dao import APIKeyDAO
 from stream_fusion.utils.parse_config import parse_config
+from stream_fusion.utils.security.security_api_key import check_api_key
 from stream_fusion.version import get_version
 from stream_fusion.web.root.config.schemas import ManifestResponse, StaticFileResponse
 from stream_fusion.settings import settings
@@ -92,16 +94,14 @@ async def get_manifest():
     )
 
 @router.get("/{config}/manifest.json")
-async def get_manifest(config: str):
+async def get_manifest(config: str, apikey_dao: APIKeyDAO = Depends()):
     config = parse_config(config)
-    logger.debug(f"Parsed configuration: {config}")
-
-    # api_key = config.get("apiKey")
-    # if api_key:
-    #     await check_api_key(api_key)
-    # else:
-    #     logger.warning("API key not found in config.")
-    #     raise HTTPException(status_code=401, detail="API key not found in config.")
+    api_key = config.get("apiKey")
+    if api_key:
+        await check_api_key(api_key, apikey_dao)
+    else:
+        logger.warning("API key not found in config.")
+        raise HTTPException(status_code=401, detail="API key not found in config.")
 
     yggflix_ctg = config.get("yggflixCtg", True)
     yggtorrent_ctg = config.get("yggtorrentCtg", True)

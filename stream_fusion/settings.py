@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     proxied_link: bool = True # TODO: Doccu that is set to True to use the proxy by default, to advoid WARN from Realdebrid
     playback_proxy: str | None = None # If set, the link will be proxied through the given proxy.
     reload: bool = False
+    # TODO: Docu that as it's shoud be set by the user to advoid use the default.
     session_key: str = "331cbfe48117fcba53d09572b10d2fc293d86131dc51be46d8aa9843c2e9f48d"
     use_https: bool = False
     # LOGGING

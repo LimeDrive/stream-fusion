@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
 <h1 class="mb-4">API Keys List</h1>
 <table class="table">
@@ -11,13 +10,18 @@
             <th>Expiration Date</th>
             <th>Last Use</th>
             <th>Total Requests</th>
-            <th>Action</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         {% for log in logs %}
         <tr>
-            <td>{{ log.api_key }}</td>
+            <td>
+                <code>{{ log.api_key }}</code>
+                <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard-text="{{ log.api_key }}">
+                    Copy
+                </button>
+            </td>
             <td>{{ log.name or 'N/A' }}</td>
             <td>{{ 'Active' if log.is_active else 'Inactive' }}</td>
             <td>{{ 'Never' if log.never_expire else log.expiration_date }}</td>
@@ -25,17 +29,38 @@
             <td>{{ log.total_queries }}</td>
             <td>
                 {% if log.is_active %}
-                <form action="{{ url_for('revoke_api_key')(request) }}" method="post">
+                <form action="{{ url_for('revoke_api_key')(request) }}" method="post" class="d-inline">
                     <input type="hidden" name="api_key" value="{{ log.api_key }}">
-                    <button type="submit" class="btn btn-danger btn-sm">Revoke</button>
+                    <button type="submit" class="btn btn-warning btn-sm">Revoke</button>
                 </form>
                 {% else %}
-                <button class="btn btn-secondary btn-sm" disabled>Revoked</button>
+                <form action="{{ url_for('renew_api_key')(request) }}" method="post" class="d-inline">
+                    <input type="hidden" name="api_key" value="{{ log.api_key }}">
+                    <button type="submit" class="btn btn-success btn-sm">Renew</button>
+                </form>
                 {% endif %}
+                <form action="{{ url_for('delete_api_key')(request) }}" method="post" class="d-inline">
+                    <input type="hidden" name="api_key" value="{{ log.api_key }}">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this API key?')">Delete</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-<a href="{{ url_for('create_api_key')(request) }}" class="btn btn-primary">Create a new key</a>
+<a href="{{ url_for('create_api_key_page')(request) }}" class="btn btn-primary">Create a new key</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script>
+    new ClipboardJS('.copy-btn');
+    
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.textContent = 'Copy';
+            }, 2000);
+        });
+    });
+</script>
 {% endblock %}

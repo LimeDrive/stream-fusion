@@ -8,6 +8,8 @@ from aiohttp_socks import ProxyConnector
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from stream_fusion.services.postgresql.base import Base
+from stream_fusion.services.postgresql.models import load_all_models
 from stream_fusion.settings import settings
 from stream_fusion.services.postgresql.utils import init_db_cleanup_function
 
@@ -29,7 +31,9 @@ def _setup_db(app: FastAPI) -> None:  # pragma: no cover
     )
     app.state.db_engine = engine
     app.state.db_session_factory = session_factory
-    init_db_cleanup_function(engine)
+
+    # Need to check if we can add pg_cron to the zileanDB
+    # init_db_cleanup_function(engine) 
 
 
 @asynccontextmanager
@@ -44,7 +48,15 @@ async def lifespan_setup(
     """
     # Startup actions
     app.middleware_stack = None
-    # _setup_db(app)
+    _setup_db(app)
+
+    # Load all models from postgresql/models
+    load_all_models()
+    
+    # Create tables
+    async with app.state.db_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+        
     app.middleware_stack = app.build_middleware_stack()
 
     proxy_url = settings.playback_proxy

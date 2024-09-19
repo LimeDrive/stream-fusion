@@ -1,3 +1,4 @@
+from sqlalchemy import BigInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql.sqltypes import Boolean, DateTime
@@ -15,8 +16,8 @@ class APIKeyModel(Base):
     api_key: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), unique=True, index=True, nullable=False, default=uuid.uuid4)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     never_expire: Mapped[bool] = mapped_column(Boolean, default=False)
-    expiration_date: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    latest_query_date: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    expiration_date: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    latest_query_date: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     total_queries: Mapped[int] = mapped_column(default=0)
     name: Mapped[str] = mapped_column(nullable=False)
 

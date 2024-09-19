@@ -2,6 +2,7 @@ import hashlib
 import time
 from fastapi import APIRouter, Depends, HTTPException, Request
 
+from stream_fusion.services.postgresql.dao.apikey_dao import APIKeyDAO
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.cache import search_public
 from stream_fusion.utils.cache.local_redis import RedisCache
@@ -15,7 +16,6 @@ from stream_fusion.utils.filter_results import (
 from stream_fusion.utils.jackett.jackett_result import JackettResult
 from stream_fusion.utils.jackett.jackett_service import JackettService
 from stream_fusion.utils.sharewood.sharewood_service import SharewoodService
-from stream_fusion.utils.yggfilx.yggflix_result import YggflixResult
 from stream_fusion.utils.yggfilx.yggflix_service import YggflixService
 from stream_fusion.utils.metdata.cinemeta import Cinemeta
 from stream_fusion.utils.metdata.tmdb import TMDB
@@ -43,16 +43,16 @@ async def get_results(
     stream_id: str,
     request: Request,
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
+    apikey_dao: APIKeyDAO = Depends()
 ) -> SearchResponse:
     start = time.time()
     logger.info(f"Stream request: {stream_type} - {stream_id}")
 
     stream_id = stream_id.replace(".json", "")
     config = parse_config(config)
-    logger.debug(f"Parsed configuration: {config}")
     api_key = config.get("apiKey")
     if api_key:
-        await check_api_key(api_key)
+        await check_api_key(api_key, apikey_dao)
     else:
         logger.warning("API key not found in config.")
         raise HTTPException(status_code=401, detail="API key not found in config.")
@@ -88,22 +88,6 @@ async def get_results(
         return SearchResponse(streams=cached_result)
 
     debrid_service = get_debrid_service(config)
-
-    # def filter_all_results(results, media):
-    #     if media.type == "series":
-    #         filtered = filter_out_non_matching_series(
-    #             results, media.season, media.episode
-    #         )
-    #         logger.info(
-    #             f"Filtered series results: {len(filtered)} (from {len(results)})"
-    #         )
-    #         return filtered
-    #     else:
-    #         filtered = filter_out_non_matching_movies(results, media.year)
-    #         logger.info(
-    #             f"Filtered movie results: {len(filtered)} (from {len(results)})"
-    #         )
-    #     return results
     
     def media_cache_key(media):
         if isinstance(media, Movie):

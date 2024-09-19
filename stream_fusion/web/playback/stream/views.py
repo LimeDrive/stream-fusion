@@ -7,6 +7,7 @@ from fastapi_simple_rate_limiter import rate_limiter
 from fastapi_simple_rate_limiter.database import create_redis_session
 from starlette.background import BackgroundTask
 
+from stream_fusion.services.postgresql.dao.apikey_dao import APIKeyDAO
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
@@ -80,6 +81,7 @@ async def get_playback(
     query: str,
     request: Request,
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
+    apikey_dao: APIKeyDAO = Depends()
 ):
     logger.debug(f"Received playback request for config: {config}, query: {query}")
     try:
@@ -89,7 +91,7 @@ async def get_playback(
             logger.warning("API key not found in config.")
             raise HTTPException(status_code=401, detail="API key not found in config.")
 
-        await check_api_key(api_key)
+        await check_api_key(api_key, apikey_dao)
 
         if not query:
             logger.warning("Query is empty")
@@ -201,12 +203,13 @@ async def head_playback(
     query: str,
     request: Request,
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
+    apikey_dao: APIKeyDAO = Depends()
 ):
     try:
         config = parse_config(config)
         api_key = config.get("apiKey")
         if api_key:
-            await check_api_key(api_key)
+            await check_api_key(api_key, apikey_dao)
         else:
             logger.warning("API key not found in config.")
             raise HTTPException(status_code=401, detail="API key not found in config.")
