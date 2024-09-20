@@ -26,13 +26,13 @@ class TorrentService:
         self.__session = requests.Session()
 
     @staticmethod
-    def __generate_unique_id(raw_title: str, size: int, indexer: str = "cached") -> str:
-        unique_string = f"{raw_title}_{size}_{indexer}"
+    def __generate_unique_id(raw_title: str, indexer: str = "cached") -> str:
+        unique_string = f"{raw_title}_{indexer}"
         full_hash = hashlib.sha256(unique_string.encode()).hexdigest()
         return full_hash[:16]
 
-    async def get_cached_torrent(self, raw_title: str, size: int, indexer: str) -> TorrentItem | None:
-        unique_id = self.__generate_unique_id(raw_title, size, indexer)
+    async def get_cached_torrent(self, raw_title: str, indexer: str) -> TorrentItem | None:
+        unique_id = self.__generate_unique_id(raw_title, indexer)
         try:
             cached_item = await self.torrent_dao.get_torrent_item_by_id(unique_id)
             if cached_item:
@@ -43,7 +43,7 @@ class TorrentService:
             return None
 
     async def cache_torrent(self, torrent_item: TorrentItem, id: str = None):
-        unique_id = self.__generate_unique_id(torrent_item.raw_title, torrent_item.size, torrent_item.indexer)
+        unique_id = self.__generate_unique_id(torrent_item.raw_title, torrent_item.indexer)
         await self.torrent_dao.create_torrent_item(torrent_item, unique_id)
 
     async def convert_and_process(self, results: List[JackettResult | ZileanResult | YggflixResult | SharewoodResult]):
@@ -52,7 +52,7 @@ class TorrentService:
         for result in results:
             torrent_item = result.convert_to_torrent_item()
 
-            cached_item = await self.get_cached_torrent(torrent_item.raw_title, torrent_item.size, torrent_item.indexer)
+            cached_item = await self.get_cached_torrent(torrent_item.raw_title, torrent_item.indexer)
             if cached_item:
                 torrent_items_result.append(cached_item)
                 continue
