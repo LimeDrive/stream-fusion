@@ -1,4 +1,4 @@
-FROM python:3.11-alpine
+FROM python:3.12-alpine AS builder
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -8,8 +8,6 @@ ENV PYTHONUNBUFFERED=1 \
     PATH="$PATH:/opt/poetry/bin"
 
 RUN apk add --no-cache \
-        openssl \
-        postgresql-client \
         gcc \
         musl-dev \
         libffi-dev \
@@ -19,8 +17,20 @@ WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --only main --no-interaction --no-ansi --no-root
+RUN poetry export -f requirements.txt --output requirements.txt --only main --without-hashes \
+    && pip install --no-cache-dir -r requirements.txt
 
+FROM python:3.12-alpine
+
+ENV PYTHONUNBUFFERED=1
+
+RUN apk add --no-cache \
+        openssl \
+        postgresql-client
+
+WORKDIR /app
+
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY . .
 
 ARG GUNICORN_PORT=8080

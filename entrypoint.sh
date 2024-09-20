@@ -37,7 +37,7 @@ check_tables_exist() {
 
 # Function to check if there are pending migrations
 check_pending_migrations() {
-    alembic current > /dev/null 2>&1
+    python -m alembic current > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         return 0
     else
@@ -48,7 +48,7 @@ check_pending_migrations() {
 # Function to run migrations
 run_migrations() {
     echo "Running database migrations..."
-    alembic upgrade head
+    python -m alembic upgrade head
     if [ $? -ne 0 ]; then
         echo "Error: Database migrations failed."
         exit 1

@@ -148,3 +148,5 @@ cython_debug/
 
 # poetry
 poetry.toml
+
+example/

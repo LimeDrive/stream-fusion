@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import inspect
+from typing import Union
 import stackprinter
 import re
 from loguru import logger
@@ -28,29 +29,25 @@ class SecretFilter:
         return message
 
 def format_console(record):
-    format_ = "<level>{level: <8}</level> | <cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
+    format_ = "<level>{level: <8}</level> | <cyan>{function}</cyan>:<cyan>{line}</cyan> - {message}\n"
     if record["exception"] is not None:
         stack = stackprinter.format(
             record["exception"],
-            suppressed_vars=[
-                r".*ygg_playload.*",
-            ],
+            suppressed_vars=[r".*ygg_playload.*"],
         )
         if REDACTED:
             for pat in patterns:
                 stack = re.sub(pat, "/<REDACTED>/", stack)
         record["extra"]["stack"] = stack
-        format_ += "{extra[stack]}\n"
+        format_ += "\n{extra[stack]}"
     return format_
 
 def format_file(record):
-    format_ = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>\n"
+    format_ = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{function}</cyan>:<cyan>{line}</cyan> - {message}\n"
     if record["exception"] is not None:
         stack = stackprinter.format(
             record["exception"],
-            suppressed_vars=[
-                r".*ygg_playload.*",
-            ],
+            suppressed_vars=[r".*ygg_playload.*"],
         )
         if REDACTED:
             for pat in patterns:
@@ -62,52 +59,36 @@ def format_file(record):
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         try:
-            level = logger.level(record.levelname).name
+            level: Union[str, int] = logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
+
         frame, depth = inspect.currentframe(), 0
         while frame and (depth == 0 or frame.f_code.co_filename == logging.__file__):
             frame = frame.f_back
             depth += 1
+
         logger.opt(depth=depth, exception=record.exc_info).log(
             level, record.getMessage()
         )
 
-def is_running_under_gunicorn():
-    return "gunicorn" in sys.modules
+def configure_logging() -> None:
+    logger.remove()  # Remove default handler
 
-def configure_logging():
-    # Remove default handler
-    logger.remove()
-
-    # Determine log level
     log_level = settings.log_level.value
 
-    if is_running_under_gunicorn():
-        # Use Gunicorn's logger
-        gunicorn_logger = logging.getLogger('gunicorn.error')
-        logger.add(
-            gunicorn_logger.handlers[0],
-            format=format_console,
-            level=log_level,
-            colorize=True,
-            backtrace=True,
-            diagnose=True,
-            filter=SecretFilter(patterns) if REDACTED else None
-        )
-    else:
-        # Standard configuration for non-Gunicorn environments
-        logger.add(
-            sys.stdout,
-            format=format_console,
-            level=log_level,
-            colorize=True,
-            backtrace=True,
-            diagnose=True,
-            filter=SecretFilter(patterns) if REDACTED else None,
-        )
+    logger.add(
+        sys.stdout,
+        format=format_console,
+        level=log_level,
+        colorize=True,
+        backtrace=True,
+        diagnose=True,
+        filter=SecretFilter(patterns) if REDACTED else None,
+        enqueue=True
+    )
 
-    # File logging (consider making this conditional or configurable)
+    # File logging
     logger.add(
         f"/app/config/logs/api_worker_{os.getpid()}.log",
         format=format_file,
@@ -126,3 +107,7 @@ def configure_logging():
     for logger_name in logging.root.manager.loggerDict:
         if logger_name.startswith("uvicorn."):
             logging.getLogger(logger_name).handlers = []
+
+    # Explicitly handle uvicorn loggers
+    for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+        logging.getLogger(logger_name).handlers = [InterceptHandler()]

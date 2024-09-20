@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import sys
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,8 +8,8 @@ from fastapi.responses import UJSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
-from stream_fusion.logging_config import configure_logging
 
+from stream_fusion.logging_config import configure_logging
 from stream_fusion.version import get_version
 from stream_fusion.web.api.router import api_router
 from stream_fusion.web.root.router import root_router
@@ -27,8 +28,7 @@ def get_app() -> FastAPI:
 
     :return: application.
     """
-
-    configure_logging()
+        
     app = FastAPI(
         title="StreamFusion",
         version=str(get_version()),
