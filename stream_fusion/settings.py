@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # STREAM-FUSION
     version_path: str = "/app/pyproject.toml"
-    workers_count: int = Field(default_factory=get_default_worker_count)
+    workers_count: int = get_default_worker_count()
     port: int = 8080
     host: str = "0.0.0.0"
     gunicorn_timeout: int = 180

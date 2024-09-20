@@ -27,9 +27,9 @@ def get_app() -> FastAPI:
 
     :return: application.
     """
-    if not os.environ.get("RUNNING_UNDER_GUNICORN"):
-        configure_logging()
-        app = FastAPI(
+
+    configure_logging()
+    app = FastAPI(
         title="StreamFusion",
         version=str(get_version()),
         lifespan=lifespan_setup,

@@ -71,4 +71,4 @@ else
 fi
 
 echo "Starting the application..."
-exec "$@"
+python -m stream_fusion

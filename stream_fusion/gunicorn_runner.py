@@ -1,12 +1,8 @@
-import os
-
 from typing import Any
 
 from gunicorn.app.base import BaseApplication
 from gunicorn.util import import_app
 from uvicorn.workers import UvicornWorker as BaseUvicornWorker
-from stream_fusion.logging_config import configure_logging
-from stream_fusion.settings import settings
 
 try:
     import uvloop  # (Found nested import)
@@ -23,7 +19,7 @@ class UvicornWorker(BaseUvicornWorker):
     to pass these parameters through gunicorn.
     """
 
-    CONFIG_KWARGS = {  # (upper-case constant in a class)  # noqa: RUF012
+    CONFIG_KWARGS: dict[str, Any] = {  # typing: ignore  # noqa: RUF012
         "loop": "uvloop" if uvloop is not None else "asyncio",
         "http": "httptools",
         "lifespan": "on",
@@ -40,28 +36,22 @@ class GunicornApplication(BaseApplication):
     with custom uvicorn workers.
     """
 
-    def __init__(self, app: str, host: str, port: int, workers: int, timeout: int, **kwargs: Any):
+    def __init__(  # (Too many args)
+        self,
+        app: str,
+        host: str,
+        port: int,
+        workers: int,
+        **kwargs: Any,
+    ) -> None:
         self.options = {
             "bind": f"{host}:{port}",
             "workers": workers,
             "worker_class": "stream_fusion.gunicorn_runner.UvicornWorker",
-            "timeout" : timeout,
-            "forwarded_allow_ips" : "*",
-            "logconfig_dict": {
-                'version': 1,
-                'disable_existing_loggers': False,
-            },
             **kwargs,
         }
         self.app = app
         super().__init__()
-
-    def load(self) -> str:
-        os.environ["RUNNING_UNDER_GUNICORN"] = "1"
-        return import_app(self.app)
-
-    def when_ready(self, server):
-        configure_logging()
 
     def load_config(self) -> None:
         """

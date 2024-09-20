@@ -8,6 +8,7 @@ from aiohttp_socks import ProxyConnector
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from stream_fusion.logging_config import configure_logging
 from stream_fusion.services.postgresql.base import Base
 from stream_fusion.services.postgresql.models import load_all_models
 from stream_fusion.settings import settings
