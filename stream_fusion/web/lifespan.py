@@ -50,13 +50,13 @@ async def lifespan_setup(
     app.middleware_stack = None
     _setup_db(app)
 
-    # Load all models from postgresql/models
-    load_all_models()
+    # # Load all models from postgresql/models
+    # load_all_models()
     
-    # Create tables
-    async with app.state.db_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        
+    # # Create tables
+    # async with app.state.db_engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.create_all)
+
     app.middleware_stack = app.build_middleware_stack()
 
     proxy_url = settings.playback_proxy
