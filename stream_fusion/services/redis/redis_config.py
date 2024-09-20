@@ -30,7 +30,7 @@ async def get_redis_cache_dependency():
     try:
         yield redis_cache
     finally:
-        redis_cache.close()
+        await redis_cache.close()
 
 # Redis connection pool
 def get_redis(request: Request) -> Redis:

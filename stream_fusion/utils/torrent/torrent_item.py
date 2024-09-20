@@ -60,6 +60,7 @@ class TorrentItem:
             'torrent_download': self.torrent_download,
             'trackers': self.trackers,
             'file_index': self.file_index,
+            'full_index': self.full_index,
             'availability': self.availability,
         }
     
@@ -87,6 +88,7 @@ class TorrentItem:
         instance.torrent_download = data['torrent_download']
         instance.trackers = data['trackers']
         instance.file_index = data['file_index']
+        instance.full_index = data['full_index']
         instance.availability = data['availability']
         
         instance.parsed_data = parse(instance.raw_title)

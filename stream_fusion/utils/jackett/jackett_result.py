@@ -48,7 +48,7 @@ class JackettResult:
         parsed_result = parse(cached_item['title'])
 
         self.raw_title = cached_item['title']
-        self.indexer = "Cache Public"  # Cache doesn't return an indexer sadly (It stores it tho)
+        self.indexer = "Public - Cache"  # Cache doesn't return an indexer sadly (It stores it tho)
         self.magnet = cached_item['magnet']
         self.link = cached_item['magnet']
         self.languages = cached_item['language'].split(";") if cached_item['language'] is not None else []

@@ -1,4 +1,4 @@
-import redis
+import redis.asyncio as redis
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from redis.exceptions import LockError
@@ -49,14 +49,14 @@ class ProxyStreamer:
         logger.debug("Streaming connection closed")
 
 
-def get_stream_link(
+async def get_stream_link(
     decoded_query: str, config: dict, ip: str, redis_cache: RedisCache
 ) -> str:
     logger.debug(f"Getting stream link for query: {decoded_query}, IP: {ip}")
     api_key = config.get("apiKey")
     cache_key = f"stream_link:{api_key}:{decoded_query}_{ip}"
 
-    cached_link = redis_cache.get(cache_key)
+    cached_link = await redis_cache.get(cache_key)
     if cached_link:
         logger.info(f"Stream link found in cache: {cached_link}")
         return cached_link
@@ -67,7 +67,7 @@ def get_stream_link(
 
     if link != NO_CACHE_VIDEO_URL:
         logger.debug(f"Caching new stream link: {link}")
-        redis_cache.set(cache_key, link, expiration=7200)  # Cache for 2 hour
+        await redis_cache.set(cache_key, link, expiration=7200)  # Cache for 2 hours
         logger.info(f"New stream link generated and cached: {link}")
     else:
         logger.debug("Stream link not cached (NO_CACHE_VIDEO_URL)")
@@ -105,15 +105,15 @@ async def get_playback(
         lock = redis_client.lock(lock_key, timeout=60)
 
         try:
-            if lock.acquire(blocking=False):
+            if await lock.acquire(blocking=False):
                 logger.debug("Lock acquired, getting stream link")
-                link = get_stream_link(decoded_query, config, ip, redis_cache)
+                link = await get_stream_link(decoded_query, config, ip, redis_cache)
             else:
                 logger.debug("Lock not acquired, waiting for cached link")
                 cache_key = f"stream_link:{api_key}:{decoded_query}_{ip}"
                 for _ in range(30):
                     await asyncio.sleep(1)
-                    cached_link = redis_cache.get(cache_key)
+                    cached_link = await redis_cache.get(cache_key)
                     if cached_link:
                         logger.debug("Cached link found while waiting")
                         link = cached_link
@@ -126,7 +126,7 @@ async def get_playback(
                     )
         finally:
             try:
-                lock.release()
+                await lock.release()
                 logger.debug("Lock released")
             except LockError:
                 logger.warning("Failed to release lock (already released)")
@@ -231,12 +231,10 @@ async def head_playback(
         }
 
         for _ in range(30):
-            if redis_cache.exists(cache_key):
-                link = redis_cache.get(cache_key)
+            if await redis_cache.exists(cache_key):
+                link = await redis_cache.get(cache_key)
 
-                if (
-                    not settings.proxied_link
-                ):  # advoid send HEAD request if link are send directly
+                if not settings.proxied_link:  # avoid sending HEAD request if link is sent directly
                     return Response(status_code=status.HTTP_200_OK, headers=headers)
 
                 async with request.app.state.http_session.head(link) as response:
