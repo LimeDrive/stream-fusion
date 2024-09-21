@@ -20,7 +20,38 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry export -f requirements.txt --output requirements.txt --only main --without-hashes \
     && pip install --no-cache-dir -r requirements.txt
 
-FROM python:3.12-alpine
+FROM python:3.12-alpine AS development
+
+ENV PYTHONUNBUFFERED=1 \
+    POETRY_VERSION=1.8.3
+
+RUN apk add --no-cache \
+        gcc \
+        musl-dev \
+        libffi-dev \
+        openssl \
+        postgresql-client \
+        git \
+    && pip install --no-cache-dir "poetry==$POETRY_VERSION"
+
+WORKDIR /app
+
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY . .
+
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-root
+
+ARG GUNICORN_PORT=8080
+ENV EXPOSE_PORT=${GUNICORN_PORT}
+EXPOSE ${EXPOSE_PORT}
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+CMD ["/bin/sh"]
+
+FROM python:3.12-alpine AS production
 
 ENV PYTHONUNBUFFERED=1
 

@@ -147,3 +147,7 @@ cython_debug/
 
 # apple
 .DS_Store
+
+#devcontainer
+.devcontainer/
+docker-compose-dev.yml
