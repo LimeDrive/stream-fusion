@@ -30,6 +30,7 @@ RUN apk add --no-cache \
         musl-dev \
         libffi-dev \
         openssl \
+        openssh \
         postgresql-client \
         git \
     && pip install --no-cache-dir "poetry==$POETRY_VERSION"
