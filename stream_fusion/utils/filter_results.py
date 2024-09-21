@@ -83,7 +83,7 @@ def filter_out_non_matching_series(items, season, episode):
     numeric_season = int(clean_season)
     numeric_episode = int(clean_episode)
 
-    integrale_pattern = re.compile(r'\b(INTEGRALE|COMPLET|INTEGRAL)\b', re.IGNORECASE)
+    integrale_pattern = re.compile(r'\b(INTEGRALE|COMPLET|COMPLETE|INTEGRAL)\b', re.IGNORECASE)
 
     for item in items:
         if len(item.parsed_data.seasons) == 0 and len(item.parsed_data.episodes) == 0:
@@ -123,16 +123,22 @@ def clean_tmdb_title(title):
 def remove_non_matching_title(items, titles):
     logger.info(f"Removing items not matching titles: {titles}")
     filtered_items = []
+
+    integrale_pattern = re.compile(r'\b(INTEGRALE|COMPLET|COMPLETE|INTEGRAL)\b', re.IGNORECASE)
+    
     cleaned_titles = [clean_tmdb_title(title) for title in titles]
+    cleaned_titles = [integrale_pattern.sub('', title).strip() for title in cleaned_titles]
     
     for item in items:
+        cleaned_item_title = integrale_pattern.sub('', item.parsed_data.parsed_title).strip()
+        
         for cleaned_title in cleaned_titles:
-            if title_match(cleaned_title, item.parsed_data.parsed_title):
+            if title_match(cleaned_title, cleaned_item_title):
                 filtered_items.append(item)
                 break
         else:
             logger.debug("No title match found, item skipped")
-
+    
     logger.info(
         f"Title filtering complete. {len(filtered_items)} items kept out of {len(items)} total"
     )
