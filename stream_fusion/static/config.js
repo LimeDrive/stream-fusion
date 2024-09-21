@@ -1,7 +1,6 @@
 const sorts = ['quality', 'sizedesc', 'sizeasc', 'qualitythensize'];
 const qualityExclusions = ['2160p', '1080p', '720p', '480p', 'rips', 'cam', 'hevc', 'unknown'];
 const languages = ['en', 'fr', 'multi'];
-// 'es', 'de', 'it', 'pt', 'ru', 'in', 'nl', 'hu', 'la',
 
 document.addEventListener('DOMContentLoaded', function () {
     updateProviderFields();
@@ -135,10 +134,20 @@ function resetAuthButton() {
 }
 
 function updateProviderFields() {
-    setElementDisplay('debrid-fields', document.getElementById('debrid').checked ? 'block' : 'none');
-    setElementDisplay('cache-fields', document.getElementById('cache')?.checked ? 'block' : 'none');
-    setElementDisplay('ygg-fields', document.getElementById('yggflix')?.checked ? 'block' : 'none');
-    setElementDisplay('sharewood-fields', document.getElementById('sharewood')?.checked ? 'block' : 'none');
+    const debridChecked = document.getElementById('debrid').checked;
+    const cacheChecked = document.getElementById('cache')?.checked;
+    const yggflixChecked = document.getElementById('yggflix')?.checked;
+    const sharewoodChecked = document.getElementById('sharewood')?.checked;
+
+    const debridFields = document.getElementById('debrid-fields');
+    const cacheFields = document.getElementById('cache-fields');
+    const yggFields = document.getElementById('ygg-fields');
+    const sharewoodFields = document.getElementById('sharewood-fields');
+
+    if (debridFields) debridFields.style.display = debridChecked ? 'block' : 'none';
+    if (cacheFields) cacheFields.style.display = cacheChecked ? 'block' : 'none';
+    if (yggFields) yggFields.style.display = yggflixChecked ? 'block' : 'none';
+    if (sharewoodFields) sharewoodFields.style.display = sharewoodChecked ? 'block' : 'none';
 }
 
 function loadData() {
@@ -146,10 +155,8 @@ function loadData() {
     let data = currentUrl.match(/\/([^\/]+)\/configure$/);
     if (data && data[1]) {
         try {
-            // Decode data from URL
             const decodedData = JSON.parse(atob(data[1]));
             
-            // Fill form fields with decoded data
             document.getElementById('jackett').checked = decodedData.jackett;
             document.getElementById('cache').checked = decodedData.cache;
             document.getElementById('cacheUrl').value = decodedData.cacheUrl;
@@ -195,10 +202,9 @@ function getLink(method) {
     const data = {
         addonHost: new URL(window.location.href).origin,
         apiKey: document.getElementById('ApiKey').value,
-        // service: document.getElementById('service').value,
         service: 'Real-Debrid',
-        debridKey: document.getElementById('debrid_api_key').value,
-        sharewoodPasskey: document.getElementById('sharewoodPasskey').value,
+        debridKey: document.getElementById('debrid_api_key')?.value,
+        sharewoodPasskey: document.getElementById('sharewoodPasskey')?.value,
         maxSize: parseInt(document.getElementById('maxSize').value) || 16,
         exclusionKeywords: document.getElementById('exclusion-keywords').value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword !== ''),
         languages: languages.filter(lang => document.getElementById(lang).checked),
@@ -207,7 +213,7 @@ function getLink(method) {
         maxResults: parseInt(document.getElementById('maxResults').value) || 5,
         minCachedResults: parseInt(document.getElementById('minCachedResults').value) || 5,
         exclusion: qualityExclusions.filter(quality => document.getElementById(quality).checked),
-        cacheUrl: document.getElementById('cacheUrl').value,
+        cacheUrl: document.getElementById('cacheUrl')?.value,
         jackett: document.getElementById('jackett')?.checked,
         cache: document.getElementById('cache')?.checked,
         zilean: document.getElementById('zilean')?.checked,
@@ -222,41 +228,44 @@ function getLink(method) {
     };
 
     // Check if all required fields are filled
-    if (
-        (data.cache && !data.cacheUrl) || 
-        (data.debrid && !data.debridKey) || 
-        data.languages.length === 0 || 
-        !data.apiKey || 
-        (data.yggflix && !data.yggPasskey) ||
-        (data.sharewood && !data.sharewoodPasskey)
-    ) {
-        alert('Please fill all required fields');
+    const missingRequiredFields = [];
+
+    if (data.cache && !data.cacheUrl) missingRequiredFields.push("Cache URL");
+    if (data.debrid && document.getElementById('debrid_api_key') && !data.debridKey) missingRequiredFields.push("Debrid API Key");
+    if (data.languages.length === 0) missingRequiredFields.push("Languages");
+    if (!data.apiKey) missingRequiredFields.push("API Key");
+    if (data.yggflix && document.getElementById('yggPasskey') && !data.yggPasskey) missingRequiredFields.push("Ygg Passkey");
+    if (data.sharewood && document.getElementById('sharewoodPasskey') && !data.sharewoodPasskey) missingRequiredFields.push("Sharewood Passkey");
+
+    if (missingRequiredFields.length > 0) {
+        alert(`Please fill all required fields: ${missingRequiredFields.join(", ")}`);
         return false;
     }
-        // Fonctions de validation
-        function validatePasskey(passkey) {
-            return /^[a-zA-Z0-9]{32}$/.test(passkey);
-        }
-    
-        function validateApiKey(apiKey) {
-            return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(apiKey);
-        }
-    
-        // Validation des champs
-        if (data.yggflix && !validatePasskey(data.yggPasskey)) {
-            alert('Ygg Passkey doit contenir exactement 32 caractères alphanumériques');
-            return false;
-        }
-    
-        if (data.sharewood && !validatePasskey(data.sharewoodPasskey)) {
-            alert('Sharewood Passkey doit contenir exactement 32 caractères alphanumériques');
-            return false;
-        }
-    
-        if (!validateApiKey(data.apiKey)) {
-            alert('APIKEY doit être un UUID v4 valide');
-            return false;
-        }
+
+    // Fonctions de validation
+    function validatePasskey(passkey) {
+        return /^[a-zA-Z0-9]{32}$/.test(passkey);
+    }
+
+    function validateApiKey(apiKey) {
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(apiKey);
+    }
+
+    // Validation des champs
+    if (data.yggflix && data.yggPasskey && !validatePasskey(data.yggPasskey)) {
+        alert('Ygg Passkey doit contenir exactement 32 caractères alphanumériques');
+        return false;
+    }
+
+    if (data.sharewood && data.sharewoodPasskey && !validatePasskey(data.sharewoodPasskey)) {
+        alert('Sharewood Passkey doit contenir exactement 32 caractères alphanumériques');
+        return false;
+    }
+
+    if (!validateApiKey(data.apiKey)) {
+        alert('APIKEY doit être un UUID v4 valide');
+        return false;
+    }
 
     const encodedData = btoa(JSON.stringify(data));
     const stremio_link = `${window.location.host}/${encodedData}/manifest.json`;

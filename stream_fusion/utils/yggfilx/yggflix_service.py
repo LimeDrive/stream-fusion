@@ -16,7 +16,11 @@ class YggflixService:
     def __init__(self, config: dict):
         self.yggflix = YggflixAPI()
         self.has_tmdb = config.get("metadataProvider") == "tmdb"
-        self.ygg_passkey = config.get("yggPasskey")
+
+        if settings.ygg_unique_account and settings.ygg_passkey:
+            self.ygg_passkey = settings.ygg_passkey
+        else:
+            self.ygg_passkey = config.get("yggPasskey")
 
     def search(self, media: Union[Movie, Series]) -> List[YggflixResult]:
         """

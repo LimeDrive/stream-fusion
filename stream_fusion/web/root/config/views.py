@@ -1,6 +1,6 @@
 from cachetools import TTLCache
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import  FileResponse, RedirectResponse
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from stream_fusion.logging_config import logger
@@ -8,7 +8,7 @@ from stream_fusion.services.postgresql.dao.apikey_dao import APIKeyDAO
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.security.security_api_key import check_api_key
 from stream_fusion.version import get_version
-from stream_fusion.web.root.config.schemas import ManifestResponse, StaticFileResponse
+from stream_fusion.web.root.config.schemas import ManifestResponse
 from stream_fusion.settings import settings
 
 router = APIRouter()
@@ -27,7 +27,12 @@ async def root():
 @router.get("/{config}/configure")
 async def configure(request: Request):
     logger.info("Serving configuration page")
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "rd_unique_account": settings.rd_unique_account,
+        "sharewood_unique_account": settings.sharewood_unique_account,
+        "ygg_unique_account": settings.ygg_unique_account
+    })
 
 
 # @router.get("/static/{file_path:path}", response_model=StaticFileResponse)

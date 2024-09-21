@@ -203,6 +203,7 @@
                     </div>
                 </div>
 
+                {% if not rd_unique_account %}
                 <div id="debrid-fields" style="display: none;">
                     <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                         <h2 class="text-white font-semibold leading-7">Real-Debrid Configuration</h2>
@@ -231,6 +232,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
 
                 <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                     <h2 class="text-white font-semibold leading-7">Metadata Provider</h2>
@@ -282,6 +284,7 @@
                     </div>
                 </div>
 
+                {% if not sharewood_unique_account %}
                 <div id="sharewood-fields" style="display: none;">
                     <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                         <h2 class="text-white font-semibold leading-7">Sharewood Configuration</h2>
@@ -298,7 +301,9 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
 
+                {% if not ygg_unique_account %}
                 <div id="ygg-fields" style="display: none;">
                     <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                         <h2 class="text-white font-semibold leading-7">YggTorrent Login</h2>
@@ -315,6 +320,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
 
                 <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                     <h2 class="text-white font-semibold leading-7">Filtering and Sorting</h2>

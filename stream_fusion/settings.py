@@ -33,9 +33,6 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     gunicorn_timeout: int = 180
     aiohttp_timeout: int = 7200
-    proxied_link: bool = (
-        True  # TODO: Doccu that is set to True to use the proxy by default, to advoid WARN from Realdebrid
-    )
     playback_proxy: str | None = (
         None  # If set, the link will be proxied through the given proxy.
     )
@@ -47,6 +44,11 @@ class Settings(BaseSettings):
     )
     use_https: bool = False
 
+    # REALDEBRID
+    proxied_link: bool = True
+    rd_token: str | None = None
+    rd_unique_account: bool = True if rd_token else False
+
     # LOGGING
     log_level: LogLevel = LogLevel.INFO
     log_path: str = "/app/config/logs/stream-fusion.log"
@@ -55,7 +57,6 @@ class Settings(BaseSettings):
     # SECUIRITY
     secret_api_key: str | None = None
     security_hide_docs: bool = True
-
 
     # POSTGRESQL_DB
     pg_host: str = "postgresql"
@@ -93,11 +94,13 @@ class Settings(BaseSettings):
     yggflix_url: str = "https://yggflix.fr"
     yggflix_max_workers: int = 4
     ygg_passkey: str | None = None
+    ygg_unique_account: bool = True if ygg_passkey else False
 
     # SHAREWOOD
     sharewood_url: str = "https://www.sharewood.tv"
     sharewood_max_workers: int = 4
     sharewood_passkey: str | None = None
+    sharewood_unique_account: bool = True if sharewood_passkey else False
 
     # PUBLIC_CACHE
     public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
