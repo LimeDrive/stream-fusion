@@ -44,7 +44,6 @@ jobs:
             type=semver,pattern={{version}}
             type=sha,format=short
             type=raw,value=v2-beta
-            type=raw,value=v2-beta-${{ steps.get_version.outputs.APP_VERSION }}
           labels: |
             org.opencontainers.image.title=StreamFusion v2-beta
             org.opencontainers.image.description=Advanced plugin for Stremio that enhances streaming capabilities with debrid service
