@@ -114,30 +114,60 @@ def filter_out_non_matching_series(items, season, episode):
 
 
 def clean_tmdb_title(title):
-    characters_to_filter = r'[<>:"/\\|?*\x00-\x1F™®©℠¡¿–—''""•…]'
-    cleaned_title = re.sub(characters_to_filter, ' ', title)
+    # Dictionnaire des caractères à filtrer, groupés par catégorie
+    characters_to_filter = {
+        'ponctuation': r'<>"/\\|?*',
+        'controle': r'\x00-\x1F',
+        'symboles': r'\u2122\u00AE\u00A9\u2120\u00A1\u00BF\u2013\u2014\u2018\u2019\u201C\u201D\u2022\u2026',
+        'espaces': r'\s+'
+    }
+    
+    filter_pattern = ''.join([f'[{chars}]' for chars in characters_to_filter.values()])   
+    cleaned_title = re.sub(r':(\S)', r' \1', title)
+    cleaned_title = re.sub(r'\s*:\s*', ' ', cleaned_title)
+    cleaned_title = re.sub(filter_pattern, ' ', cleaned_title)
     cleaned_title = cleaned_title.strip()
-    cleaned_title = re.sub(r'\s+', ' ', cleaned_title)
+    cleaned_title = re.sub(characters_to_filter['espaces'], ' ', cleaned_title)
+    
     return cleaned_title
 
 def remove_non_matching_title(items, titles):
-    logger.info(f"Removing items not matching titles: {titles}")
     filtered_items = []
-
     integrale_pattern = re.compile(r'\b(INTEGRALE|COMPLET|COMPLETE|INTEGRAL)\b', re.IGNORECASE)
-    
     cleaned_titles = [clean_tmdb_title(title) for title in titles]
     cleaned_titles = [integrale_pattern.sub('', title).strip() for title in cleaned_titles]
+    logger.info(f"Removing items not matching titles: {cleaned_titles}")
+    
+    def is_ordered_subset(subset, full_set):
+        subset_words = subset.lower().split()
+        full_set_words = full_set.lower().split()
+        subset_index = 0
+        for word in full_set_words:
+            if subset_index < len(subset_words) and word == subset_words[subset_index]:
+                subset_index += 1
+        return subset_index == len(subset_words)
     
     for item in items:
         cleaned_item_title = integrale_pattern.sub('', item.parsed_data.parsed_title).strip()
-        
-        for cleaned_title in cleaned_titles:
-            if title_match(cleaned_title, cleaned_item_title):
+        for title in cleaned_titles:
+            logger.debug(f"Comparing item title: {cleaned_item_title} with title: {title}")
+            
+            if is_ordered_subset(cleaned_item_title, title):
+                logger.debug(f"Ordered subset match found. Item accepted: {cleaned_item_title}")
                 filtered_items.append(item)
                 break
+            elif is_ordered_subset(title, cleaned_item_title):
+                logger.debug(f"Reverse ordered subset match found. Item accepted: {cleaned_item_title}")
+                filtered_items.append(item)
+                break
+            else:
+                logger.debug(f"No ordered subset match. Trying title_match()")
+                if title_match(title, cleaned_item_title):
+                    logger.debug(f"title_match() succeeded. Item accepted: {cleaned_item_title}")
+                    filtered_items.append(item)
+                    break
         else:
-            logger.debug("No title match found, item skipped")
+            logger.debug(f"No match found, item skipped: {cleaned_item_title}")
     
     logger.info(
         f"Title filtering complete. {len(filtered_items)} items kept out of {len(items)} total"
