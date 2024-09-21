@@ -135,11 +135,22 @@ function resetAuthButton() {
 }
 
 function updateProviderFields() {
-    setElementDisplay('debrid-fields', document.getElementById('debrid').checked ? 'block' : 'none');
-    setElementDisplay('cache-fields', document.getElementById('cache')?.checked ? 'block' : 'none');
-    setElementDisplay('ygg-fields', document.getElementById('yggflix')?.checked ? 'block' : 'none');
-    setElementDisplay('sharewood-fields', document.getElementById('sharewood')?.checked ? 'block' : 'none');
+    const debridChecked = document.getElementById('debrid').checked;
+    const cacheChecked = document.getElementById('cache')?.checked;
+    const yggflixChecked = document.getElementById('yggflix')?.checked;
+    const sharewoodChecked = document.getElementById('sharewood')?.checked;
+
+    const debridFields = document.getElementById('debrid-fields');
+    const cacheFields = document.getElementById('cache-fields');
+    const yggFields = document.getElementById('ygg-fields');
+    const sharewoodFields = document.getElementById('sharewood-fields');
+
+    if (debridFields) debridFields.style.display = debridChecked ? 'block' : 'none';
+    if (cacheFields) cacheFields.style.display = cacheChecked ? 'block' : 'none';
+    if (yggFields) yggFields.style.display = yggflixChecked ? 'block' : 'none';
+    if (sharewoodFields) sharewoodFields.style.display = sharewoodChecked ? 'block' : 'none';
 }
+
 
 function loadData() {
     const currentUrl = window.location.href;
