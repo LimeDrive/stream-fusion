@@ -19,8 +19,11 @@ class TorrentSmartContainer:
         self.__media = media
 
     def get_unaviable_hashes(self):
-        hashes = list(self.__itemsDict.keys())
-        self.logger.debug(f"Retrieved {len(hashes)} hashes")
+        hashes = []
+        for hash, item in self.__itemsDict.items():
+            if item.availability is False:
+                hashes.append(hash)
+        self.logger.debug(f"Retrieved {len(hashes)} hashes to process for RealDebrid")
         return hashes
 
     def get_items(self):
