@@ -222,7 +222,6 @@ class APIKeyDAO:
                 logger.warning(f"API key not found for renewal: {api_key}")
                 raise HTTPException(status_code=404, detail="API key not found")
             
-            # Set is_active to True regardless of expiration status
             db_key.is_active = True
             
             current_time = datetime_to_timestamp(datetime.now(timezone.utc))
@@ -231,15 +230,13 @@ class APIKeyDAO:
                 logger.info(f"Renewing a non-expiring key: {api_key}")
             else:
                 if db_key.expiration_date and db_key.expiration_date > current_time:
-                    logger.warning(f"Attempted to renew non-expired key: {api_key}")
-                    raise HTTPException(
-                        status_code=400, detail="This key hasn't expired yet"
+                    logger.info(f"Attempted to renew non-expired key: {api_key}")
+                else:
+                    # Update the expiration date only if it's not a non-expiring key
+                    db_key.expiration_date = datetime_to_timestamp(
+                        datetime.now(timezone.utc) + timedelta(days=self.expiration_limit)
                     )
-                
-                # Update the expiration date only if it's not a non-expiring key
-                db_key.expiration_date = datetime_to_timestamp(
-                    datetime.now(timezone.utc) + timedelta(days=self.expiration_limit)
-                )
+                    logger.info(f"Renewed expiring key: {api_key}")
             
             await self.session.commit()
             await self.session.refresh(db_key)
