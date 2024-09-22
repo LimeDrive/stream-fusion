@@ -3,7 +3,6 @@ import json
 import time
 from urllib.parse import unquote
 
-from fastapi import HTTPException
 import requests
 
 from stream_fusion.constants import NO_CACHE_VIDEO_URL
@@ -12,7 +11,6 @@ from stream_fusion.utils.debrid.base_debrid import BaseDebrid
 from stream_fusion.utils.general import get_info_hash_from_magnet
 from stream_fusion.utils.general import is_video_file
 from stream_fusion.utils.general import season_episode_in_filename
-from stream_fusion.settings import settings
 from stream_fusion.logging_config import logger
 
 
@@ -20,24 +18,11 @@ class RealDebrid(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
         self.base_url = "https://api.real-debrid.com"
-        if not settings.rd_unique_account:
-            self.token_manager = RDTokenManager(config)
+        # TODO: We may can gove the choise btw rd_manager and personal RD Token, unique for all user.
+        self.token_manager = RDTokenManager(config)
 
     def get_headers(self):
-        if settings.rd_unique_account:
-            if not settings.proxied_link:
-                logger.warning("Real-Debrid unique account is enabled, but proxied link is disabled. "
-                               "This may lead to account ban.")
-                logger.warning("Please enable proxied link in the settings.")
-                raise HTTPException(status_code=500, detail="Proxied link is disabled.")
-            if settings.rd_token:
-                return {"Authorization": f"Bearer {settings.rd_token}"}
-            else:
-                logger.warning("Real-Debrid unique account is enabled, but no token is provided. "
-                               "Please provide a token in the env.")
-                raise HTTPException(status_code=500, detail="Real-Debrid token is not provided.")
-        else:
-            return {"Authorization": f"Bearer {self.token_manager.get_access_token()}"}
+        return {"Authorization": f"Bearer {self.token_manager.get_access_token()}"}
 
     def add_magnet(self, magnet, ip=None):
         url = f"{self.base_url}/rest/1.0/torrents/addMagnet"
@@ -101,8 +86,7 @@ class RealDebrid(BaseDebrid):
         url = f"{self.base_url}/rest/1.0/torrents/instantAvailability/{'/'.join(hashes_or_magnets)}"
         return self.get_json_response(url, headers=self.get_headers())
 
-    def get_stream_link(self, query_string, config, ip=None):
-        query = json.loads(query_string)
+    def get_stream_link(self, query, config, ip=None):
 
         magnet = query['magnet']
         stream_type = query['type']

@@ -8,7 +8,7 @@ from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.cache import search_public
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
-from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
+from stream_fusion.utils.debrid.get_debrid_service import get_all_debrid_services
 from stream_fusion.utils.filter_results import (
     filter_items,
     merge_items,
@@ -89,7 +89,7 @@ async def get_results(
         logger.info(f"Request completed in {total_time:.2f} seconds")
         return SearchResponse(streams=cached_result)
 
-    debrid_service = get_debrid_service(config)
+    debrid_services = get_all_debrid_services(config)
     
     def media_cache_key(media):
         if isinstance(media, Movie):
@@ -254,13 +254,14 @@ async def get_results(
         torrent_smart_container = TorrentSmartContainer(search_results, media)
 
         if config["debrid"]:
-            hashes = torrent_smart_container.get_hashes()
-            ip = request.client.host
-            result = debrid_service.get_availability_bulk(hashes, ip)
-            torrent_smart_container.update_availability(
-                result, type(debrid_service), media
-            )
-            logger.info(f"Checked availability for {len(result.items())} items")
+            for debrid in debrid_services:
+                hashes = torrent_smart_container.get_unaviable_hashes()
+                ip = request.client.host
+                result = debrid.get_availability_bulk(hashes, ip)
+                torrent_smart_container.update_availability(
+                    result, type(debrid), media
+                )
+                logger.info(f"Checked availability for {len(result.items())} items")
 
         if config["cache"]:
             logger.debug("Caching public container items")

@@ -3,32 +3,51 @@ import json
 import uuid
 from urllib.parse import unquote
 
+from fastapi import HTTPException
+
 from stream_fusion.constants import NO_CACHE_VIDEO_URL
 from stream_fusion.utils.debrid.base_debrid import BaseDebrid
 from stream_fusion.utils.general import season_episode_in_filename
 from stream_fusion.logging_config import logger
+from stream_fusion.settings import settings
 
 
 class AllDebrid(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
         self.base_url = "https://api.alldebrid.com/v4/"
+        self.agent = settings.ad_user_app
+        if settings.ad_unique_account:
+            if not settings.proxied_link:
+                logger.warning("AllDebrid unique account is enabled, but proxied link is disabled. "
+                               "This may lead to account ban.")
+                logger.warning("Please enable proxied link in the settings.")
+                raise HTTPException(status_code=500, detail="Proxied link is disabled.")
+            if settings.ad_use_proxy and not settings.playback_proxy:
+                logger.warning("Proxified AllDebrid stream is enabled, but playback proxy is disabled. "
+                               "This may not work if your on server IP.")
+                logger.warning("Please enable playback proxy in the settings.")
+                raise HTTPException(status_code=500, detail="Playback proxy is disabled.")
+            if settings.ad_apikey:
+                self.token = settings.ad_apikey
+        else:
+            self.token = self.config["ADToken"]
 
     def add_magnet(self, magnet, ip):
-        url = f"{self.base_url}magnet/upload?agent=jackett&apikey={self.config['debridKey']}&magnet={magnet}&ip={ip}"
+        url = f"{self.base_url}magnet/upload?agent={self.agent}&apikey={self.token}&magnet={magnet}&ip={ip}"
         return self.get_json_response(url)
 
     def add_torrent(self, torrent_file, ip):
-        url = f"{self.base_url}magnet/upload/file?agent=jackett&apikey={self.config['debridKey']}&ip={ip}"
+        url = f"{self.base_url}magnet/upload/file?agent={self.agent}&apikey={self.token}&ip={ip}"
         files = {"files[0]": (str(uuid.uuid4()) + ".torrent", torrent_file, 'application/x-bittorrent')}
         return self.get_json_response(url, method='post', files=files)
 
     def check_magnet_status(self, id, ip):
-        url = f"{self.base_url}magnet/status?agent=jackett&apikey={self.config['debridKey']}&id={id}&ip={ip}"
+        url = f"{self.base_url}magnet/status?agent={self.agent}&apikey={self.token}&id={id}&ip={ip}"
         return self.get_json_response(url)
 
     def unrestrict_link(self, link, ip):
-        url = f"{self.base_url}link/unlock?agent=jackett&apikey={self.config['debridKey']}&link={link}&ip={ip}"
+        url = f"{self.base_url}link/unlock?agent={self.agent}&apikey={self.token}&link={link}&ip={ip}"
         return self.get_json_response(url)
 
     def get_stream_link(self, query_string, config, ip):
@@ -94,7 +113,7 @@ class AllDebrid(BaseDebrid):
             logger.info("No hashes to be sent to All-Debrid.")
             return dict()
 
-        url = f"{self.base_url}magnet/instant?agent=jackett&apikey={self.config['debridKey']}&magnets[]={'&magnets[]='.join(hashes_or_magnets)}&ip={ip}"
+        url = f"{self.base_url}magnet/instant?agent={self.agent}&apikey={self.token}&magnets[]={'&magnets[]='.join(hashes_or_magnets)}&ip={ip}"
         return self.get_json_response(url)
 
     def __add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):

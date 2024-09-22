@@ -70,6 +70,8 @@ class TorrentItemModel(Base):
                     model_dict[attr] = cls._parse_json(value)
                 elif attr == 'parsed_data':
                     model_dict[attr] = value.model_dump() if value else None
+                elif attr == "availability":
+                    model_dict[attr] = False
                 else:
                     model_dict[attr] = value
 

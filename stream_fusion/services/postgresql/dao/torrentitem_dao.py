@@ -164,23 +164,23 @@ class TorrentItemDAO:
                 logger.error(f"Error retrieving TorrentItems by availability {available}: {str(e)}")
                 raise HTTPException(status_code=500, detail="Internal server error")
 
-    async def update_torrent_item_availability(self, item_id: str, available: bool) -> bool:
-        async with self.session.begin():
-            try:
-                query = select(TorrentItemModel).where(TorrentItemModel.id == item_id)
-                result = await self.session.execute(query)
-                db_item = result.scalar_one_or_none()
+    # async def update_torrent_item_availability(self, item_id: str, available: bool) -> bool:
+    #     async with self.session.begin():
+    #         try:
+    #             query = select(TorrentItemModel).where(TorrentItemModel.id == item_id)
+    #             result = await self.session.execute(query)
+    #             db_item = result.scalar_one_or_none()
 
-                if not db_item:
-                    logger.warning(f"TorrentItem not found for availability update: {item_id}")
-                    return False
+    #             if not db_item:
+    #                 logger.warning(f"TorrentItem not found for availability update: {item_id}")
+    #                 return False
 
-                db_item.availability = available
-                db_item.updated_at = int(datetime.now(timezone.utc).timestamp())
-                await self.session.flush()
+    #             db_item.availability = available
+    #             db_item.updated_at = int(datetime.now(timezone.utc).timestamp())
+    #             await self.session.flush()
 
-                logger.info(f"Updated availability for TorrentItem {item_id}: {available}")
-                return True
-            except Exception as e:
-                logger.error(f"Error updating availability for TorrentItem {item_id}: {str(e)}")
-                raise HTTPException(status_code=500, detail="Internal server error")
+    #             logger.info(f"Updated availability for TorrentItem {item_id}: {available}")
+    #             return True
+    #         except Exception as e:
+    #             logger.error(f"Error updating availability for TorrentItem {item_id}: {str(e)}")
+    #             raise HTTPException(status_code=500, detail="Internal server error")

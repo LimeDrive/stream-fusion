@@ -3,6 +3,7 @@ const qualityExclusions = ['2160p', '1080p', '720p', '480p', 'rips', 'cam', 'hev
 const languages = ['en', 'fr', 'multi'];
 
 document.addEventListener('DOMContentLoaded', function () {
+    handleUniqueAccounts();
     updateProviderFields();
     loadData();
 });
@@ -26,26 +27,26 @@ function startRealDebridAuth() {
         },
         body: JSON.stringify({})
     })
-    .then(response => {
-        console.log('Réponse reçue', response);
-        if (!response.ok) {
-            throw new Error('Erreur de requête');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Réponse reçue:', data);
-        document.getElementById('verification-url').href = data.direct_verification_url;
-        document.getElementById('verification-url').textContent = data.verification_url;
-        document.getElementById('user-code').textContent = data.user_code;
-        document.getElementById('auth-instructions').style.display = 'block';
-        pollForCredentials(data.device_code, data.expires_in);
-    })
-    .catch(error => {
-        console.error('Erreur détaillée:', error);
-        alert("Erreur lors de l'authentification. Veuillez réessayer.");
-        resetAuthButton();
-    });
+        .then(response => {
+            console.log('Réponse reçue', response);
+            if (!response.ok) {
+                throw new Error('Erreur de requête');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Réponse reçue:', data);
+            document.getElementById('verification-url').href = data.direct_verification_url;
+            document.getElementById('verification-url').textContent = data.verification_url;
+            document.getElementById('user-code').textContent = data.user_code;
+            document.getElementById('auth-instructions').style.display = 'block';
+            pollForCredentials(data.device_code, data.expires_in);
+        })
+        .catch(error => {
+            console.error('Erreur détaillée:', error);
+            alert("Erreur lors de l'authentification. Veuillez réessayer.");
+            resetAuthButton();
+        });
 }
 
 function pollForCredentials(deviceCode, expiresIn) {
@@ -57,27 +58,27 @@ function pollForCredentials(deviceCode, expiresIn) {
                 'accept': 'application/json'
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 400) {
-                    console.log('Autorisation en attente...');
-                    return null;
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 400) {
+                        console.log('Autorisation en attente...');
+                        return null;
+                    }
+                    throw new Error('Erreur de requête');
                 }
-                throw new Error('Erreur de requête');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data && data.client_id && data.client_secret) {
-                clearInterval(pollInterval);
-                clearTimeout(timeoutId);
-                getToken(deviceCode, data.client_id, data.client_secret);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            console.log('Tentative suivante dans 5 secondes...');
-        });
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.client_id && data.client_secret) {
+                    clearInterval(pollInterval);
+                    clearTimeout(timeoutId);
+                    getToken(deviceCode, data.client_id, data.client_secret);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                console.log('Tentative suivante dans 5 secondes...');
+            });
     }, 5000);
 
     const timeoutId = setTimeout(() => {
@@ -89,41 +90,41 @@ function pollForCredentials(deviceCode, expiresIn) {
 
 function getToken(deviceCode, clientId, clientSecret) {
     const url = `/api/auth/realdebrid/token?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&device_code=${encodeURIComponent(deviceCode)}`;
-    
+
     fetch(url, {
         method: 'POST',
         headers: {
             'accept': 'application/json'
         }
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erreur de requête');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.access_token && data.refresh_token) {
-            const rdCredentials = {
-                client_id: clientId,
-                client_secret: clientSecret,
-                access_token: data.access_token,
-                refresh_token: data.refresh_token
-            };
-            document.getElementById('debrid_api_key').value = JSON.stringify(rdCredentials, null, 2);
-            document.getElementById('auth-status').style.display = 'block';
-            document.getElementById('auth-instructions').style.display = 'none';
-            document.getElementById('rd-auth-button').disabled = true;
-            document.getElementById('rd-auth-button').classList.add('opacity-50', 'cursor-not-allowed');
-            document.getElementById('rd-auth-button').textContent = "Connexion réussie";
-        } else {
-            throw new Error('Tokens non reçus');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        console.log('Erreur lors de la récupération du token. Nouvelle tentative lors du prochain polling.');
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur de requête');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.access_token && data.refresh_token) {
+                const rdCredentials = {
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    access_token: data.access_token,
+                    refresh_token: data.refresh_token
+                };
+                document.getElementById('rd_token_info').value = JSON.stringify(rdCredentials, null, 2);
+                document.getElementById('auth-status').style.display = 'block';
+                document.getElementById('auth-instructions').style.display = 'none';
+                document.getElementById('rd-auth-button').disabled = true;
+                document.getElementById('rd-auth-button').classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('rd-auth-button').textContent = "Connexion réussie";
+            } else {
+                throw new Error('Tokens non reçus');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            console.log('Erreur lors de la récupération du token. Nouvelle tentative lors du prochain polling.');
+        });
 }
 
 function resetAuthButton() {
@@ -133,18 +134,48 @@ function resetAuthButton() {
     button.classList.remove('opacity-50', 'cursor-not-allowed');
 }
 
-function updateProviderFields() {
-    const debridChecked = document.getElementById('debrid').checked;
-    const cacheChecked = document.getElementById('cache')?.checked;
-    const yggflixChecked = document.getElementById('yggflix')?.checked;
-    const sharewoodChecked = document.getElementById('sharewood')?.checked;
+function handleUniqueAccounts() {
+    const rdCheckbox = document.getElementById('debrid_rd');
+    const adCheckbox = document.getElementById('debrid_ad');
+    const sharewoodCheckbox = document.getElementById('sharewood');
+    const yggCheckbox = document.getElementById('yggflix');
 
-    const debridFields = document.getElementById('debrid-fields');
+    function setUniqueAccountState(checkbox) {
+        if (checkbox) {
+            const isUnique = checkbox.dataset.uniqueAccount === 'true';
+            checkbox.checked = isUnique;
+            checkbox.disabled = isUnique;
+            if (isUnique) {
+                checkbox.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    }
+
+    setUniqueAccountState(rdCheckbox);
+    setUniqueAccountState(adCheckbox);
+    setUniqueAccountState(sharewoodCheckbox);
+    setUniqueAccountState(yggCheckbox);
+}
+
+function updateProviderFields() {
+    const RDdebridChecked = document.getElementById('debrid_rd').checked ||
+        document.getElementById('debrid_rd').disabled;
+    const ADdebridChecked = document.getElementById('debrid_ad').checked ||
+        document.getElementById('debrid_ad').disabled;
+    const cacheChecked = document.getElementById('cache')?.checked;
+    const yggflixChecked = document.getElementById('yggflix')?.checked ||
+        document.getElementById('yggflix')?.disabled;
+    const sharewoodChecked = document.getElementById('sharewood')?.checked ||
+        document.getElementById('sharewood')?.disabled;
+
+    const RDdebridFields = document.getElementById('rd_debrid-fields');
+    const ADdebridFields = document.getElementById('ad_debrid-fields');
     const cacheFields = document.getElementById('cache-fields');
     const yggFields = document.getElementById('ygg-fields');
     const sharewoodFields = document.getElementById('sharewood-fields');
 
-    if (debridFields) debridFields.style.display = debridChecked ? 'block' : 'none';
+    if (RDdebridFields) RDdebridFields.style.display = RDdebridChecked ? 'block' : 'none';
+    if (ADdebridFields) ADdebridFields.style.display = ADdebridChecked ? 'block' : 'none';
     if (cacheFields) cacheFields.style.display = cacheChecked ? 'block' : 'none';
     if (yggFields) yggFields.style.display = yggflixChecked ? 'block' : 'none';
     if (sharewoodFields) sharewoodFields.style.display = sharewoodChecked ? 'block' : 'none';
@@ -156,14 +187,14 @@ function loadData() {
     if (data && data[1]) {
         try {
             const decodedData = JSON.parse(atob(data[1]));
-            
+
             document.getElementById('jackett').checked = decodedData.jackett;
             document.getElementById('cache').checked = decodedData.cache;
             document.getElementById('cacheUrl').value = decodedData.cacheUrl;
             document.getElementById('zilean').checked = decodedData.zilean;
             document.getElementById('yggflix').checked = decodedData.yggflix;
             document.getElementById('sharewood').checked = decodedData.sharewood;
-            document.getElementById('debrid_api_key').value = decodedData.debridKey;
+            document.getElementById('rd_token_info').value = decodedData.RDToken;
             document.getElementById('sharewoodPasskey').value = decodedData.sharewoodPasskey;
             document.getElementById('yggPasskey').value = decodedData.yggPasskey;
             document.getElementById('ApiKey').value = decodedData.apiKey;
@@ -202,8 +233,9 @@ function getLink(method) {
     const data = {
         addonHost: new URL(window.location.href).origin,
         apiKey: document.getElementById('ApiKey').value,
-        service: 'Real-Debrid',
-        debridKey: document.getElementById('debrid_api_key')?.value,
+        service: [],
+        RDToken: document.getElementById('rd_token_info')?.value,
+        ADToken: document.getElementById('ad_token_info')?.value,
         sharewoodPasskey: document.getElementById('sharewoodPasskey')?.value,
         maxSize: parseInt(document.getElementById('maxSize').value) || 16,
         exclusionKeywords: document.getElementById('exclusion-keywords').value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword !== ''),
@@ -223,15 +255,28 @@ function getLink(method) {
         yggflixCtg: document.getElementById('ctg_yggflix')?.checked,
         yggPasskey: document.getElementById('yggPasskey')?.value,
         torrenting: document.getElementById('torrenting').checked,
-        debrid: document.getElementById('debrid').checked,
+        debrid: false,
         metadataProvider: document.getElementById('tmdb').checked ? 'tmdb' : 'cinemeta'
     };
+
+    const rdEnabled = document.getElementById('debrid_rd').checked;
+    const adEnabled = document.getElementById('debrid_ad').checked;
+
+    if (rdEnabled) {
+        data.service.push('Real-Debrid');
+        data.debrid = true;
+    }
+    if (adEnabled) {
+        data.service.push('AllDebrid');
+        data.debrid = true;
+    }
 
     // Check if all required fields are filled
     const missingRequiredFields = [];
 
     if (data.cache && !data.cacheUrl) missingRequiredFields.push("Cache URL");
-    if (data.debrid && document.getElementById('debrid_api_key') && !data.debridKey) missingRequiredFields.push("Debrid API Key");
+    if (data.debrid && document.getElementById('rd_token_info') && !data.RDToken) missingRequiredFields.push("Real-Debrid Account Connection");
+    if (data.debrid && document.getElementById('ad_token_info') && !data.ADToken) missingRequiredFields.push("AllDebrid Account Connection");
     if (data.languages.length === 0) missingRequiredFields.push("Languages");
     if (!data.apiKey) missingRequiredFields.push("API Key");
     if (data.yggflix && document.getElementById('yggPasskey') && !data.yggPasskey) missingRequiredFields.push("Ygg Passkey");

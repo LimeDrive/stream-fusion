@@ -16,6 +16,12 @@ class LogLevel(str, enum.Enum):
     ERROR = "ERROR"
     FATAL = "FATAL"
 
+class DebridService(str, enum.Enum):
+    """Possible debrid services."""
+
+    RD = "RD"
+    AD = "AD"
+
 def get_default_worker_count():
     """
     Calculate the default number of workers based on CPU cores.
@@ -43,9 +49,9 @@ class Settings(BaseSettings):
         )
     )
     use_https: bool = False
+    default_debrid_service: DebridService = DebridService.RD
 
     # REALDEBRID
-    proxied_link: bool = True
     rd_token: str | None = None
     rd_unique_account: bool = True if rd_token else False
 
@@ -55,6 +61,9 @@ class Settings(BaseSettings):
     ad_user_app: str = "streamfusion"
     ad_user_ip: str | None = None
     ad_use_proxy: bool = True if playback_proxy else False
+
+    # ACT AS PROXY
+    proxied_link: bool = True if ad_unique_account or rd_unique_account else False
 
     # LOGGING
     log_level: LogLevel = LogLevel.INFO

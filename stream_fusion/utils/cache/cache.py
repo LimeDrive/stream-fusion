@@ -51,7 +51,7 @@ def cache_public(torrents: List[TorrentItem], media):
             cache_item["size"] = torrent.size
             cache_item["language"] = ";".join(torrent.languages)
             cache_item["type"] = media.type
-            cache_item["availability"] = torrent.availability
+            cache_item["availability"] = False
 
             if media.type == "movie":
                 cache_item["year"] = media.year

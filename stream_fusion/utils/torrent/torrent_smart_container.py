@@ -18,7 +18,7 @@ class TorrentSmartContainer:
         self.__itemsDict: Dict[TorrentItem] = self.__build_items_dict_by_infohash(torrent_items)
         self.__media = media
 
-    def get_hashes(self):
+    def get_unaviable_hashes(self):
         hashes = list(self.__itemsDict.keys())
         self.logger.debug(f"Retrieved {len(hashes)} hashes")
         return hashes
@@ -125,13 +125,13 @@ class TorrentSmartContainer:
             self.logger.debug(f"Processing {torrent_item.type}: {torrent_item.raw_title}")
             files = []
             if torrent_item.type == "series":
-                self.__process_series_files(details, media, torrent_item, files)
+                self.__process_series_files(details, media, torrent_item, files, debrid="RD")
             else:
                 self.__process_movie_files(details, files)
-            self.__update_file_details(torrent_item, files)
+            self.__update_file_details(torrent_item, files, debrid="RD")
         self.logger.info("RealDebrid availability update completed")
 
-    def __process_series_files(self, details, media, torrent_item, files):
+    def __process_series_files(self, details, media, torrent_item, files, debrid: str = "??"):
         for variants in details["rd"]:
             file_found = False
             for file_index, file in variants.items():
@@ -144,7 +144,7 @@ class TorrentSmartContainer:
                     torrent_item.file_index = file_index
                     torrent_item.file_name = file["filename"]
                     torrent_item.size = file["filesize"]
-                    torrent_item.availability = True
+                    torrent_item.availability = debrid
                     file_found = True
                     files.append({
                         "file_index": file_index,
@@ -177,7 +177,7 @@ class TorrentSmartContainer:
             torrent_item: TorrentItem = self.__itemsDict[data["hash"]]
             files = []
             self.__explore_folders(data["files"], files, 1, torrent_item.type, media.season, media.episode)
-            self.__update_file_details(torrent_item, files)
+            self.__update_file_details(torrent_item, files, debrid="AD")
         self.logger.info("AllDebrid availability update completed")
 
     def __update_availability_premiumize(self, response):
@@ -192,12 +192,12 @@ class TorrentSmartContainer:
                 self.logger.debug(f"Updated availability for item {i}: {torrent_items[i].availability}")
         self.logger.info("Premiumize availability update completed")
 
-    def __update_file_details(self, torrent_item, files):
+    def __update_file_details(self, torrent_item, files, debrid: str = "??"):
         if not files:
             self.logger.debug(f"No files to update for {torrent_item.raw_title}")
             return
         file = max(files, key=lambda file: file["size"])
-        torrent_item.availability = True
+        torrent_item.availability = debrid
         torrent_item.file_index = file["file_index"]
         torrent_item.file_name = file["title"]
         torrent_item.size = file["size"]

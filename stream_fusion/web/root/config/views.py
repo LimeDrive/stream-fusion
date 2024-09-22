@@ -30,6 +30,7 @@ async def configure(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
         "rd_unique_account": settings.rd_unique_account,
+        "ad_unique_account": settings.ad_unique_account,
         "sharewood_unique_account": settings.sharewood_unique_account,
         "ygg_unique_account": settings.ygg_unique_account
     })

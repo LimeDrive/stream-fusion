@@ -1,3 +1,4 @@
+import json
 import redis.asyncio as redis
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
@@ -12,7 +13,7 @@ from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
 from stream_fusion.settings import settings
-from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
+from stream_fusion.utils.debrid.get_debrid_service import get_all_debrid_services, get_debrid_service
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.string_encoding import decodeb64
 from stream_fusion.utils.security import check_api_key
@@ -62,8 +63,14 @@ async def get_stream_link(
         return cached_link
 
     logger.debug("Stream link not found in cache, generating new link")
-    debrid_service = get_debrid_service(config)
-    link = debrid_service.get_stream_link(decoded_query, config, ip)
+
+    query = json.loads(decoded_query)
+    debrid = query.get("service", False)
+
+    if debrid:
+        debrid_service = get_debrid_service(config, debrid)
+    
+    link = debrid_service.get_stream_link(query, config, ip)
 
     if link != NO_CACHE_VIDEO_URL:
         logger.debug(f"Caching new stream link: {link}")

@@ -8,9 +8,9 @@ def parse_config(b64config):
 
     if "languages" not in config:
         config["languages"] = [config["language"]]
-    if isinstance(config.get("debridKey"), str):
+    if isinstance(config.get("RDToken"), str):
         try:
-            config["debridKey"] = json.loads(config["debridKey"])
+            config["RDToken"] = json.loads(config["RDToken"])
         except json.JSONDecodeError:
             pass
     if "anonymizeMagnets" not in config:
