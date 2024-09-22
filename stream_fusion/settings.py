@@ -49,6 +49,13 @@ class Settings(BaseSettings):
     rd_token: str | None = None
     rd_unique_account: bool = True if rd_token else False
 
+    # ALLDEBRID
+    ad_apikey: str | None = None
+    ad_unique_account: bool = True if ad_apikey else False
+    ad_user_app: str = "streamfusion"
+    ad_user_ip: str | None = None
+    ad_use_proxy: bool = True if playback_proxy else False
+
     # LOGGING
     log_level: LogLevel = LogLevel.INFO
     log_path: str = "/app/config/logs/stream-fusion.log"

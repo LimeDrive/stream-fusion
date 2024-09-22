@@ -151,3 +151,5 @@ cython_debug/
 #devcontainer
 .devcontainer/
 docker-compose-dev.yml
+# Dev materials
+.materials/
