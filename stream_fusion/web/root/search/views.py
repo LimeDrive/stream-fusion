@@ -90,6 +90,8 @@ async def get_results(
         return SearchResponse(streams=cached_result)
 
     debrid_services = get_all_debrid_services(config)
+    logger.info(f"Found {len(debrid_services)} debrid services")
+    logger.info(f"Debrid services: {[debrid.__class__.__name__ for debrid in debrid_services]}")
     
     def media_cache_key(media):
         if isinstance(media, Movie):

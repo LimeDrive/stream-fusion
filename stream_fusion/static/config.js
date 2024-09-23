@@ -364,8 +364,8 @@ function getLink(method) {
     const missingRequiredFields = [];
 
     if (data.cache && !data.cacheUrl) missingRequiredFields.push("Cache URL");
-    if (data.debrid && document.getElementById('rd_token_info') && !data.RDToken) missingRequiredFields.push("Real-Debrid Account Connection");
-    if (data.debrid && document.getElementById('ad_token_info') && !data.ADToken) missingRequiredFields.push("AllDebrid Account Connection");
+    if (rdEnabled && document.getElementById('rd_token_info') && !data.RDToken) missingRequiredFields.push("Real-Debrid Account Connection");
+    if (adEnabled && document.getElementById('ad_token_info') && !data.ADToken) missingRequiredFields.push("AllDebrid Account Connection");
     if (data.languages.length === 0) missingRequiredFields.push("Languages");
     if (!data.apiKey) missingRequiredFields.push("API Key");
     if (data.yggflix && document.getElementById('yggPasskey') && !data.yggPasskey) missingRequiredFields.push("Ygg Passkey");

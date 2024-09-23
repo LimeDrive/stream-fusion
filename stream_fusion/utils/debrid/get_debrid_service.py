@@ -12,10 +12,10 @@ def get_all_debrid_services(config):
     if "Real-Debrid" in services:
         debrid_service.append(RealDebrid(config))
         logger.debug("Real Debrid service added to be use")
-    elif "AllDebrid" in services:
+    if "AllDebrid" in services:
         debrid_service.append(AllDebrid(config))
         logger.debug("All Debrid service added to be use")
-    else:
+    if not debrid_service:
         raise HTTPException(status_code=500, detail="Invalid service configuration.")
     
     return debrid_service
