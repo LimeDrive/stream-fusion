@@ -293,11 +293,12 @@ function loadData() {
             document.getElementById('maxResults').value = decodedData.maxResults;
             document.getElementById('minCachedResults').value = decodedData.minCachedResults;
             document.getElementById('torrenting').checked = decodedData.torrenting;
-            document.getElementById('debrid').checked = decodedData.debrid;
             document.getElementById('ctg_yggtorrent').checked = decodedData.yggtorrentCtg;
             document.getElementById('ctg_yggflix').checked = decodedData.yggflixCtg;
             document.getElementById('tmdb').checked = decodedData.metadataProvider === 'tmdb';
             document.getElementById('cinemeta').checked = decodedData.metadataProvider === 'cinemeta';
+            document.getElementById('debrid_rd').checked = decodedData.service.includes('Real-Debrid');
+            document.getElementById('debrid_ad').checked = decodedData.service.includes('AllDebrid');
 
             sorts.forEach(sort => {
                 document.getElementById(sort).checked = decodedData.sort === sort;
