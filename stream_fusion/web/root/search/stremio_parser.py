@@ -12,9 +12,9 @@ from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.utils.string_encoding import encodeb64
 
 
-INSTANTLY_AVAILABLE = "[⚡]"
-DOWNLOAD_REQUIRED = "[⬇️]"
-DIRECT_TORRENT = "[🏴‍☠️]"
+INSTANTLY_AVAILABLE = "⚡"
+DOWNLOAD_REQUIRED = "⬇️"
+DIRECT_TORRENT = "🏴‍☠️"
 
 
 def get_emoji(language):
@@ -71,18 +71,15 @@ def parse_to_debrid_stream(
     results: queue.Queue,
     media: Media,
 ):
-    if torrent_item.availability == True:
-        name = f"{INSTANTLY_AVAILABLE}\n"
+    if torrent_item.availability:
+        name = f"{INSTANTLY_AVAILABLE}|–{torrent_item.availability}-|{INSTANTLY_AVAILABLE}"
     else:
-        name = f"{DOWNLOAD_REQUIRED}\n"
+        name = f"{DOWNLOAD_REQUIRED}|–DL-|{DOWNLOAD_REQUIRED}"
 
     parsed_data: ParsedData = torrent_item.parsed_data
 
     resolution = parsed_data.resolution if parsed_data.resolution else "Unknow"
-    name += f"{resolution}"
-
-    if parsed_data.quality:
-        name += f"\n {parsed_data.quality}"
+    name += f"\n |_{resolution}_|"
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
@@ -101,6 +98,8 @@ def parse_to_debrid_stream(
         title += f"  ✔ {lang_type} "
     if groupe:
         title += f"  ☠️ {groupe}"
+    elif parsed_data.group:
+        title += f"  ☠️ {parsed_data.group}"
     title += "\n"
 
     title += (
@@ -109,9 +108,11 @@ def parse_to_debrid_stream(
 
     if parsed_data.codec:
         title += f"🎥 {parsed_data.codec} "
+    if parsed_data.quality:
+        title += f"📺 {parsed_data.quality} "
     if parsed_data.audio:
         title += f"🎧 {' '.join(parsed_data.audio)}"
-    if parsed_data.codec or parsed_data.audio:
+    if parsed_data.codec or parsed_data.audio or parsed_data.resolution:
         title += "\n"
 
 

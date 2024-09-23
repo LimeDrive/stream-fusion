@@ -9,7 +9,6 @@
     <script>
         const secretKey = "{{ session_key }}";
     </script>
-    <script src="/static/js/config.js"></script>
     <title>SteamFusion</title>
     <style>
         .multipleSelection {
@@ -34,7 +33,7 @@
     style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/stremio-bg.jpg');">
     <div class="container mx-auto px-4 min-h-screen flex items-center justify-center">
         <form
-            class="bg-white bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-80 rounded-lg shadow-xl p-8 max-w-2xl mx-auto">
+            class="bg-white bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-90 rounded-lg shadow-xl p-8 max-w-2xl mx-auto">
             <div class="flex justify-center mb-8">
                 <img src="/static/logo-stream-fusion.png" alt="logo" class="w-[150px] h-[150px]">
             </div>
@@ -66,13 +65,28 @@
                     <div class="mt-10 space-y-10">
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
-                                <input id="debrid" name="debrid" type="checkbox"
+                                <input id="debrid_rd" name="debrid_rd" type="checkbox"
+                                    data-unique-account="{{ rd_unique_account|lower }}"
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                     onchange="updateProviderFields(true)">
                             </div>
                             <div class="text-sm leading-6">
-                                <label for="debrid" class="font-medium text-white">Enable Debrid Service</label>
-                                <p class="text-gray-500 dark:text-gray-300">Activate debrid service for faster
+                                <label for="debrid_rd" class="font-medium text-white">Enable Real-Debrid Service</label>
+                                <p class="text-gray-500 dark:text-gray-300">Activate Real-Débrid service for
+                                    streaming.</p>
+                            </div>
+                        </div>
+
+                        <div class="relative flex gap-x-3">
+                            <div class="flex h-6 items-center">
+                                <input id="debrid_ad" name="debrid_ad" type="checkbox"
+                                    data-unique-account="{{ ad_unique_account|lower }}"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                    onchange="updateProviderFields(true)">
+                            </div>
+                            <div class="text-sm leading-6">
+                                <label for="debrid_ad" class="font-medium text-white">Enable AllDebrid Service</label>
+                                <p class="text-gray-500 dark:text-gray-300">Activate AllDebrid service for
                                     streaming.</p>
                             </div>
                         </div>
@@ -142,6 +156,7 @@
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
                                 <input id="yggflix" name="yggflix" type="checkbox"
+                                    data-unique-account="{{ ygg_unique_account|lower }}"
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                     onchange="updateProviderFields(true)">
                             </div>
@@ -155,6 +170,7 @@
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
                                 <input id="sharewood" name="sharewood" type="checkbox"
+                                    data-unique-account="{{ sharewood_unique_account|lower }}"
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                     onchange="updateProviderFields(true)">
                             </div>
@@ -204,7 +220,7 @@
                 </div>
 
                 {% if not rd_unique_account %}
-                <div id="debrid-fields" style="display: none;">
+                <div id="rd_debrid-fields" style="display: none;">
                     <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                         <h2 class="text-white font-semibold leading-7">Real-Debrid Configuration</h2>
                         <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -225,8 +241,38 @@
                                 </div>
                             </div>
                             <div class="sm:col-span-3">
-                                <textarea id="debrid_api_key" rows="4"
+                                <textarea id="rd_token_info" rows="4"
                                     class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if not ad_unique_account %}
+                <div id="ad_debrid-fields" style="display: none;">
+                    <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                        <h2 class="text-white font-semibold leading-7">AllDebrid Configuration</h2>
+                        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                            <div class="sm:col-span-3">
+                                <button id="ad-auth-button" onclick="startADAuth()"
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                    S'authentifier avec AllDebrid
+                                </button>
+                                <div id="ad-auth-instructions" class="mt-2 text-sm text-gray-600 dark:text-gray-400"
+                                    style="display: none;">
+                                    Veuillez entrer ce code PIN sur le site AllDebrid : <span id="ad-user-code"></span><br>
+                                    Visitez <a id="ad-verification-url" class="text-blue-500 hover:underline" target="_blank"></a>
+                                </div>
+                                <div id="ad-auth-status" class="mt-2 text-sm text-green-600 dark:text-green-400"
+                                    style="display: none;">
+                                    Authentification réussie !
+                                </div>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <textarea id="ad_token_info" rows="2"
+                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2"
                                     readonly></textarea>
                             </div>
                         </div>

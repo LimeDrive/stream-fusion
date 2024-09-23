@@ -41,7 +41,7 @@ class BaseDebrid:
     def _torrent_rate_limit(self):
         self._rate_limit(self.torrent_requests, self.torrent_limit, self.torrent_period)
 
-    def get_json_response(self, url, method='get', data=None, headers=None, files=None):
+    def json_response(self, url, method='get', data=None, headers=None, files=None):
         self._global_rate_limit()
         
         if 'torrents' in url:
@@ -89,7 +89,7 @@ class BaseDebrid:
         self.logger.info(f"Waiting timed out.")
         return False
 
-    def donwload_torrent_file(self, download_url):
+    def download_torrent_file(self, download_url):
         response = requests.get(download_url)
         response.raise_for_status()
         return response.content
