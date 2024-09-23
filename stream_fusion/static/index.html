@@ -256,28 +256,26 @@
                     <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                         <h2 class="text-white font-semibold leading-7">AllDebrid Configuration</h2>
                         <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <!-- <div class="sm:col-span-3">
-                                <button id="rd-auth-button" onclick="startRealDebridAuth()"
+                            <div class="sm:col-span-3">
+                                <button id="ad-auth-button" onclick="startADAuth()"
                                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    S'authentifier avec Real-Debrid
+                                    S'authentifier avec AllDebrid
                                 </button>
-                                <div id="auth-instructions" class="mt-2 text-sm text-gray-600 dark:text-gray-400"
+                                <div id="ad-auth-instructions" class="mt-2 text-sm text-gray-600 dark:text-gray-400"
                                     style="display: none;">
-                                    Veuillez vous rendre sur <a id="verification-url"
-                                        class="text-blue-500 hover:underline" target="_blank"></a>
-                                    : Votre user code est : <span id="user-code"></span>
+                                    Veuillez entrer ce code PIN sur le site AllDebrid : <span id="ad-user-code"></span><br>
+                                    Visitez <a id="ad-verification-url" class="text-blue-500 hover:underline" target="_blank"></a>
                                 </div>
-                                <div id="auth-status" class="mt-2 text-sm text-green-600 dark:text-green-400"
+                                <div id="ad-auth-status" class="mt-2 text-sm text-green-600 dark:text-green-400"
                                     style="display: none;">
                                     Authentification réussie !
                                 </div>
                             </div>
                             <div class="sm:col-span-3">
-                                <textarea id="rd_token_info" rows="4"
-                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                <textarea id="ad_token_info" rows="2"
+                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2"
                                     readonly></textarea>
-                            </div> -->
-                            <!-- AllDebrid not implemented yet -->
+                            </div>
                         </div>
                     </div>
                 </div>

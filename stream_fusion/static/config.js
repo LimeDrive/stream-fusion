@@ -134,6 +134,94 @@ function resetAuthButton() {
     button.classList.remove('opacity-50', 'cursor-not-allowed');
 }
 
+function startADAuth() {
+    document.getElementById('ad-auth-button').disabled = true;
+    document.getElementById('ad-auth-button').textContent = "Authentication in progress...";
+    
+    console.log('Starting AllDebrid authentication');
+    fetch('/api/auth/alldebrid/pin/get', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      console.log('Response received', response);
+      if (!response.ok) {
+        throw new Error('Request error');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Data received:', data);
+      document.getElementById('ad-verification-url').href = data.data.user_url;
+      document.getElementById('ad-verification-url').textContent = data.data.base_url;
+      document.getElementById('ad-user-code').textContent = data.data.pin;
+      document.getElementById('ad-auth-instructions').style.display = 'block';
+      pollForADCredentials(data.data.check, data.data.pin, data.data.expires_in);
+    })
+    .catch(error => {
+      console.error('Detailed error:', error);
+      alert("Authentication error. Please try again.");
+      resetADAuthButton();
+    });
+  }
+  
+  function pollForADCredentials(check, pin, expiresIn) {
+    console.log('Starting polling with check:', check);
+    const pollInterval = setInterval(() => {
+      fetch(`/api/auth/alldebrid/pin/check?agent=streamfusion&check=${encodeURIComponent(check)}&pin=${encodeURIComponent(pin)}`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json'
+        }
+      })
+      .then(response => {
+        if (response.status === 400) {
+          console.log('Waiting for user authorization...');
+          return null;
+        }
+        if (!response.ok) {
+          throw new Error('Request error');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data === null) return; // Skip processing if user hasn't entered PIN yet
+        console.log('Poll response:', data);
+        if (data.data && data.data.activated && data.data.apikey) {
+          clearInterval(pollInterval);
+          clearTimeout(timeoutId);
+          document.getElementById('ad_token_info').value = data.data.apikey;
+          document.getElementById('ad-auth-status').style.display = 'block';
+          document.getElementById('ad-auth-instructions').style.display = 'none';
+          document.getElementById('ad-auth-button').disabled = true;
+          document.getElementById('ad-auth-button').textContent = "Connection successful";
+          console.log('AllDebrid authentication successful');
+        } else {
+          console.log('Waiting for user authorization...');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        console.log('Next attempt in 5 seconds...');
+      });
+    }, 5000);
+  
+    const timeoutId = setTimeout(() => {
+      clearInterval(pollInterval);
+      alert("Authentication timeout. Please try again.");
+      resetADAuthButton();
+    }, expiresIn * 1000);
+  }
+  
+  function resetADAuthButton() {
+    const button = document.getElementById('ad-auth-button');
+    button.disabled = false;
+    button.textContent = "Connect with AllDebrid";
+    console.log('AllDebrid auth button reset');
+  }
+
 function handleUniqueAccounts() {
     const rdCheckbox = document.getElementById('debrid_rd');
     const adCheckbox = document.getElementById('debrid_ad');
@@ -195,6 +283,7 @@ function loadData() {
             document.getElementById('yggflix').checked = decodedData.yggflix;
             document.getElementById('sharewood').checked = decodedData.sharewood;
             document.getElementById('rd_token_info').value = decodedData.RDToken;
+            document.getElementById('ad_token_info').value = decodedData.ADToken;
             document.getElementById('sharewoodPasskey').value = decodedData.sharewoodPasskey;
             document.getElementById('yggPasskey').value = decodedData.yggPasskey;
             document.getElementById('ApiKey').value = decodedData.apiKey;

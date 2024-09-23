@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
+import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from stream_fusion.services.postgresql.dao.apikey_dao import APIKeyDAO
@@ -250,3 +251,28 @@ async def get_token(client_id: str, client_secret: str, device_code: str):
     results = await rd_service.get_token(client_id, client_secret, device_code)
     logger.info("Token received successfully")
     return results
+
+
+@router.get("/alldebrid/pin/get")
+async def get_alldebrid_pin():
+    logger.info("Requesting PIN code for AllDebrid")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://api.alldebrid.com/v4/pin/get?agent={settings.ad_user_app}") as response:
+            if response.status != 200:
+                logger.error(f"Error retrieving AllDebrid PIN: {response.status}")
+                raise HTTPException(status_code=response.status, detail="Error retrieving AllDebrid PIN")
+            data = await response.json()
+            logger.info("AllDebrid PIN code received successfully")
+            return data
+
+@router.get("/alldebrid/pin/check")
+async def check_alldebrid_pin(check: str, pin: str):
+    logger.info(f"Verifying AllDebrid PIN code: {pin}")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://api.alldebrid.com/v4/pin/check?check={check}&pin={pin}&agent={settings.ad_user_app}") as response:
+            if response.status != 200:
+                logger.error(f"Error verifying AllDebrid PIN: {response.status}")
+                raise HTTPException(status_code=response.status, detail="Error verifying AllDebrid PIN")
+            data = await response.json()
+            logger.info("AllDebrid PIN code verification successful")
+            return data
