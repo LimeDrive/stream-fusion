@@ -85,6 +85,7 @@ class Settings(BaseSettings):
     # REDIS
     redis_host: str = "redis"
     redis_port: int = 6379
+    redis_db: int = 5
     redis_expiration: int = 604800
     redis_password: str | None = None
 

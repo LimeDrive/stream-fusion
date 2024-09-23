@@ -12,6 +12,7 @@ def get_redis_config():
     return {
         "redisHost": settings.redis_host,
         "redisPort": settings.redis_port,
+        "redisDb": settings.redis_db,
         "redisExpiration": settings.redis_expiration,
     }
 

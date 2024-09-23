@@ -26,8 +26,8 @@ from stream_fusion.web.playback.stream.schemas import (
 
 router = APIRouter()
 
-redis_client = redis.Redis(host=settings.redis_host, port=settings.redis_port)
-redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port)
+redis_client = redis.Redis(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db)
+redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db)
 
 
 class ProxyStreamer:

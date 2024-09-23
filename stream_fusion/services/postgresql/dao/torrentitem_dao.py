@@ -52,7 +52,7 @@ class TorrentItemDAO:
                     logger.info(f"Retrieved TorrentItem: {item_id}")
                     return db_item
                 else:
-                    logger.warning(f"TorrentItem not found: {item_id}")
+                    logger.info(f"TorrentItem not found: {item_id}")
                     return None
             except Exception as e:
                 logger.error(f"Error retrieving TorrentItem {item_id}: {str(e)}")

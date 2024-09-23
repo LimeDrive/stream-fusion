@@ -15,7 +15,8 @@ class RedisCache(CacheBase):
         super().__init__(config)
         self.redis_host = settings.redis_host
         self.redis_port = settings.redis_port
-        self.redis_url = f"redis://{self.redis_host}:{self.redis_port}"
+        self.redis_db = settings.redis_db
+        self.redis_url = f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
         self._redis_client = None
         self.media_expiration = settings.redis_expiration
 
@@ -30,6 +31,24 @@ class RedisCache(CacheBase):
                 self.logger.error(f"Failed to create Redis client: {e}")
                 self._redis_client = None
         return self._redis_client
+    
+    async def reconnect(self):
+        self.logger.info("Attempting to reconnect to Redis")
+        self._redis_client = None
+        return await self.get_redis_client()
+
+    async def execute_with_retry(self, operation, *args, **kwargs):
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                return await operation(*args, **kwargs)
+            except ConnectionError:
+                if attempt < max_retries - 1:
+                    self.logger.warning(f"Redis connection lost. Attempting reconnection (attempt {attempt + 1}/{max_retries})")
+                    await self.reconnect()
+                else:
+                    self.logger.error("Max retries reached. Unable to reconnect to Redis.")
+                    raise
 
     async def get_list(self, key: str) -> List[Any]:
         result = await self.get(key)
@@ -149,63 +168,53 @@ class RedisCache(CacheBase):
             return False
 
     async def get(self, key: str) -> Any:
-        self.logger.debug(f"Attempting to get value for key: {key}")
-        try:
+        async def get_operation():
             client = await self.get_redis_client()
             cached_result = await client.get(key)
             if cached_result:
-                self.logger.debug(f"Value found in cache for key: {key}")
                 return jsonpickle.decode(cached_result)
-            self.logger.debug(f"No value found in cache for key: {key}")
             return None
-        except Exception as e:
-            self.logger.error(f"Error retrieving from Redis: {e}")
-            return None
+
+        return await self.execute_with_retry(get_operation)
 
     async def set(self, key: str, value: Any, expiration: int = None) -> None:
-        self.logger.debug(f"Attempting to set value for key: {key}")
         if expiration is None:
             expiration = self.media_expiration
-        
-        try:
+
+        async def set_operation():
             client = await self.get_redis_client()
             cached_data = jsonpickle.encode(value)
-            result = await client.set(key, cached_data, ex=expiration)
-            self.logger.debug(f"Set operation result for key {key}: {result}")
-        except Exception as e:
-            self.logger.error(f"Error storing in Redis: {e}")
+            return await client.set(key, cached_data, ex=expiration)
+
+        await self.execute_with_retry(set_operation)
 
     async def delete(self, key: str) -> bool:
-        try:
+        async def delete_operation():
             client = await self.get_redis_client()
             return bool(await client.delete(key))
-        except Exception as e:
-            self.logger.error(f"Error deleting key from Redis: {e}")
-            return False
+
+        return await self.execute_with_retry(delete_operation)
 
     async def exists(self, key: str) -> bool:
-        try:
+        async def exists_operation():
             client = await self.get_redis_client()
             return bool(await client.exists(key))
-        except Exception as e:
-            self.logger.error(f"Error checking key existence in Redis: {e}")
-            return False
+
+        return await self.execute_with_retry(exists_operation)
 
     async def get_ttl(self, key: str) -> int:
-        try:
+        async def get_ttl_operation():
             client = await self.get_redis_client()
             return await client.ttl(key)
-        except Exception as e:
-            self.logger.error(f"Error getting TTL from Redis: {e}")
-            return -1
 
+        return await self.execute_with_retry(get_ttl_operation)
+    
     async def update_expiration(self, key: str, expiration: int) -> bool:
-        try:
+        async def update_expiration_operation():
             client = await self.get_redis_client()
             return bool(await client.expire(key, expiration))
-        except Exception as e:
-            self.logger.error(f"Error updating expiration in Redis: {e}")
-            return False
+
+        return await self.execute_with_retry(update_expiration_operation)
 
     async def close(self):
         if self._redis_client:

@@ -24,7 +24,7 @@ from stream_fusion.logging_config import logger
 
 router = APIRouter()
 
-redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port)
+redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db)
 
 tmdb = TMDb()
 tmdb.api_key = settings.tmdb_api_key

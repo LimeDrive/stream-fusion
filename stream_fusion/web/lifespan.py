@@ -78,7 +78,7 @@ async def lifespan_setup(
     app.state.http_session = aiohttp.ClientSession(timeout=timeout, connector=connector)
 
     app.state.redis_pool = ConnectionPool(
-        host=settings.redis_host, port=settings.redis_port, db=0, max_connections=15
+        host=settings.redis_host, port=settings.redis_port, db=settings.redis_db, max_connections=50
     )
 
     yield
