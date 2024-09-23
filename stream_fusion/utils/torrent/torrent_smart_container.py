@@ -169,6 +169,9 @@ class TorrentSmartContainer:
 
     def __update_availability_alldebrid(self, response, media):
         self.logger.info("Updating availability for AllDebrid")
+        if response == {}:
+            self.logger.error("AllDebrid response is empty")
+            return
         if response["status"] != "success":
             self.logger.error(f"AllDebrid API error: {response}")
             return
