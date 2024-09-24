@@ -1,5 +1,4 @@
-version: "3.8"
-
+---
 services:
 
   stream-fusion:
@@ -8,21 +7,21 @@ services:
     environment:
       SECRET_API_KEY: 'superkey_that_can_be_changed' # Password to access the admin panel
       TMDB_API_KEY: <REDATED> # The Movie Database API key
-      JACKETT_API_KEY: <REDATED> # Jackett API key
-      RD_TOKEN: <REDATED> # Optional Real Debrid token to use unique account for all users
-      AD_TOKEN: <REDATED> # Optional All Debrid token to use unique account for all users
-      YGG_PASSKEY: <REDATED> # Optional YGGTorrent passkey to use unique account for all users
-      SHAREWOOD_PASSKEY: <REDATED> # Optional Sharewood passkey to use unique account for all users
+      JACKETT_API_KEY: <REDATED> # ( Optional ) Jackett API key if needed
+      RD_TOKEN: <REDATED> # ( Optional ) Real Debrid token to use unique account for all users
+      AD_TOKEN: <REDATED> # ( Optional ) All Debrid token to use unique account for all users
+      YGG_PASSKEY: <REDATED> # ( Optional ) YGGTorrent passkey to use unique account for all users
+      SHAREWOOD_PASSKEY: <REDATED> # ( Optional ) Sharewood passkey to use unique account for all users
       REDIS_HOST: stremio-redis
-      PG_HOST: stremio-postgres
-      PG_USER: stremio
-      PG_PASS: stremio
-      USE_HTTPS: True
+      PG_HOST: stremio-postgres  # StreamFusion will andle the database creation
+      PG_USER: stremio           # You just need to provide the user and password
+      PG_PASS: stremio           # from the postgres that use zilean.
+      USE_HTTPS: True # Must be set to andle https connections
       TZ: Europe/London
     ports:
       - 8080:8080
     volumes:
-      - ./stream-fusion:/app/config
+      - stream-fusion:/app/config
     depends_on:
       - stremio-postgres
       - stremio-redis
@@ -36,7 +35,7 @@ services:
     expose:
       - 6379
     volumes:
-      - ./redis:/data
+      - stremio-redis:/data
     command: redis-server --appendonly yes
     restart: unless-stopped
 
@@ -47,7 +46,7 @@ services:
     expose:
       - 8181
     volumes:
-      - ./zilean_data:/app/data
+      - zilean_data:/app/data
     environment:
         Zilean__Database__ConnectionString: "Host=stremio-postgres;Port=5432;Database=zilean;Username=stremio;Password=stremio"
         Zilean__Dmm__ImportBatched: "true"
@@ -57,7 +56,6 @@ services:
         Zilean__Imdb__EnableImportMatching: "false"
     depends_on:
       - stremio-postgres
-      - stremio-redis
 
   stremio-postgres:
     image: postgres:16.3-alpine3.20
@@ -71,7 +69,7 @@ services:
     expose:
       - 5432
     volumes:
-      - ./stremio_postgres:/var/lib/postgresql/data/pgdata
+      - stremio-redis:/var/lib/postgresql/data/pgdata
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -81,8 +79,14 @@ services:
       - PGID=1000
       - TZ=Europe/London
     volumes:
-      - ./jackett:/config
-      - ./blackhole:/downloads
+      - jackett_data:/config
     ports:
       - 9117:9117
     restart: unless-stopped
+
+volumes:
+  stremio_postgres:
+  stremio-redis:
+  stream-fusion:
+  zilean_data:
+  jackett_data:
