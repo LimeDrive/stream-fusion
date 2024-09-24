@@ -69,7 +69,7 @@ services:
     expose:
       - 5432
     volumes:
-      - stremio-redis:/var/lib/postgresql/data/pgdata
+      - stremio-postgres:/var/lib/postgresql/data/pgdata
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest
