@@ -88,3 +88,5 @@ nav:
   - Accueil: index.md
   - Stremio:
     - Stremio/stremio.md
+    - Stremio/addons.md
+    - Stremio/selfhosted.md
