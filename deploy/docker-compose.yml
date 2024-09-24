@@ -3,18 +3,20 @@ version: "3.8"
 services:
 
   stream-fusion:
-    image: ghcr.io/limedrive/stream-fusion:develop
+    image: ghcr.io/limedrive/stream-fusion:v2-beta
     container_name: stream-fusion
     environment:
-      SECRET_API_KEY: 'superkey_that_can_be_changed'
-      TMDB_API_KEY: 'REDATED'
-      JACKETT_HOST: jackett
-      JACKETT_API_KEY: 'REDACTED'
-      ZILEAN_URL: 'http://zilean:8181'
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      LOG_LEVEL: DEBUG
-      LOG_REDACTED: False
+      SECRET_API_KEY: 'superkey_that_can_be_changed' # Password to access the admin panel
+      TMDB_API_KEY: <REDATED> # The Movie Database API key
+      JACKETT_API_KEY: <REDATED> # Jackett API key
+      RD_TOKEN: <REDATED> # Optional Real Debrid token to use unique account for all users
+      AD_TOKEN: <REDATED> # Optional All Debrid token to use unique account for all users
+      YGG_PASSKEY: <REDATED> # Optional YGGTorrent passkey to use unique account for all users
+      SHAREWOOD_PASSKEY: <REDATED> # Optional Sharewood passkey to use unique account for all users
+      REDIS_HOST: stremio-redis
+      PG_HOST: stremio-postgres
+      PG_USER: stremio
+      PG_PASS: stremio
       USE_HTTPS: True
       TZ: Europe/London
     ports:
@@ -22,15 +24,15 @@ services:
     volumes:
       - ./stream-fusion:/app/config
     depends_on:
-      - redis
+      - stremio-postgres
+      - stremio-redis
       - zilean
       - jackett
-      - postgres
     restart: unless-stopped
 
-  redis:
+  stremio-redis:
     image: redis:latest
-    container_name: redis
+    container_name: stremio-redis
     expose:
       - 6379
     volumes:
@@ -44,33 +46,32 @@ services:
     restart: unless-stopped
     expose:
       - 8181
-    deploy:
-      resources:
-        limits:
-          memory: 3g
     volumes:
       - ./zilean_data:/app/data
     environment:
-        Zilean__Database__ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=zilean;Password=zilean"
+        Zilean__Database__ConnectionString: "Host=stremio-postgres;Port=5432;Database=zilean;Username=stremio;Password=stremio"
         Zilean__Dmm__ImportBatched: "true"
         Zilean__Dmm__MaxFilteredResults: 200
         Zilean__Dmm__MinimumScoreMatch: 0.85
+        Zilean__Imdb__EnableEndpoint: "false"
+        Zilean__Imdb__EnableImportMatching: "false"
     depends_on:
-      - postgres
+      - stremio-postgres
+      - stremio-redis
 
-  postgres:
+  stremio-postgres:
     image: postgres:16.3-alpine3.20
-    container_name: postgres
+    container_name: stremio-postgres
     restart: unless-stopped
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: zilean
-      POSTGRES_PASSWORD: zilean
+      POSTGRES_USER: stremio
+      POSTGRES_PASSWORD: stremio
       POSTGRES_DB: zilean
     expose:
       - 5432
     volumes:
-      - ./zilean_postgresql:/var/lib/postgresql/data/pgdata
+      - ./stremio_postgres:/var/lib/postgresql/data/pgdata
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest

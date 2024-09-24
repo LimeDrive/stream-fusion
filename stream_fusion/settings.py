@@ -74,11 +74,12 @@ class Settings(BaseSettings):
     secret_api_key: str | None = None
     security_hide_docs: bool = True
 
-    # POSTGRESQL_DB
-    pg_host: str = "postgresql"
+    # POSTGRESQL_DB 
+    # TODO: Change the values, but break dev environment
+    pg_host: str = "stremio-postgres"
     pg_port: int = 5432
-    pg_user: str = "streamfusion"
-    pg_pass: str = "streamfusion"
+    pg_user: str = "streamfusion" #"stremio"
+    pg_pass: str = "streamfusion" #"stremio"
     pg_base: str = "streamfusion"
     pg_echo: bool = False
 

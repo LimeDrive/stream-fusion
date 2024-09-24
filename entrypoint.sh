@@ -2,7 +2,6 @@
 
 set -e
 
-# Check if SESSION_KEY is already defined
 if [ -z "$SESSION_KEY" ]; then
     SESSION_KEY=$(openssl rand -hex 32)
     export SESSION_KEY
@@ -12,40 +11,39 @@ else
     echo "Using the SESSION_KEY provided by the user."
 fi
 
-# Set default PostgreSQL values if not provided
-: ${PG_HOST:=postgresql}
+: ${PG_HOST:=stremio-postgres}
 : ${PG_PORT:=5432}
-: ${PG_USER:=streamfusion}
-: ${PG_PASS:=streamfusion}
+: ${PG_USER:=stremio}
+: ${PG_PASS:=stremio}
 : ${PG_BASE:=streamfusion}
 
 export DATABASE_URL="postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/${PG_BASE}"
 
-# Wait for the database to be ready
-echo "Waiting for database to be ready..."
-until PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_BASE -c '\q'; do
-    echo "Postgres is unavailable - sleeping"
+echo "Waiting for PostgreSQL server to be ready..."
+until PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d postgres -c '\q' 2>/dev/null; do
+    echo "PostgreSQL is unavailable - sleeping"
     sleep 1
 done
-echo "Database is ready."
+echo "PostgreSQL server is ready."
 
-# Function to check if tables exist
+if ! PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d postgres -lqt | cut -d \| -f 1 | grep -qw $PG_BASE; then
+    echo "Database $PG_BASE does not exist. Creating..."
+    PGPASSWORD=$PG_PASS createdb -h $PG_HOST -p $PG_PORT -U $PG_USER $PG_BASE
+    echo "Database $PG_BASE created successfully."
+else
+    echo "Database $PG_BASE already exists."
+fi
+
 check_tables_exist() {
     table_count=$(PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_BASE -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'")
     [ "$table_count" -gt 0 ]
 }
 
-# Function to check if there are pending migrations
 check_pending_migrations() {
     python -m alembic current > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        return 0
-    else
-        return 1
-    fi
+    [ $? -ne 0 ]
 }
 
-# Function to run migrations
 run_migrations() {
     echo "Running database migrations..."
     python -m alembic upgrade head
@@ -56,7 +54,6 @@ run_migrations() {
     echo "Database migrations completed successfully."
 }
 
-# Check if tables exist, if not, run migrations
 if ! check_tables_exist; then
     echo "No tables found. Running initial migration..."
     run_migrations
@@ -70,5 +67,7 @@ else
     fi
 fi
 
+echo "---------------------------"
 echo "Starting the application..."
+echo "---------------------------"
 python -m stream_fusion
