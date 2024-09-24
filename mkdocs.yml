@@ -1,0 +1,90 @@
+site_name: StreamFusion Installation Guide
+site_url: https://limedrive.github.io/stream-fusion
+repo_url: https://github.com/LimeDrive/stream-fusion
+repo_name: LimeDrive/stream-fusion
+
+theme:
+  name: material
+  language: fr
+  icon:
+    repo: fontawesome/brands/github
+    annotation: material/arrow-right-circle
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Passer au mode sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Passer au mode clair
+
+  font:
+    text: Poppins
+    code: JetBrains Mono
+
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - language.selector
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/LimeDrive/stream-fusion
+  alternate:
+    - name: Français
+      link: /fr/
+      lang: fr
+    - name: English
+      link: /en/
+      lang: en
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - meta
+  - attr_list
+
+plugins:
+  - i18n:
+      docs_structure: folder
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: fr
+          default: true
+          name: Français
+          build: true
+        - locale: en
+          name: English
+          build: true
+
+nav:
+  - Accueil: index.md
+  - Stremio:
+    - Stremio/stremio.md
