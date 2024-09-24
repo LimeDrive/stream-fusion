@@ -112,6 +112,7 @@
                         settings here.</p>
 
                     <div class="mt-10 space-y-10">
+                        {% if jackett_enable %}
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
                                 <input id="jackett" name="jackett" type="checkbox"
@@ -123,6 +124,7 @@
                                 </p>
                             </div>
                         </div>
+                        {% endif %}
 
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
