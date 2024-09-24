@@ -17,7 +17,6 @@ def get_redis_config():
     }
 
 # Redis cache
-@lru_cache()
 def create_redis_cache():
     return RedisCache(get_redis_config())
 

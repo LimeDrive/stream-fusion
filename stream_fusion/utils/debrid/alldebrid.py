@@ -29,8 +29,8 @@ class AllDebrid(BaseDebrid):
                                "This may not work if your on server IP.")
                 logger.warning("Please enable playback proxy in the settings.")
                 raise HTTPException(status_code=500, detail="Playback proxy is disabled.")
-            if settings.ad_apikey:
-                return {"Authorization": f"Bearer {settings.ad_apikey}"}
+            if settings.ad_token:
+                return {"Authorization": f"Bearer {settings.ad_token}"}
             else:
                 logger.warning("AllDebrid unique account is enabled, but no token is provided. "
                                "Please provide a token in the env.")

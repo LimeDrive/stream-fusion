@@ -255,11 +255,15 @@ async def head_playback(
 
         return Response(status_code=status.HTTP_202_ACCEPTED, headers=headers)
 
+    except redis.ConnectionError as e:
+        logger.error(f"Redis connection error: {e}")
+        return Response(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content="Service temporarily unavailable")
     except Exception as e:
         logger.error(f"HEAD request error: {e}")
         return Response(
-            status=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=ErrorResponse(
                 detail="An error occurred while processing the request."
             ).model_dump_json(),
+            media_type="application/json"
         )

@@ -29,6 +29,11 @@ def get_default_worker_count():
     """
     return min(max(multiprocessing.cpu_count() * 2, 2), 6)
 
+def check_env_variable(var_name):
+    """Check if an environment variable is set and not empty."""
+    value = os.getenv(var_name.upper())
+    return bool(value)
+
 class Settings(BaseSettings):
     """Settings for the application"""
 
@@ -53,17 +58,17 @@ class Settings(BaseSettings):
 
     # REALDEBRID
     rd_token: str | None = None
-    rd_unique_account: bool = True if rd_token else False
+    rd_unique_account: bool = check_env_variable("RD_TOKEN")
 
     # ALLDEBRID
-    ad_apikey: str | None = None
-    ad_unique_account: bool = True if ad_apikey else False
+    ad_token: str | None = None
+    ad_unique_account: bool = check_env_variable("AD_TOKEN")
     ad_user_app: str = "streamfusion"
     ad_user_ip: str | None = None
-    ad_use_proxy: bool = True if playback_proxy else False
+    ad_use_proxy: bool = check_env_variable("PLAYBACK_PROXY")
 
     # ACT AS PROXY
-    proxied_link: bool = True if ad_unique_account or rd_unique_account else False
+    proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
 
     # LOGGING
     log_level: LogLevel = LogLevel.INFO
@@ -112,13 +117,13 @@ class Settings(BaseSettings):
     yggflix_url: str = "https://yggflix.fr"
     yggflix_max_workers: int = 4
     ygg_passkey: str | None = None
-    ygg_unique_account: bool = True if ygg_passkey else False
+    ygg_unique_account: bool = check_env_variable("YGG_PASSKEY")
 
     # SHAREWOOD
     sharewood_url: str = "https://www.sharewood.tv"
     sharewood_max_workers: int = 4
     sharewood_passkey: str | None = None
-    sharewood_unique_account: bool = True if sharewood_passkey else False
+    sharewood_unique_account: bool = check_env_variable("SHAREWOOD_PASSKEY")
 
     # PUBLIC_CACHE
     public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
