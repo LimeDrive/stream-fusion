@@ -1,4 +1,4 @@
-site_name: StreamFusion Installation Guide
+site_name: StreamFusion Stack
 site_url: https://limedrive.github.io/stream-fusion
 repo_url: https://github.com/LimeDrive/stream-fusion
 repo_name: LimeDrive/stream-fusion
@@ -70,6 +70,8 @@ markdown_extensions:
   - attr_list
 
 plugins:
+  - search
+  - awesome-pages
   - i18n:
       docs_structure: folder
       fallback_to_default: true
@@ -83,10 +85,3 @@ plugins:
         - locale: en
           name: English
           build: true
-
-nav:
-  - Accueil: index.md
-  - Stremio:
-    - Stremio/stremio.md
-    - Stremio/addons.md
-    - Stremio/selfhosted.md
