@@ -1,8 +1,4 @@
----
-title: Add-ons
-nav:
-  title: Add-ons
----
+
 
 ![!Stremio Addons](./images/image-1rqo9-24-09-2024.png)
 

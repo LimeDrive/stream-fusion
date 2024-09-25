@@ -1,8 +1,3 @@
----
-title: Selfhosted
-nav:
-  title: Selfhosted
----
 # Versions auto-hébergées de Stremio et de ses plugins
 
 ## Plugins Stremio auto-hébergés (Selfhosted)

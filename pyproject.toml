@@ -45,6 +45,8 @@ ujson = "^5.10.0"
 mkdocs = "^1.6.1"
 mkdocs-material = "^9.5.36"
 mkdocs-static-i18n = "^1.2.3"
+mkdocs-macros-plugin = "^1.2.0"
+mkdocs-awesome-pages-plugin = "^2.9.3"
 
 [build-system]
 requires = ["poetry-core"]

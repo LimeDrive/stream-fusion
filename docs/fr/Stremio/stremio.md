@@ -1,13 +1,10 @@
----
-title: Application
-nav:
-  title: Application
----
 <p align="center">
   <img src="https://stremio.stream/wp-content/uploads/2022/04/stremio-logo3.png" alt="Logo Stremio" width="300">
 </p>
 
-![!Application Stremio](./images/image-dkikt-24-09-2024.png)
+![!Application Stremio1](./images/image-oumm4-24-09-2024.png)
+
+![!Application Stremio1](./images/image-xe2e9-24-09-2024.png)
 
 # Qu'est-ce que Stremio ?
 
