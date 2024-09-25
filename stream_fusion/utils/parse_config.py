@@ -8,6 +8,8 @@ def parse_config(b64config):
 
     if "languages" not in config:
         config["languages"] = [config["language"]]
+    if "jackett" not in config:
+        config["jackett"] = False
     if isinstance(config.get("RDToken"), str):
         try:
             config["RDToken"] = json.loads(config["RDToken"])
