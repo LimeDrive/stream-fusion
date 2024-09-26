@@ -21,6 +21,7 @@ services:
       PG_USER: ${POSTGRES_USER:-stremio}
       PG_PASS: ${POSTGRES_PASSWORD:-stremio}
       USE_HTTPS: ${USE_HTTPS:-True}
+      PROXY_URL: ${PROXY_URL:-'http://warp:1080'}
       TZ: ${TZ:-Europe/London}
     expose:
       - 8080
@@ -95,6 +96,24 @@ services:
     expose:
       - 9117
     restart: unless-stopped
+    networks:
+      - proxy_network
+
+  warp:
+    image: caomingjun/warp
+    container_name: warp
+    restart: always
+    expose:
+      - 1080
+    environment:
+      - WARP_SLEEP=2
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./warp-data:/var/lib/cloudflare-warp
     networks:
       - proxy_network
 
