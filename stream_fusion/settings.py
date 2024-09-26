@@ -30,9 +30,11 @@ def get_default_worker_count():
     return min(max(multiprocessing.cpu_count() * 2, 2), 6)
 
 def check_env_variable(var_name):
-    """Check if an environment variable is set and not empty."""
     value = os.getenv(var_name.upper())
-    return bool(value)
+    
+    if value and isinstance(value, str) and len(value.strip()) >= 10:
+        return True
+    return False
 
 class Settings(BaseSettings):
     """Settings for the application"""
@@ -44,9 +46,6 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     gunicorn_timeout: int = 180
     aiohttp_timeout: int = 7200
-    playback_proxy: str | None = (
-        None  # If set, the link will be proxied through the given proxy.
-    )
     session_key: str = Field(
         default_factory=lambda: os.getenv(
             "SESSION_KEY",
@@ -55,6 +54,13 @@ class Settings(BaseSettings):
     )
     use_https: bool = False
     default_debrid_service: DebridService = DebridService.RD
+
+    # PROXY
+    proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
+    proxy_url: str | None = None
+    playback_proxy: bool | None = (
+        None  # If set, the link will be proxied through the given proxy.
+    )
 
     # REALDEBRID
     rd_token: str | None = None
@@ -65,10 +71,7 @@ class Settings(BaseSettings):
     ad_unique_account: bool = check_env_variable("AD_TOKEN")
     ad_user_app: str = "streamfusion"
     ad_user_ip: str | None = None
-    ad_use_proxy: bool = check_env_variable("PLAYBACK_PROXY")
-
-    # ACT AS PROXY
-    proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
+    ad_use_proxy: bool = check_env_variable("PROXY_URL")
 
     # LOGGING
     log_level: LogLevel = LogLevel.INFO

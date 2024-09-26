@@ -11,7 +11,7 @@ class BaseDebrid:
     def __init__(self, config):
         self.config = config
         self.logger = logger
-        self.__session = requests.Session()
+        self.__session = self._create_session()
         
         # Limiteurs de débit
         self.global_limit = 250
@@ -21,6 +21,16 @@ class BaseDebrid:
         
         self.global_requests = deque()
         self.torrent_requests = deque()
+
+    def _create_session(self):
+        session = requests.Session()
+        if settings.proxy_url:
+            self.logger.info(f"Using proxy: {settings.proxy_url}")
+            session.proxies = {
+                'http': settings.proxy_url,
+                'https': settings.proxy_url
+            }
+        return session
 
     def _rate_limit(self, requests_queue, limit, period):
         current_time = time.time()
@@ -43,10 +53,9 @@ class BaseDebrid:
 
     def json_response(self, url, method='get', data=None, headers=None, files=None):
         self._global_rate_limit()
-        
         if 'torrents' in url:
             self._torrent_rate_limit()
-        
+
         max_attempts = 5
         for attempt in range(max_attempts):
             try:
@@ -77,7 +86,7 @@ class BaseDebrid:
 
         self.logger.error("Max attempts reached. Unable to complete request.")
         return None
-
+    
     def wait_for_ready_status(self, check_status_func, timeout=30, interval=5):
         self.logger.info(f"Waiting for {timeout} seconds to cache.")
         start_time = time.time()

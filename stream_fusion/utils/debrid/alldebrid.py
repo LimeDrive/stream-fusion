@@ -24,11 +24,6 @@ class AllDebrid(BaseDebrid):
                                "This may lead to account ban.")
                 logger.warning("Please enable proxied link in the settings.")
                 raise HTTPException(status_code=500, detail="Proxied link is disabled.")
-            if settings.ad_use_proxy and not settings.playback_proxy:
-                logger.warning("Proxified AllDebrid stream is enabled, but playback proxy is disabled. "
-                               "This may not work if your on server IP.")
-                logger.warning("Please enable playback proxy in the settings.")
-                raise HTTPException(status_code=500, detail="Playback proxy is disabled.")
             if settings.ad_token:
                 return {"Authorization": f"Bearer {settings.ad_token}"}
             else:
@@ -37,7 +32,7 @@ class AllDebrid(BaseDebrid):
                 raise HTTPException(status_code=500, detail="AllDebrid token is not provided.")
         else:
             return {"Authorization": f"Bearer {self.config["ADToken"]}"}
-
+        
     def add_magnet(self, magnet, ip=None):
         url = f"{self.base_url}magnet/upload?agent={self.agent}"
         data = {"magnets[]": magnet}
