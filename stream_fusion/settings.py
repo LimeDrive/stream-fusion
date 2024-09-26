@@ -30,11 +30,9 @@ def get_default_worker_count():
     return min(max(multiprocessing.cpu_count() * 2, 2), 6)
 
 def check_env_variable(var_name):
-    """Check if an environment variable is set and not empty."""
     value = os.getenv(var_name.upper())
-    if value:
-        if value == '':
-            return False
+    
+    if value and isinstance(value, str) and len(value.strip()) >= 10:
         return True
     return False
 
