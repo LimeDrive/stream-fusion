@@ -1,4 +1,7 @@
 nav:
-  - Accueil: index.md
+  - Accueil: 
+    - index.md
   - Stremio
   - StreamFusion
+  - How-To
+  - ...

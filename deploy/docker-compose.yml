@@ -1,4 +1,8 @@
 ---
+networks:
+  proxy_network:
+    external: true
+
 services:
 
   stream-fusion:
@@ -13,13 +17,13 @@ services:
       YGG_PASSKEY: ${YGG_PASSKEY:-''}
       SHAREWOOD_PASSKEY: ${SHAREWOOD_PASSKEY:-''}
       REDIS_HOST: ${REDIS_HOST:-stremio-redis}
-      PG_HOST: ${PG_HOST:-stremio-postgres}
+      PG_HOST: ${POSTGRES_HOST:-stremio-postgres}
       PG_USER: ${POSTGRES_USER:-stremio}
       PG_PASS: ${POSTGRES_PASSWORD:-stremio}
       USE_HTTPS: ${USE_HTTPS:-True}
       TZ: ${TZ:-Europe/London}
-    ports:
-      - 8080:8080
+    expose:
+      - 8080
     volumes:
       - stream-fusion:/app/config
     depends_on:
@@ -28,6 +32,8 @@ services:
       - zilean
       - jackett
     restart: unless-stopped
+    networks:
+      - proxy_network
 
   stremio-redis:
     image: redis:latest
@@ -38,6 +44,8 @@ services:
       - stremio-redis:/data
     command: redis-server --appendonly yes
     restart: unless-stopped
+    networks:
+      - proxy_network
 
   zilean:
     image: ipromknight/zilean:latest
@@ -56,6 +64,8 @@ services:
         Zilean__Imdb__EnableImportMatching: ${ZILEAN_IMDB_ENABLE_IMPORT_MATCHING:-"false"}
     depends_on:
       - stremio-postgres
+    networks:
+      - proxy_network
 
   stremio-postgres:
     image: postgres:16.3-alpine3.20
@@ -70,6 +80,8 @@ services:
       - 5432
     volumes:
       - stremio-postgres:/var/lib/postgresql/data/pgdata
+    networks:
+      - proxy_network
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -80,9 +92,11 @@ services:
       - TZ=${TZ:-Europe/London}
     volumes:
       - jackett_data:/config
-    ports:
-      - 9117:9117
+    expose:
+      - 9117
     restart: unless-stopped
+    networks:
+      - proxy_network
 
 volumes:
   stremio_postgres:

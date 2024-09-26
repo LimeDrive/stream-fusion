@@ -71,7 +71,11 @@ markdown_extensions:
 
 plugins:
   - search
-  - awesome-pages
+  - awesome-pages:
+      filename: .pages
+      collapse_single_pages: true
+      strict: false
+      order: asc
   - i18n:
       docs_structure: folder
       fallback_to_default: true
