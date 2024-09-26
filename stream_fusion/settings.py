@@ -46,9 +46,6 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     gunicorn_timeout: int = 180
     aiohttp_timeout: int = 7200
-    playback_proxy: str | None = (
-        None  # If set, the link will be proxied through the given proxy.
-    )
     session_key: str = Field(
         default_factory=lambda: os.getenv(
             "SESSION_KEY",
@@ -57,6 +54,13 @@ class Settings(BaseSettings):
     )
     use_https: bool = False
     default_debrid_service: DebridService = DebridService.RD
+
+    # PROXY
+    proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
+    proxy_url: str | None = None
+    playback_proxy: bool | None = (
+        None  # If set, the link will be proxied through the given proxy.
+    )
 
     # REALDEBRID
     rd_token: str | None = None
@@ -67,10 +71,7 @@ class Settings(BaseSettings):
     ad_unique_account: bool = check_env_variable("AD_TOKEN")
     ad_user_app: str = "streamfusion"
     ad_user_ip: str | None = None
-    ad_use_proxy: bool = check_env_variable("PLAYBACK_PROXY")
-
-    # ACT AS PROXY
-    proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
+    ad_use_proxy: bool = check_env_variable("PROXY_URL")
 
     # LOGGING
     log_level: LogLevel = LogLevel.INFO

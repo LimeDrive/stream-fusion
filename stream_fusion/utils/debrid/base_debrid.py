@@ -41,23 +41,28 @@ class BaseDebrid:
     def _torrent_rate_limit(self):
         self._rate_limit(self.torrent_requests, self.torrent_limit, self.torrent_period)
 
-    def json_response(self, url, method='get', data=None, headers=None, files=None):
+    def json_response(self, url, method='get', data=None, headers=None, files=None, proxies=None):
         self._global_rate_limit()
         
         if 'torrents' in url:
             self._torrent_rate_limit()
         
+        if proxies and not settings.proxy_url:
+            self.logger.warning("Proxies are enabled, but no proxy URL is provided. "
+                                "Please provide a proxy URL in the settings.")
+            raise ValueError("Proxy URL is not provided.")
+        
         max_attempts = 5
         for attempt in range(max_attempts):
             try:
                 if method == 'get':
-                    response = self.__session.get(url, headers=headers)
+                    response = self.__session.get(url, headers=headers, proxies=proxies)
                 elif method == 'post':
-                    response = self.__session.post(url, data=data, headers=headers, files=files)
+                    response = self.__session.post(url, data=data, headers=headers, files=files, proxies=proxies)
                 elif method == 'put':
-                    response = self.__session.put(url, data=data, headers=headers)
+                    response = self.__session.put(url, data=data, headers=headers, proxies=proxies)
                 elif method == 'delete':
-                    response = self.__session.delete(url, headers=headers)
+                    response = self.__session.delete(url, headers=headers, proxies=proxies)
                 else:
                     raise ValueError(f"Unsupported HTTP method: {method}")
 

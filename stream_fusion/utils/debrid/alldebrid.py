@@ -24,7 +24,7 @@ class AllDebrid(BaseDebrid):
                                "This may lead to account ban.")
                 logger.warning("Please enable proxied link in the settings.")
                 raise HTTPException(status_code=500, detail="Proxied link is disabled.")
-            if settings.ad_use_proxy and not settings.playback_proxy:
+            if settings.ad_use_proxy and not settings.proxy_url:
                 logger.warning("Proxified AllDebrid stream is enabled, but playback proxy is disabled. "
                                "This may not work if your on server IP.")
                 logger.warning("Please enable playback proxy in the settings.")
@@ -37,24 +37,28 @@ class AllDebrid(BaseDebrid):
                 raise HTTPException(status_code=500, detail="AllDebrid token is not provided.")
         else:
             return {"Authorization": f"Bearer {self.config["ADToken"]}"}
+        
+    def _use_proxy(self):
+        if settings.ad_use_proxy and settings.proxy_url:
+            return settings.proxy_url
 
     def add_magnet(self, magnet, ip=None):
         url = f"{self.base_url}magnet/upload?agent={self.agent}"
         data = {"magnets[]": magnet}
-        return self.json_response(url, method='post', headers=self.get_headers(), data=data)
+        return self.json_response(url, method='post', headers=self.get_headers(), data=data, proxies=self._use_proxy())
 
     def add_torrent(self, torrent_file, ip=None):
         url = f"{self.base_url}magnet/upload/file?agent={self.agent}"
         files = {"files[]": (str(uuid.uuid4()) + ".torrent", torrent_file, 'application/x-bittorrent')}
-        return self.json_response(url, method='post', headers=self.get_headers(), files=files)
+        return self.json_response(url, method='post', headers=self.get_headers(), files=files, proxies=self._use_proxy())
 
     def check_magnet_status(self, id, ip=None):
         url = f"{self.base_url}magnet/status?agent={self.agent}&id={id}"
-        return self.json_response(url, method='get', headers=self.get_headers())
+        return self.json_response(url, method='get', headers=self.get_headers(), proxies=self._use_proxy())
 
     def unrestrict_link(self, link, ip=None):
         url = f"{self.base_url}link/unlock?agent={self.agent}&link={link}"
-        return self.json_response(url, method='get', headers=self.get_headers())
+        return self.json_response(url, method='get', headers=self.get_headers(), proxies=self._use_proxy())
 
     def get_stream_link(self, query, config, ip=None):
         magnet = query['magnet']
@@ -120,7 +124,7 @@ class AllDebrid(BaseDebrid):
 
         url = f"{self.base_url}magnet/instant?agent={self.agent}"
         data = {"magnets[]": hashes_or_magnets}
-        return self.json_response(url, method='post', headers=self.get_headers(), data=data)
+        return self.json_response(url, method='post', headers=self.get_headers(), data=data, proxies=self._use_proxy())
 
     def __add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):
         torrent_id = ""
