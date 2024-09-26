@@ -32,7 +32,7 @@ def get_default_worker_count():
 def check_env_variable(var_name):
     """Check if an environment variable is set and not empty."""
     value = os.getenv(var_name.upper())
-    return bool(value)
+    return bool(value and value.strip())
 
 class Settings(BaseSettings):
     """Settings for the application"""
