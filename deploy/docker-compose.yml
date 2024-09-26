@@ -56,12 +56,12 @@ services:
     volumes:
       - zilean_data:/app/data
     environment:
-        Zilean__Database__ConnectionString: ${ZILEAN_DB_CONNECTION_STRING:-"Host=stremio-postgres;Port=5432;Database=zilean;Username=stremio;Password=stremio"}
-        Zilean__Dmm__ImportBatched: ${ZILEAN_DMM_IMPORT_BATCHED:-"true"}
+        Zilean__Database__ConnectionString: ${ZILEAN_DB_CONNECTION_STRING:-Host=stremio-postgres;Port=5432;Database=zilean;Username=stremio;Password=stremio}
+        Zilean__Dmm__ImportBatched: ${ZILEAN_DMM_IMPORT_BATCHED:-True}
         Zilean__Dmm__MaxFilteredResults: ${ZILEAN_DMM_MAX_FILTERED_RESULTS:-200}
         Zilean__Dmm__MinimumScoreMatch: ${ZILEAN_DMM_MINIMUM_SCORE_MATCH:-0.85}
-        Zilean__Imdb__EnableEndpoint: ${ZILEAN_IMDB_ENABLE_ENDPOINT:-"false"}
-        Zilean__Imdb__EnableImportMatching: ${ZILEAN_IMDB_ENABLE_IMPORT_MATCHING:-"false"}
+        Zilean__Imdb__EnableEndpoint: ${ZILEAN_IMDB_ENABLE_ENDPOINT:-False}
+        Zilean__Imdb__EnableImportMatching: ${ZILEAN_IMDB_ENABLE_IMPORT_MATCHING:-False}
     depends_on:
       - stremio-postgres
     networks:
