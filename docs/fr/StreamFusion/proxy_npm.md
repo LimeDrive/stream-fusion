@@ -28,6 +28,8 @@ Une fois votre domaine configuré chez Cloudflare, vous devez créer les sous-do
 
 2. Dans le tableau de bord Cloudflare, allez dans la section "DNS".
 
+    ![DNS Cloudflare](./images/image-a4k3c-26-09-2024(1).png)
+
 3. Créez les enregistrements DNS suivants :
 
     #### Enregistrement A pour le domaine racine
@@ -35,20 +37,22 @@ Une fois votre domaine configuré chez Cloudflare, vous devez créer les sous-do
     | Type | Nom | Contenu | Proxy status |
     |------|-----|---------|--------------|
     | A    | @   | [Votre adresse IP publique] | Proxied |
-    | A    | www   | [Votre adresse IP publique] | Proxied |
 
     #### Enregistrements CNAME pour les sous-domaines
 
-    | Type  | Nom          | Contenu | Proxy status |
-    |-------|--------------|---------|--------------|
-    | CNAME | proxy        | @       | Proxied      |
-    | CNAME | streamfusion | @       | Proxied      |
-    | CNAME | jackett      | @       | Proxied      |
+    | Type  | Nom          | Contenu | Proxy status | Commentaire |
+    |-------|--------------|---------|--------------|-------------|
+    | CNAME | proxy        | @       | Proxied      | Nginx Proxy Manager |
+    | CNAME | streamfusion | @       | Proxied      | StreamFusion |
+    | CNAME | jackett      | @       | Proxied      | Jackett ( optionel ) |
+    | CNAME | zilean       | @       | Proxied      | Zilean API ( optionel ) |
 
     !!! warning "Proxy Cloudflare"
         Assurez-vous que le statut du proxy est activé (orange) pour tous vos enregistrements afin de bénéficier de la protection Cloudflare.
 
 **Voici à quoi devrait ressembler votre configuration DNS final :**
+
+![ALL DNS Cloudflare](./images/image-dsb3d-27-09-2024(1).png)
 
 ## Installation de Nginx Proxy Manager
 
@@ -71,8 +75,9 @@ nano docker-compose.yml
 Copiez et collez le contenu suivant :
 
 ```yaml
+---
 services:
-  app:
+  npm:
     image: 'jc21/nginx-proxy-manager:latest'
     restart: unless-stopped
     ports:
@@ -105,7 +110,11 @@ docker-compose up -d
 
 ### Accès à l'interface d'administration
 
-1. Ouvrez votre navigateur et accédez à `http://<votre_ip_vps>:81`.
+1. Ouvrez votre navigateur et accédez à `http://<votre_ip_vps>:81`
+
+!!! tip "Ouverture des ports"
+    Assurez-vous que les ports 80, 81 et 443 sont ouverts dans votre pare-feu.
+
 2. Connectez-vous avec les identifiants par défaut :
    - Email : `admin@example.com`
    - Mot de passe : `changeme`
@@ -115,26 +124,45 @@ docker-compose up -d
 
 ### Création des règles de proxy
 
-Pour chaque service (StreamFusion, Jackett), suivez ces étapes :
+Nous allons configurer ensemble les règles de proxy pour Nginx Proxy Manager pour l'exemple:
 
-1. Cliquez sur "Proxy Hosts" puis "Add Proxy Host".
+1. Cliquez sur **"Proxy Hosts"** puis **"Add Proxy Host"**.
+
+   ![Proxy Hosts](./images/image-q8eva-27-09-2024(1).png)
+   ![Add Proxy Host](./images/image-5oh3f-27-09-2024(1).png)
 
 2. Remplissez les champs :
 
-    - Domain Names : Entrez le sous-domaine complet (ex: streamfusion.votredomaine.com)
-    - Scheme : http
-    - Forward Hostname / IP : Nom du service Docker (ex: streamfusion)
-    - Forward Port : Port du service (ex: 8080 pour StreamFusion)
+    | Champ | Valeur |
+    |-------|--------|
+    | Domain Names | Entrez le sous-domaine complet (ex: `proxy.votredomaine.com`) |
+    | Scheme | `http` (Nous passons par le réseau Docker) |
+    | Forward Hostname / IP | Nom du service Docker (ex: `npm` pour Nginx-Proxy-Manager) |
+    | Forward Port | Port du service (ex: `81` pour Nginx-Proxy-Manager) |
+
+    ![Proxy Host Configuration](./images/image-4f6s8-26-09-2024(1).png)
 
 3. Dans l'onglet "SSL", sélectionnez "Request a new SSL Certificate" et cochez "Force SSL".
 
-4. Cliquez sur "Save".
+    ![SSL Configuration](./images/image-k651x-27-09-2024(1).png)
+
+4. Renseignez votre mail et Cliquez sur "Save".
+
+    ![Save Proxy Host](./images/image-58zvg-27-09-2024.png)
 
 !!! tip "Noms de services Docker"
     Assurez-vous que les noms de services dans votre `docker-compose.yml` de StreamFusion correspondent aux Forward Hostname que vous utilisez ici.
-    Il en vas de même pour les ports, vous les trouverais dans la partit expose de votre `docker-compose.yml` de streamfusion.
+    Il en va de même pour les ports, vous les trouverez dans la partie expose de votre `docker-compose.yml` de streamfusion.
 
-**Voici quelques captures d'écran pour vous guider :**
+### Configuration des autres services
+
+Voici un tableau récapitulatif des informations par défaut pour les autres services :
+
+| Host | Port |
+|------|------|
+| streamfusion | 8080 |
+| jackett | 9117 |
+| zilean | 8181 |
 
 ## Vérification et test
 
@@ -145,6 +173,50 @@ Après avoir configuré tous vos services :
 
 !!! success "Configuration terminée"
     Votre reverse proxy est maintenant configuré et sécurisé. Vos services sont accessibles via HTTPS et protégés par Cloudflare.
+
+## Sécurisation supplémentaire de Nginx Proxy Manager
+
+Une fois que vous avez terminé la configuration du reverse proxy et vérifié que tout fonctionne correctement, vous pouvez augmenter la sécurité en limitant l'accès direct à l'interface d'administration de Nginx Proxy Manager.
+
+### Modification du docker-compose.yml
+
+1. Revenez dans le répertoire de Nginx Proxy Manager :
+   ```bash
+   cd ~/nginx-proxy-manager
+   ```
+
+2. Éditez le fichier `docker-compose.yml` :
+   ```bash
+   nano docker-compose.yml
+   ```
+
+3. Commentez la ligne qui expose le port 81 :
+   ```yaml
+   services:
+     npm:
+       image: 'jc21/nginx-proxy-manager:latest'
+       restart: unless-stopped
+       ports:
+         - '80:80'
+         # - '81:81'  # Commentez cette ligne
+         - '443:443'
+   ```
+
+4. Sauvegardez et fermez le fichier (Ctrl+X, puis Y, puis Enter).
+
+### Redémarrage du conteneur
+
+Après avoir modifié le fichier, redémarrez le conteneur pour appliquer les changements :
+
+```bash
+docker-compose up -d
+```
+
+!!! warning "Accès à l'interface d'administration"
+    Après cette modification, vous ne pourrez plus accéder à l'interface d'administration via `http://<votre_ip_vps>:81`. Vous devrez utiliser le sous-domaine que vous avez configuré (par exemple, `https://proxy.votredomaine.com`).
+
+!!! tip "Sécurité renforcée"
+    Cette étape supplémentaire empêche l'accès direct à l'interface d'administration de Nginx Proxy Manager depuis l'extérieur, renforçant ainsi la sécurité de votre installation.
 
 ## Maintenance et sécurité
 
