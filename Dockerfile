@@ -41,7 +41,7 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/pytho
 COPY . .
 
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-root
+    && poetry install --no-root --with dev
 
 ARG GUNICORN_PORT=8080
 ENV EXPOSE_PORT=${GUNICORN_PORT}
