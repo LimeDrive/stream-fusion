@@ -1,0 +1,10 @@
+# Docs version changelog:
+
+To push docs deployment action commit must start with `Docs(deploy):` prefix and changelog must be update.
+
+## v1.0.0
+- Initial release
+## v1.0.1
+- Fix: ...
+## v1.0.2
+- Fix: ...

@@ -1,0 +1,87 @@
+:root {
+    --md-primary-fg-color: #7043c9;        /* Light purple for light mode */
+    --md-primary-fg-color--light: #a792ce;
+    --md-primary-fg-color--dark: #7B68EE;
+    --md-default-bg-color: #b4af99;        /* Light anthracite for background in light mode */
+    --md-text-color: #333333;              /* Main text color in light mode */
+    --md-link-color: #cab7de;              /* Link color in light mode */
+}
+
+[data-md-color-scheme="slate"] {
+    --md-primary-fg-color: #3a2054;        /* Darker purple for dark mode */
+    --md-primary-fg-color--light: #9370DB;
+    --md-primary-fg-color--dark: #6A5ACD;
+    --md-default-bg-color: #212626;        /* Dark anthracite for background in dark mode */
+    --md-text-color: #c2c0af;              /* Main text color in dark mode */
+    --md-link-color: #b3d9f0;              /* Link color in dark mode */
+}
+
+body {
+    color: var(--md-text-color);
+}
+
+a {
+    color: var(--md-link-color);
+}
+
+/* Customizing text color in the navigation bar */
+.md-nav__item .md-nav__link {
+    color: var(--md-text-color);
+}
+
+/* Customizing text color in the main content */
+.md-content {
+    color: var(--md-text-color);
+}
+
+/* Customizing heading colors */
+.md-typeset h1, .md-typeset h2, .md-typeset h3, .md-typeset h4, .md-typeset h5, .md-typeset h6 {
+    color: var(--md-text-color);
+}
+
+/* GitHub logo color for light mode */
+[data-md-color-scheme="default"] .md-source {
+    color: #000000;
+}
+
+/* GitHub logo color for dark mode */
+[data-md-color-scheme="slate"] .md-source {
+    color: #ffffff;
+}
+
+/* Hover color for light mode */
+[data-md-color-scheme="default"] .md-source:hover {
+    color: #553772;
+}
+
+/* Hover color for dark mode */
+[data-md-color-scheme="slate"] .md-source:hover {
+    color: #d8acf3;
+}
+
+/* Link colors for light mode */
+[data-md-color-scheme="default"] {
+    --md-typeset-a-color: #4141f8;              /* Unvisited link color */
+    --md-typeset-a-color--hover: #8f41d9;       /* Hover link color */
+    --md-typeset-a-color--visited: #800080;     /* Visited link color */
+}
+
+/* Link colors for dark mode */
+[data-md-color-scheme="slate"] {
+    --md-typeset-a-color: #1081a6;              /* Unvisited link color */
+    --md-typeset-a-color--hover: #87CEFA;       /* Hover link color */
+    --md-typeset-a-color--visited: #8d5395;     /* Visited link color */
+}
+
+/* Applying colors to links */
+.md-typeset a {
+    color: var(--md-typeset-a-color);
+}
+
+.md-typeset a:hover {
+    color: var(--md-typeset-a-color--hover);
+}
+
+.md-typeset a:visited {
+    color: var(--md-typeset-a-color--visited);
+}

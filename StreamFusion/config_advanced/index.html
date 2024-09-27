@@ -1,0 +1,1892 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://limedrive.github.io/stream-fusion/StreamFusion/config_advanced/">
+      
+      
+        <link rel="prev" href="../post_install/">
+      
+      
+        <link rel="next" href="../../How-To/secure_vps/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.36">
+    
+    
+      
+        <title>Avancé - StreamFusion Stack</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.06209087.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 12a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10M6 13h8l-3.5 3.5 1.42 1.42L17.84 12l-5.92-5.92L10.5 7.5 14 11H6z"/></svg>');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Poppins";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configuration-avancee-de-streamfusion" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../.." title="StreamFusion Stack" class="md-header__button md-logo" aria-label="StreamFusion Stack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            StreamFusion Stack
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Avancé
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Passer au mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Passer au mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Passer au mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Passer au mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Sélectionner la langue">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="fr" class="md-select__link">
+              Français
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../en/StreamFusion/config_advanced/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/LimeDrive/stream-fusion" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    LimeDrive/stream-fusion
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  Accueil
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../streamfusion/" class="md-tabs__link">
+          
+  
+  StreamFusion
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Stremio/stremio/" class="md-tabs__link">
+          
+  
+  Stremio
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../How-To/secure_vps/" class="md-tabs__link">
+          
+  
+  Tutoriels
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="StreamFusion Stack" class="md-nav__button md-logo" aria-label="StreamFusion Stack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    StreamFusion Stack
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/LimeDrive/stream-fusion" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    LimeDrive/stream-fusion
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Accueil
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Accueil
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    StreamFusion
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            StreamFusion
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../streamfusion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Description
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prerequis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pré-Requis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docker_install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docker-compose
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Reverse Proxy
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            Reverse Proxy
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxy_npm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Nginx Proxy Manager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../post_install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Post-Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Avancé
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Avancé
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables-generales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variables générales
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-du-serveur" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration du serveur
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-du-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration du proxy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-de-realdebrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration de RealDebrid
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-dalldebrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration d'AllDebrid
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Logging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-securite" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Sécurité
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration PostgreSQL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Redis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-tmdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration TMDB
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-jackett" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Jackett
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-zilean-dmm-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Zilean DMM API
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-yggflix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration YGGFlix
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-sharewood" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Sharewood
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-cache-public" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Cache public
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-de-developpement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration de développement
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Stremio
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Stremio
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Stremio/stremio/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Description
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Stremio/addons/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add-ons
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Stremio/selfhosted/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SelfHosted
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutoriels
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tutoriels
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../How-To/secure_vps/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guide d'installation d'une VPS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../How-To/apikey_alldebrid/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Création d'une API Key AllDebrid
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables-generales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variables générales
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-du-serveur" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration du serveur
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-du-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration du proxy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-de-realdebrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration de RealDebrid
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-dalldebrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration d'AllDebrid
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Logging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-securite" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Sécurité
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration PostgreSQL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Redis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-tmdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration TMDB
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-jackett" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Jackett
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-zilean-dmm-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Zilean DMM API
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-yggflix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration YGGFlix
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-sharewood" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Sharewood
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-cache-public" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Cache public
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-de-developpement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration de développement
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="configuration-avancee-de-streamfusion">Configuration avancée de StreamFusion</h1>
+<p>Cette section détaille toutes les variables d'environnement qui peuvent être configurées pour personnaliser le comportement de StreamFusion. Ces variables peuvent être passées soit en tant que secrets Docker, soit en tant que variables d'environnement du conteneur (en majuscules).</p>
+<div class="admonition danger">
+<p class="admonition-title">Attention à la configuration automatique</p>
+<p>Certaines variables d'environnement se configurent automatiquement au démarrage de l'application en fonction de votre installation. Surcharger ces variables manuellement peut entraîner des comportements indésirables de StreamFusion, particulièrement en ce qui concerne les interactions avec les services de débridage.</p>
+<p>Les variables concernées incluent notamment :</p>
+<ul>
+<li><code>PROXIED_LINK</code></li>
+<li><code>RD_UNIQUE_ACCOUNT</code></li>
+<li><code>AD_UNIQUE_ACCOUNT</code></li>
+<li><code>AD_USE_PROXY</code></li>
+<li><code>JACKETT_ENABLE</code></li>
+<li><code>YGG_UNIQUE_ACCOUNT</code></li>
+<li><code>SHAREWOOD_UNIQUE_ACCOUNT</code></li>
+</ul>
+<p>Avant de modifier manuellement ces variables, assurez-vous de bien comprendre leur impact sur le fonctionnement de l'application. Une configuration incorrecte pourrait compromettre la stabilité et la sécurité de votre installation StreamFusion.</p>
+</div>
+<h2 id="variables-generales">Variables générales</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SESSION_KEY</code></td>
+<td>Clé de session pour l'application</td>
+<td>Générée automatiquement</td>
+</tr>
+<tr>
+<td><code>USE_HTTPS</code></td>
+<td>Activer HTTPS</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>DEFAULT_DEBRID_SERVICE</code></td>
+<td>Service de débridage par défaut</td>
+<td><code>RD</code> (RealDebrid)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Session Key</p>
+<p>La <code>SESSION_KEY</code> est générée automatiquement au démarrage du conteneur, garantissant ainsi une clé unique pour chaque installation de StreamFusion. Cette pratique renforce la sécurité de votre application.</p>
+<ul>
+<li>Il est fortement déconseillé de fixer manuellement cette valeur via une variable d'environnement.</li>
+<li>La rotation automatique de cette clé n'affectera pas les connexions utilisateurs existantes.</li>
+<li>Cette approche suit les meilleures pratiques en matière de sécurité pour les applications web.</li>
+</ul>
+</div>
+<h2 id="configuration-du-serveur">Configuration du serveur</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WORKERS_COUNT</code></td>
+<td>Nombre de workers pour l'application</td>
+<td>Calculé automatiquement</td>
+</tr>
+<tr>
+<td><code>PORT</code></td>
+<td>Port sur lequel l'application écoute</td>
+<td><code>8080</code></td>
+</tr>
+<tr>
+<td><code>HOST</code></td>
+<td>Hôte sur lequel l'application écoute</td>
+<td><code>0.0.0.0</code></td>
+</tr>
+<tr>
+<td><code>GUNICORN_TIMEOUT</code></td>
+<td>Timeout pour Gunicorn (en secondes)</td>
+<td><code>180</code></td>
+</tr>
+<tr>
+<td><code>AIOHTTP_TIMEOUT</code></td>
+<td>Timeout pour aiohttp (en secondes)</td>
+<td><code>7200</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-du-proxy">Configuration du proxy</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PROXIED_LINK</code></td>
+<td>Activer la proxification des liens</td>
+<td>Dépend de la configuration</td>
+</tr>
+<tr>
+<td><code>PROXY_URL</code></td>
+<td>URL du proxy à utiliser</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>PLAYBACK_PROXY</code></td>
+<td>Utiliser le proxy pour les lien de stream depuis le serveur</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Fonctionnement des variables de proxy</p>
+<ul>
+<li><code>PROXIED_LINK</code> : Transforme l'application en proxy, faisant passer tous les streams par le serveur. Utilisé pour partager un compte de débrideur entre tous les utilisateurs.</li>
+<li><code>PROXY_URL</code> : Contient l'URL du proxy de l'utilisateur.</li>
+<li><code>PLAYBACK_PROXY</code> : Applique le proxy à toutes les interactions de StreamFusion avec les débrideurs, y compris les liens de streaming. Utile quand <code>PROXIED_LINK</code> est activé, pour que le streaming vidéo passe également par le proxy configuré.</li>
+</ul>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Utilisation des proxys et interactions avec les débrideurs</p>
+<p>Il est important de comprendre les différents aspects des interactions avec les débrideurs:</p>
+<ol>
+<li><strong>Streaming</strong> : Concerne les liens de streaming des contenus débridés.</li>
+<li><strong>Interactions API</strong> : Concerne les requêtes à l'API des débrideurs.</li>
+</ol>
+<hr />
+<ul>
+<li>Certains débrideurs (comme AllDebrid) bloquent les requêtes API provenant de serveurs, d'où l'utilisation d'un proxy pour les contacter.</li>
+<li>Il peut arriver que des adresses IP de serveurs soient bannies par RealDebrid ou AllDebrid, empêchant même le streaming de liens vidéo. Dans ce cas, activez <code>PLAYBACK_PROXY</code> pour faire passer les lectures vidéo par le proxy.</li>
+<li>L'utilisation de <code>PLAYBACK_PROXY</code> est généralement évitée pour économiser les ressources et réduire la latence, sauf en cas de nécessité.</li>
+</ul>
+</div>
+<h2 id="configuration-de-realdebrid">Configuration de RealDebrid</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RD_TOKEN</code></td>
+<td>Token d'authentification RealDebrid</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>RD_UNIQUE_ACCOUNT</code></td>
+<td>Utiliser un compte RealDebrid unique</td>
+<td>Dépend de la configuration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-dalldebrid">Configuration d'AllDebrid</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AD_TOKEN</code></td>
+<td>Token d'authentification AllDebrid</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>AD_UNIQUE_ACCOUNT</code></td>
+<td>Utiliser un compte AllDebrid unique</td>
+<td>Dépend de la configuration</td>
+</tr>
+<tr>
+<td><code>AD_USER_APP</code></td>
+<td>Nom de l'application pour AllDebrid</td>
+<td><code>streamfusion</code></td>
+</tr>
+<tr>
+<td><code>AD_USER_IP</code></td>
+<td>IP de l'utilisateur pour AllDebrid</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>AD_USE_PROXY</code></td>
+<td>Utiliser un proxy pour AllDebrid</td>
+<td>Dépend de la configuration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-logging">Configuration Logging</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LOG_LEVEL</code></td>
+<td>Niveau de log</td>
+<td><code>INFO</code></td>
+</tr>
+<tr>
+<td><code>LOG_PATH</code></td>
+<td>Chemin du fichier de log</td>
+<td><code>/app/config/logs/stream-fusion.log</code></td>
+</tr>
+<tr>
+<td><code>LOG_REDACTED</code></td>
+<td>Masquer les informations sensibles dans les logs</td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-securite">Configuration Sécurité</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SECRET_API_KEY</code></td>
+<td>Clé API secrète</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>SECURITY_HIDE_DOCS</code></td>
+<td>Cacher la documentation de l'API</td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-postgresql">Configuration PostgreSQL</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PG_HOST</code></td>
+<td>Hôte PostgreSQL</td>
+<td><code>stremio-postgres</code></td>
+</tr>
+<tr>
+<td><code>PG_PORT</code></td>
+<td>Port PostgreSQL</td>
+<td><code>5432</code></td>
+</tr>
+<tr>
+<td><code>PG_USER</code></td>
+<td>Utilisateur PostgreSQL</td>
+<td><code>streamfusion</code></td>
+</tr>
+<tr>
+<td><code>PG_PASS</code></td>
+<td>Mot de passe PostgreSQL</td>
+<td><code>streamfusion</code></td>
+</tr>
+<tr>
+<td><code>PG_BASE</code></td>
+<td>Nom de la base de données PostgreSQL</td>
+<td><code>streamfusion</code></td>
+</tr>
+<tr>
+<td><code>PG_ECHO</code></td>
+<td>Activer l'echo SQL</td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-redis">Configuration Redis</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REDIS_HOST</code></td>
+<td>Hôte Redis</td>
+<td><code>redis</code></td>
+</tr>
+<tr>
+<td><code>REDIS_PORT</code></td>
+<td>Port Redis</td>
+<td><code>6379</code></td>
+</tr>
+<tr>
+<td><code>REDIS_DB</code></td>
+<td>Numéro de la base de données Redis</td>
+<td><code>5</code></td>
+</tr>
+<tr>
+<td><code>REDIS_EXPIRATION</code></td>
+<td>Durée d'expiration des clés Redis (en secondes)</td>
+<td><code>604800</code></td>
+</tr>
+<tr>
+<td><code>REDIS_PASSWORD</code></td>
+<td>Mot de passe Redis</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-tmdb">Configuration TMDB</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TMDB_API_KEY</code></td>
+<td>Clé API TMDB</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-jackett">Configuration Jackett</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JACKETT_HOST</code></td>
+<td>Hôte Jackett</td>
+<td><code>jackett</code></td>
+</tr>
+<tr>
+<td><code>JACKETT_SCHEMA</code></td>
+<td>Schéma de l'URL Jackett</td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><code>JACKETT_PORT</code></td>
+<td>Port Jackett</td>
+<td><code>9117</code></td>
+</tr>
+<tr>
+<td><code>JACKETT_API_KEY</code></td>
+<td>Clé API Jackett</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>JACKETT_ENABLE</code></td>
+<td>Activer l'intégration Jackett</td>
+<td>Dépend de la configuration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-zilean-dmm-api">Configuration Zilean DMM API</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ZILEAN_HOST</code></td>
+<td>Hôte Zilean</td>
+<td><code>zilean</code></td>
+</tr>
+<tr>
+<td><code>ZILEAN_PORT</code></td>
+<td>Port Zilean</td>
+<td><code>8181</code></td>
+</tr>
+<tr>
+<td><code>ZILEAN_SCHEMA</code></td>
+<td>Schéma de l'URL Zilean</td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><code>ZILEAN_MAX_WORKERS</code></td>
+<td>Nombre maximum de workers Zilean</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><code>ZILEAN_POOL_CONNECTIONS</code></td>
+<td>Taille du pool de connexions Zilean</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>ZILEAN_API_POOL_MAXSIZE</code></td>
+<td>Taille maximale du pool API Zilean</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>ZILEAN_MAX_RETRY</code></td>
+<td>Nombre maximum de tentatives Zilean</td>
+<td><code>3</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-yggflix">Configuration YGGFlix</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>YGGFLIX_URL</code></td>
+<td>URL de YGGFlix</td>
+<td><code>https://yggflix.fr</code></td>
+</tr>
+<tr>
+<td><code>YGGFLIX_MAX_WORKERS</code></td>
+<td>Nombre maximum de workers YGGFlix</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><code>YGG_PASSKEY</code></td>
+<td>Passkey YGG</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>YGG_UNIQUE_ACCOUNT</code></td>
+<td>Utiliser un compte YGG unique</td>
+<td>Dépend de la configuration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-sharewood">Configuration Sharewood</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SHAREWOOD_URL</code></td>
+<td>URL de Sharewood</td>
+<td><code>https://www.sharewood.tv</code></td>
+</tr>
+<tr>
+<td><code>SHAREWOOD_MAX_WORKERS</code></td>
+<td>Nombre maximum de workers Sharewood</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><code>SHAREWOOD_PASSKEY</code></td>
+<td>Passkey Sharewood</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>SHAREWOOD_UNIQUE_ACCOUNT</code></td>
+<td>Utiliser un compte Sharewood unique</td>
+<td>Dépend de la configuration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-cache-public">Configuration Cache public</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PUBLIC_CACHE_URL</code></td>
+<td>URL du cache public</td>
+<td><code>https://stremio-jackett-cacher.elfhosted.com/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-de-developpement">Configuration de développement</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DEBUG</code></td>
+<td>Activer le mode debug</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>DEV_HOST</code></td>
+<td>Hôte de développement</td>
+<td><code>0.0.0.0</code></td>
+</tr>
+<tr>
+<td><code>DEV_PORT</code></td>
+<td>Port de développement</td>
+<td><code>8080</code></td>
+</tr>
+<tr>
+<td><code>DEVELOP</code></td>
+<td>Activer le mode développement</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>RELOAD</code></td>
+<td>Activer le rechargement automatique</td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Sécurité</p>
+<p>Assurez-vous de ne pas exposer les informations sensibles telles que les tokens et les clés API dans des environnements non sécurisés.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/LimeDrive/stream-fusion" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tracking", "navigation.tabs", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.select", "content.code.annotate", "language.selector"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.56dfad97.min.js"></script>
+      
+    
+  </body>
+</html>
