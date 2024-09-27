@@ -106,7 +106,7 @@ class Settings(BaseSettings):
     jackett_schema: str = "http"
     jackett_port: int = 9117
     jackett_api_key: str | None = None
-    jackett_enable: bool = check_env_variable("JACKET_API_KEY")
+    jackett_enable: bool = check_env_variable("JACKETT_API_KEY")
 
     # ZILEAN DMM API
     zilean_host: str = "zilean"
