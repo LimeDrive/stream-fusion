@@ -48,13 +48,13 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/LimeDrive/stream-fusion
-  alternate:
-    - name: Français
-      link: /fr/
-      lang: fr
-    - name: English
-      link: /en/
-      lang: en
+  # alternate:
+  #   - name: Français
+  #     link: /fr/
+  #     lang: fr
+  #   - name: English
+  #     link: /en/
+  #     lang: en
 
 markdown_extensions:
   - pymdownx.highlight:
