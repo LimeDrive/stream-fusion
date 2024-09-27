@@ -4,3 +4,5 @@ To push docs deployment action commit must start with `Docs(deploy):` prefix and
 
 ## v1.0.0
 - Initial release
+## v1.0.1
+- Fix: ...
