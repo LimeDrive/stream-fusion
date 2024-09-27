@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="./logo-stream-fusion.png" alt="StreamFusion">
+    <img src="https://stremio.stream/wp-content/uploads/guide-stremio-fr.webp">
 </p>
 
 <h1 align="center">Stremio Stack Optimized for French Content</h1>
