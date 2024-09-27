@@ -4,7 +4,7 @@ import jsonpickle
 import time
 from typing import Any, List
 import hashlib
-import redis
+from redis.asyncio import Redis
 from stream_fusion.settings import settings
 from stream_fusion.utils.models.movie import Movie
 from stream_fusion.utils.models.series import Series
@@ -15,24 +15,43 @@ class RedisCache(CacheBase):
         super().__init__(config)
         self.redis_host = settings.redis_host
         self.redis_port = settings.redis_port
-        self.redis_url = f"redis://{self.redis_host}:{self.redis_port}"
+        self.redis_db = settings.redis_db
+        self.redis_url = f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
         self._redis_client = None
         self.media_expiration = settings.redis_expiration
 
-    def get_redis_client(self):
+    async def get_redis_client(self):
         if not self._redis_client:
             try:
-                self._redis_client = redis.Redis.from_url(
+                self._redis_client = Redis.from_url(
                     self.redis_url,
                     max_connections=10
                 )
-            except redis.ConnectionError:
-                self.logger.error("Failed to create Redis client")
+            except Exception as e:
+                self.logger.error(f"Failed to create Redis client: {e}")
                 self._redis_client = None
         return self._redis_client
+    
+    async def reconnect(self):
+        self.logger.info("Attempting to reconnect to Redis")
+        self._redis_client = None
+        return await self.get_redis_client()
 
-    def get_list(self, key: str) -> List[Any]:
-        result = self.get(key)
+    async def execute_with_retry(self, operation, *args, **kwargs):
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                return await operation(*args, **kwargs)
+            except ConnectionError:
+                if attempt < max_retries - 1:
+                    self.logger.warning(f"Redis connection lost. Attempting reconnection (attempt {attempt + 1}/{max_retries})")
+                    await self.reconnect()
+                else:
+                    self.logger.error("Max retries reached. Unable to reconnect to Redis.")
+                    raise
+
+    async def get_list(self, key: str) -> List[Any]:
+        result = await self.get(key)
         if isinstance(result, list):
             return result
         elif result is not None:
@@ -57,26 +76,26 @@ class RedisCache(CacheBase):
         hashed_key = hashlib.sha256(key_string.encode("utf-8")).hexdigest()
         return hashed_key[:16]
 
-    def clear(self) -> None:
+    async def clear(self) -> None:
         try:
-            client = self.get_redis_client()
-            client.flushdb()
+            client = await self.get_redis_client()
+            await client.flushdb()
             self.logger.info("Cache cleared successfully")
         except Exception as e:
             self.logger.error(f"Error clearing cache: {e}")
 
-    def get_or_set(self, func: callable, *args, **kwargs) -> Any:
+    async def get_or_set(self, func: callable, *args, **kwargs) -> Any:
         self.logger.debug(f"Entering get_or_set for function: {func.__name__}")
         start_time = time.time()
 
-        if not self.can_cache():
+        if not await self.can_cache():
             self.logger.debug("Cache is not available, executing function directly")
-            return self._execute_func(func, *args, **kwargs)
+            return await self._execute_func(func, *args, **kwargs)
 
         key = self.generate_key(func.__name__, *args, **kwargs)
         self.logger.debug(f"Generated cache key: {key}")
 
-        cached_result = self.get(key)
+        cached_result = await self.get(key)
         self.logger.debug(f"Attempted to get result from cache. Found: {cached_result is not None}")
 
         if cached_result is not None:
@@ -84,15 +103,15 @@ class RedisCache(CacheBase):
             return cached_result
 
         self.logger.debug(f"Cache miss for key: {key}. Executing function.")
-        result = self._execute_func(func, *args, **kwargs)
+        result = await self._execute_func(func, *args, **kwargs)
         self.logger.debug(f"Function execution completed. Setting result in cache.")
-        self.set(key, result)
+        await self.set(key, result)
 
         end_time = time.time()
         self.logger.debug(f"get_or_set completed in {end_time - start_time:.2f} seconds")
         return result
 
-    def _execute_func(self, func, *args, **kwargs):
+    async def _execute_func(self, func, *args, **kwargs):
         self.logger.debug(f"Executing function: {func.__name__}")
         start_time = time.time()
 
@@ -118,9 +137,8 @@ class RedisCache(CacheBase):
 
         if asyncio.iscoroutinefunction(func):
             self.logger.debug(f"Function {func.__name__} is asynchronous")
-            loop = asyncio.get_event_loop()
             try:
-                result = loop.run_until_complete(func(**call_args))
+                result = await func(**call_args)
                 self.logger.debug(f"Asynchronous function {func.__name__} completed successfully")
             except Exception as e:
                 self.logger.error(f"Error executing asynchronous function {func.__name__}: {str(e)}")
@@ -138,82 +156,72 @@ class RedisCache(CacheBase):
         self.logger.debug(f"Function {func.__name__} executed in {end_time - start_time:.2f} seconds")
         return result
 
-    def can_cache(self) -> bool:
+    async def can_cache(self) -> bool:
         self.logger.debug("Checking if caching is possible")
         try:
-            client = self.get_redis_client()
-            result = client.ping()
+            client = await self.get_redis_client()
+            result = await client.ping()
             self.logger.debug(f"Redis ping result: {result}")
             return result
-        except redis.ConnectionError:
-            self.logger.error("Unable to connect to Redis")
+        except Exception as e:
+            self.logger.error(f"Unable to connect to Redis: {e}")
             return False
 
-    def get(self, key: str) -> Any:
-        self.logger.debug(f"Attempting to get value for key: {key}")
-        try:
-            client = self.get_redis_client()
-            cached_result = client.get(key)
+    async def get(self, key: str) -> Any:
+        async def get_operation():
+            client = await self.get_redis_client()
+            cached_result = await client.get(key)
             if cached_result:
-                self.logger.debug(f"Value found in cache for key: {key}")
                 return jsonpickle.decode(cached_result)
-            self.logger.debug(f"No value found in cache for key: {key}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Error retrieving from Redis: {e}")
             return None
 
-    def set(self, key: str, value: Any, expiration: int = None) -> None:
-        self.logger.debug(f"Attempting to set value for key: {key}")
+        return await self.execute_with_retry(get_operation)
+
+    async def set(self, key: str, value: Any, expiration: int = None) -> None:
         if expiration is None:
             expiration = self.media_expiration
-        
-        try:
-            client = self.get_redis_client()
+
+        async def set_operation():
+            client = await self.get_redis_client()
             cached_data = jsonpickle.encode(value)
-            result = client.set(key, cached_data, ex=expiration)
-            self.logger.debug(f"Set operation result for key {key}: {result}")
-        except Exception as e:
-            self.logger.error(f"Error storing in Redis: {e}")
+            return await client.set(key, cached_data, ex=expiration)
 
-    def delete(self, key: str) -> bool:
-        try:
-            client = self.get_redis_client()
-            return bool(client.delete(key))
-        except Exception as e:
-            self.logger.error(f"Error deleting key from Redis: {e}")
-            return False
+        await self.execute_with_retry(set_operation)
 
-    def exists(self, key: str) -> bool:
-        try:
-            client = self.get_redis_client()
-            return bool(client.exists(key))
-        except Exception as e:
-            self.logger.error(f"Error checking key existence in Redis: {e}")
-            return False
+    async def delete(self, key: str) -> bool:
+        async def delete_operation():
+            client = await self.get_redis_client()
+            return bool(await client.delete(key))
 
-    def get_ttl(self, key: str) -> int:
-        try:
-            client = self.get_redis_client()
-            return client.ttl(key)
-        except Exception as e:
-            self.logger.error(f"Error getting TTL from Redis: {e}")
-            return -1
+        return await self.execute_with_retry(delete_operation)
 
-    def update_expiration(self, key: str, expiration: int) -> bool:
-        try:
-            client = self.get_redis_client()
-            return bool(client.expire(key, expiration))
-        except Exception as e:
-            self.logger.error(f"Error updating expiration in Redis: {e}")
-            return False
+    async def exists(self, key: str) -> bool:
+        async def exists_operation():
+            client = await self.get_redis_client()
+            return bool(await client.exists(key))
 
-    def close(self):
+        return await self.execute_with_retry(exists_operation)
+
+    async def get_ttl(self, key: str) -> int:
+        async def get_ttl_operation():
+            client = await self.get_redis_client()
+            return await client.ttl(key)
+
+        return await self.execute_with_retry(get_ttl_operation)
+    
+    async def update_expiration(self, key: str, expiration: int) -> bool:
+        async def update_expiration_operation():
+            client = await self.get_redis_client()
+            return bool(await client.expire(key, expiration))
+
+        return await self.execute_with_retry(update_expiration_operation)
+
+    async def close(self):
         if self._redis_client:
-            self._redis_client.close()
+            await self._redis_client.close()
 
-    def __enter__(self):
+    async def __aenter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()

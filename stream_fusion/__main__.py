@@ -1,11 +1,14 @@
 import uvicorn
 
 from stream_fusion.gunicorn_runner import GunicornApplication
+from stream_fusion.logging_config import configure_logging
 from stream_fusion.settings import settings
 
 
 def main() -> None:
     """Entrypoint of the application."""
+
+    configure_logging()
     if settings.reload:
         uvicorn.run(
             "stream_fusion.web.application:get_app",
@@ -13,14 +16,29 @@ def main() -> None:
             host=settings.host,
             port=settings.port,
             reload=settings.reload,
+            reload_excludes=[
+                "*.pyc",
+                "*.log",
+                ".git/*",
+                ".vscode/*",
+                "tests/*",
+                "docs/*",
+                ".venv/*",
+                ".devcontainer/*",
+                ".github/*",
+                "Dockerfile",
+                "config/*",
+            ],
+            reload_includes=[
+                "*.py",
+                "*.html",
+                "*.css",
+                "*.js",
+            ],
             log_level=settings.log_level.value.lower(),
-            # TODO: check if factory is needed
             factory=True,
         )
     else:
-        # We choose gunicorn only if reload
-        # option is not used, because reload
-        # feature doen't work with GUvicorn workers.
         GunicornApplication(
             "stream_fusion.web.application:get_app",
             host=settings.host,
@@ -29,8 +47,8 @@ def main() -> None:
             timeout=settings.gunicorn_timeout,
             factory=True,
             accesslog="-",
-            loglevel=settings.log_level.value.lower(),
             access_log_format='%r "-" %s "-" %Tf',
+            loglevel=settings.log_level.value.lower(),
         ).run()
 
 

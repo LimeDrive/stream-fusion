@@ -18,9 +18,12 @@ class TorrentSmartContainer:
         self.__itemsDict: Dict[TorrentItem] = self.__build_items_dict_by_infohash(torrent_items)
         self.__media = media
 
-    def get_hashes(self):
-        hashes = list(self.__itemsDict.keys())
-        self.logger.debug(f"Retrieved {len(hashes)} hashes")
+    def get_unaviable_hashes(self):
+        hashes = []
+        for hash, item in self.__itemsDict.items():
+            if item.availability is False:
+                hashes.append(hash)
+        self.logger.debug(f"Retrieved {len(hashes)} hashes to process for RealDebrid")
         return hashes
 
     def get_items(self):
@@ -70,8 +73,6 @@ class TorrentSmartContainer:
         if not full_index:
             self.logger.warning("Full index is empty, cannot find matching file")
             return None
-
-        # Convert season and episode to integers for comparison
         try:
             target_season = int(season.replace('S', ''))
             target_episode = int(episode.replace('E', ''))
@@ -92,11 +93,11 @@ class TorrentSmartContainer:
         else:
             self.logger.warning(f"No matching file found for Season {season}, Episode {episode}")
             return None
+
     def cache_container_items(self):
         self.logger.info("Starting cache process for container items")
         threading.Thread(target=self.__save_to_cache).start()
 
-    # TODO: New cache system that anon the tracker ans all passkey info for acsepted privat tracker
     def __save_to_cache(self):
         self.logger.info("Saving public items to cache")
         public_torrents = list(filter(lambda x: x.privacy == "public", self.get_items()))
@@ -126,13 +127,13 @@ class TorrentSmartContainer:
             self.logger.debug(f"Processing {torrent_item.type}: {torrent_item.raw_title}")
             files = []
             if torrent_item.type == "series":
-                self.__process_series_files(details, media, torrent_item, files)
+                self.__process_series_files(details, media, torrent_item, files, debrid="RD")
             else:
                 self.__process_movie_files(details, files)
-            self.__update_file_details(torrent_item, files)
+            self.__update_file_details(torrent_item, files, debrid="RD")
         self.logger.info("RealDebrid availability update completed")
 
-    def __process_series_files(self, details, media, torrent_item, files):
+    def __process_series_files(self, details, media, torrent_item, files, debrid: str = "??"):
         for variants in details["rd"]:
             file_found = False
             for file_index, file in variants.items():
@@ -145,7 +146,7 @@ class TorrentSmartContainer:
                     torrent_item.file_index = file_index
                     torrent_item.file_name = file["filename"]
                     torrent_item.size = file["filesize"]
-                    torrent_item.availability = True
+                    torrent_item.availability = debrid
                     file_found = True
                     files.append({
                         "file_index": file_index,
@@ -168,6 +169,9 @@ class TorrentSmartContainer:
 
     def __update_availability_alldebrid(self, response, media):
         self.logger.info("Updating availability for AllDebrid")
+        if response == {}:
+            self.logger.error("AllDebrid response is empty")
+            return
         if response["status"] != "success":
             self.logger.error(f"AllDebrid API error: {response}")
             return
@@ -177,8 +181,8 @@ class TorrentSmartContainer:
                 continue
             torrent_item: TorrentItem = self.__itemsDict[data["hash"]]
             files = []
-            self.__explore_folders(data["files"], files, 1, torrent_item.type, media.season, media.episode)
-            self.__update_file_details(torrent_item, files)
+            self.__explore_folders(data["files"], files, 1, torrent_item.type, media)
+            self.__update_file_details(torrent_item, files, debrid="AD")
         self.logger.info("AllDebrid availability update completed")
 
     def __update_availability_premiumize(self, response):
@@ -193,12 +197,12 @@ class TorrentSmartContainer:
                 self.logger.debug(f"Updated availability for item {i}: {torrent_items[i].availability}")
         self.logger.info("Premiumize availability update completed")
 
-    def __update_file_details(self, torrent_item, files):
+    def __update_file_details(self, torrent_item, files, debrid: str = "??"):
         if not files:
             self.logger.debug(f"No files to update for {torrent_item.raw_title}")
             return
         file = max(files, key=lambda file: file["size"])
-        torrent_item.availability = True
+        torrent_item.availability = debrid
         torrent_item.file_index = file["file_index"]
         torrent_item.file_name = file["title"]
         torrent_item.size = file["size"]
@@ -217,17 +221,19 @@ class TorrentSmartContainer:
         self.logger.info(f"Built dictionary with {len(items_dict)} unique items")
         return items_dict
 
-    def __explore_folders(self, folder, files, file_index, type, season=None, episode=None):
-        if episode is None or season is None:
-            return file_index
+    def __explore_folders(self, folder, files, file_index, type, media):
         
         if type == "series":
             for file in folder:
                 if "e" in file:
-                    file_index = self.__explore_folders(file["e"], files, file_index, type, season, episode)
+                    file_index = self.__explore_folders(file["e"], files, file_index, type, media)
                     continue
                 parsed_file = parse(file["n"])
-                if season in parsed_file.seasons and episode in parsed_file.episodes:
+                clean_season = media.season.replace("S", "")
+                clean_episode = media.episode.replace("E", "")
+                numeric_season = int(clean_season)
+                numeric_episode = int(clean_episode)
+                if numeric_season in parsed_file.seasons and numeric_episode in parsed_file.episodes:
                     self.logger.debug(f"Matching series file found: {file['n']}")
                     files.append({
                         "file_index": file_index,
@@ -239,7 +245,7 @@ class TorrentSmartContainer:
             file_index = 1
             for file in folder:
                 if "e" in file:
-                    file_index = self.__explore_folders(file["e"], files, file_index, type)
+                    file_index = self.__explore_folders(file["e"], files, file_index, type, media)
                     continue
                 self.logger.debug(f"Adding movie file: {file['n']}")
                 files.append({

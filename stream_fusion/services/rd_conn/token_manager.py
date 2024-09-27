@@ -47,9 +47,9 @@ class RDTokenManager:
     BASE_URL = "https://api.real-debrid.com/oauth/v2"
 
     def __init__(self, config):
-        self.redis = redis.Redis(host=settings.redis_host, port=settings.redis_port)
+        self.redis = redis.Redis(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db)
         self.config = config
-        self.rd_config = self.config.get("debridKey", {})
+        self.rd_config = self.config.get("RDToken", {})
         if not self.rd_config:
             raise Exception("Real Debrid configuration not found")
 

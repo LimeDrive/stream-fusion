@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+from typing import Optional
 from RTN import parse
 
 from stream_fusion.logging_config import logger
@@ -40,3 +42,11 @@ def is_video_file(filename):
         return False
 
     return filename[extension_idx:] in video_formats
+
+
+# Utility functions for timestamp conversion
+def datetime_to_timestamp(dt: Optional[datetime]) -> Optional[int]:
+    return int(dt.timestamp()) if dt is not None else None
+
+def timestamp_to_datetime(ts: Optional[int]) -> Optional[datetime]:
+    return datetime.fromtimestamp(ts, tz=timezone.utc) if ts is not None else None

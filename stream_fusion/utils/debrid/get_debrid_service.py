@@ -1,19 +1,33 @@
 from fastapi.exceptions import HTTPException
 
 from stream_fusion.utils.debrid.alldebrid import AllDebrid
-from stream_fusion.utils.debrid.premiumize import Premiumize
 from stream_fusion.utils.debrid.realdebrid import RealDebrid
+from stream_fusion.logging_config import logger
+from stream_fusion.settings import settings
 
 
-def get_debrid_service(config):
-    service_name = config['service']
-    if service_name == "Real-Debrid":
-        debrid_service = RealDebrid(config)
-    elif service_name == "AllDebrid":
-        debrid_service = AllDebrid(config)
-    elif service_name == "Premiumize":
-        debrid_service = Premiumize(config)
-    else:
+def get_all_debrid_services(config):
+    services = config['service']
+    debrid_service = []
+    if "Real-Debrid" in services:
+        debrid_service.append(RealDebrid(config))
+        logger.debug("Real Debrid service added to be use")
+    if "AllDebrid" in services:
+        debrid_service.append(AllDebrid(config))
+        logger.debug("All Debrid service added to be use")
+    if not debrid_service:
         raise HTTPException(status_code=500, detail="Invalid service configuration.")
-
+    
     return debrid_service
+
+
+def get_debrid_service(config, service):
+    if not service:
+        service == settings.default_debrid_service
+    if service == "RD":
+        return RealDebrid(config)
+    elif service == "AD":
+        return AllDebrid(config)
+    else:
+        logger.error("Invalid service configuration return by stremio in the query.")
+        raise HTTPException(status_code=500, detail="Invalid service configuration return by stremio.")

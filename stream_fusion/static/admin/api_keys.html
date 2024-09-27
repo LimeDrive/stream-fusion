@@ -1,41 +1,224 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h1 class="mb-4">API Keys List</h1>
-<table class="table">
-    <thead>
-        <tr>
-            <th>API Key</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Expiration Date</th>
-            <th>Last Use</th>
-            <th>Total Requests</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for log in logs %}
-        <tr>
-            <td>{{ log.api_key }}</td>
-            <td>{{ log.name or 'N/A' }}</td>
-            <td>{{ 'Active' if log.is_active else 'Inactive' }}</td>
-            <td>{{ 'Never' if log.never_expire else log.expiration_date }}</td>
-            <td>{{ log.latest_query_date or 'N/A' }}</td>
-            <td>{{ log.total_queries }}</td>
-            <td>
-                {% if log.is_active %}
-                <form action="{{ url_for('revoke_api_key')(request) }}" method="post">
-                    <input type="hidden" name="api_key" value="{{ log.api_key }}">
-                    <button type="submit" class="btn btn-danger btn-sm">Revoke</button>
-                </form>
-                {% else %}
-                <button class="btn btn-secondary btn-sm" disabled>Revoked</button>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+
+<style>
+  .api-key-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+  }
+  .api-key-table th, .api-key-table td {
+    padding: 12px;
+    text-align: left;
+  }
+  .api-key-table th {
+    background-color: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+  }
+  .api-key-table tr {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .api-key-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  .api-key-cell {
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #ff79c6;
+  }
+  .action-buttons {
+    display: flex;
+    gap: 5px;
+  }
+  .btn {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-secondary {
+    background-color: #2f6746;
+    color: #f8f8f2;
+  }
+  .btn-warning {
+    background-color: #ffb86c;
+    color: #282a36;
+  }
+  .btn-danger {
+    background-color: #ff5555;
+    color: #f8f8f2;
+  }
+  .btn-primary {
+    background-color: #697ec0;
+    color: #35363d;
+  }
+  .sort-icon::after {
+    content: '\25B2';
+    margin-left: 5px;
+    display: inline-block;
+  }
+  .sort-icon.desc::after {
+    content: '\25BC';
+  }
+  .action-buttons form {
+    display: inline;
+  }
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .btn-create-key {
+    background-color: #4CAF50;  /* Vert */
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .btn-create-key:hover {
+    background-color: #45a049;  /* Vert un peu plus foncé au survol */
+  }
+</style>
+
+<div class="header-container">
+  <h1 id="api-keys-list" class="mb-0">StreamFusion Admin</h1>
+  <a href="{{ url_for('create_api_key_page')(request) }}" class="btn-create-key">Create a new key</a>
+</div>
+
+<table class="api-key-table" id="apiKeyTable">
+  <thead>
+    <tr>
+      <th data-sort="apiKey">API Key <span class="sort-icon"></span></th>
+      <th data-sort="name">Name <span class="sort-icon"></span></th>
+      <th data-sort="status">Status <span class="sort-icon"></span></th>
+      <th data-sort="expiration">Expiration Date <span class="sort-icon"></span></th>
+      <th data-sort="lastUse">Last Use <span class="sort-icon"></span></th>
+      <th data-sort="totalUse">Total Use <span class="sort-icon"></span></th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td class="api-key-cell">
+        <code>{{ log.api_key }}</code>
+        <button class="btn btn-primary copy-btn">Copy</button>
+      </td>
+      <td>{{ log.name or 'N/A' }}</td>
+      <td>{{ 'Active' if log.is_active else 'Inactive' }}</td>
+      <td>{{ 'Never' if log.never_expire else log.expiration_date }}</td>
+      <td>{{ log.latest_query_date or 'N/A' }}</td>
+      <td>{{ log.total_queries }}</td>
+      <td>
+        <div class="action-buttons">
+          {% if log.is_active %}
+          <form action="{{ url_for('revoke_api_key')(request) }}" method="post" class="d-inline">
+            <input type="hidden" name="api_key" value="{{ log.api_key }}">
+            <button type="submit" class="btn btn-warning btn-sm">Revoke</button>
+          </form>
+          {% else %}
+          <form action="{{ url_for('renew_api_key')(request) }}" method="post" class="d-inline">
+            <input type="hidden" name="api_key" value="{{ log.api_key }}">
+            <button type="submit" class="btn btn-secondary btn-sm">Renew</button>
+          </form>
+          {% endif %}
+          <form action="{{ url_for('delete_api_key')(request) }}" method="post" class="d-inline">
+            <input type="hidden" name="api_key" value="{{ log.api_key }}">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this API key?')">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
-<a href="{{ url_for('create_api_key')(request) }}" class="btn btn-primary">Create a new key</a>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('apiKeyTable');
+    const headers = table.querySelectorAll('th');
+    let currentSort = { column: null, direction: 'asc' };
+
+    headers.forEach(header => {
+      header.addEventListener('click', () => {
+        const column = header.dataset.sort;
+        if (column) {
+          const direction = currentSort.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc';
+          sortTable(column, direction);
+          updateSortIcons(header, direction);
+          currentSort = { column, direction };
+        }
+      });
+    });
+
+    function sortTable(column, direction) {
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      
+      const sortedRows = rows.sort((a, b) => {
+        const aValue = a.querySelector(`td:nth-child(${getColumnIndex(column)})`).textContent.trim();
+        const bValue = b.querySelector(`td:nth-child(${getColumnIndex(column)})`).textContent.trim();
+        
+        if (column === 'totalUse') {
+          return direction === 'asc' ? 
+            parseInt(aValue) - parseInt(bValue) : 
+            parseInt(bValue) - parseInt(aValue);
+        } else {
+          return direction === 'asc' ? 
+            aValue.localeCompare(bValue) : 
+            bValue.localeCompare(aValue);
+        }
+      });
+
+      while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+      }
+
+      tbody.append(...sortedRows);
+    }
+
+    function updateSortIcons(clickedHeader, direction) {
+      headers.forEach(header => {
+        const icon = header.querySelector('.sort-icon');
+        if (icon) {
+          icon.className = 'sort-icon';
+        }
+      });
+      const clickedIcon = clickedHeader.querySelector('.sort-icon');
+      if (clickedIcon) {
+        clickedIcon.classList.add(direction);
+      }
+    }
+
+    function getColumnIndex(column) {
+      const columnMap = {
+        'apiKey': 1,
+        'name': 2,
+        'status': 3,
+        'expiration': 4,
+        'lastUse': 5,
+        'totalUse': 6
+      };
+      return columnMap[column];
+    }
+
+    // Implement copy functionality
+    table.addEventListener('click', (e) => {
+      if (e.target.classList.contains('copy-btn')) {
+        const apiKey = e.target.parentElement.querySelector('code').textContent;
+        navigator.clipboard.writeText(apiKey).then(() => {
+          alert('API Key copied to clipboard!');
+        });
+      }
+    });
+
+  });
+</script>
+
 {% endblock %}

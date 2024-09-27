@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    environment:
+      RELOAD: True
+      SECRET_API_KEY: 'superkey_that_can_be_changed'
+      TMDB_API_KEY: <REDACTED>
+      ZILEAN_SCHEMA: 'https'
+      ZILEAN_PORT: 443
+      ZILEAN_HOST: <REDACTED>
+      PG_HOST: postgresql-dev
+      REDIS_HOST: redis-dev
+      LOG_LEVEL: DEBUG
+      LOG_REDACTED: False
+    depends_on:
+      - postgresql-dev
+      - redis-dev
+
+  postgresql-dev:
+    image: postgres:16.3-alpine3.20
+    container_name: postgresql-dev
+    restart: unless-stopped
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: streamfusion
+      POSTGRES_PASSWORD: streamfusion
+      POSTGRES_DB: streamfusion
+    expose:
+      - 5432
+    volumes:
+      - postgres_dev:/var/lib/postgresql/data/pgdata
+
+  redis-dev:
+    image: redis:latest
+    container_name: redis-dev
+    expose:
+      - 6379
+    volumes:
+      - redis_dev:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: adminpassword
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgresql-dev
+
+volumes:
+  postgres_dev:
+  redis_dev:
+  pgadmin_data:

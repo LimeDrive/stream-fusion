@@ -2,11 +2,13 @@ import hashlib
 import time
 from fastapi import APIRouter, Depends, HTTPException, Request
 
+from stream_fusion.services.postgresql.dao.apikey_dao import APIKeyDAO
+from stream_fusion.services.postgresql.dao.torrentitem_dao import TorrentItemDAO
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
 from stream_fusion.utils.cache.cache import search_public
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
-from stream_fusion.utils.debrid.get_debrid_service import get_debrid_service
+from stream_fusion.utils.debrid.get_debrid_service import get_all_debrid_services
 from stream_fusion.utils.filter_results import (
     filter_items,
     merge_items,
@@ -15,7 +17,6 @@ from stream_fusion.utils.filter_results import (
 from stream_fusion.utils.jackett.jackett_result import JackettResult
 from stream_fusion.utils.jackett.jackett_service import JackettService
 from stream_fusion.utils.sharewood.sharewood_service import SharewoodService
-from stream_fusion.utils.yggfilx.yggflix_result import YggflixResult
 from stream_fusion.utils.yggfilx.yggflix_service import YggflixService
 from stream_fusion.utils.metdata.cinemeta import Cinemeta
 from stream_fusion.utils.metdata.tmdb import TMDB
@@ -43,16 +44,17 @@ async def get_results(
     stream_id: str,
     request: Request,
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
+    apikey_dao: APIKeyDAO = Depends(),
+    torrent_dao: TorrentItemDAO = Depends()
 ) -> SearchResponse:
     start = time.time()
     logger.info(f"Stream request: {stream_type} - {stream_id}")
 
     stream_id = stream_id.replace(".json", "")
     config = parse_config(config)
-    logger.debug(f"Parsed configuration: {config}")
     api_key = config.get("apiKey")
     if api_key:
-        await check_api_key(api_key)
+        await check_api_key(api_key, apikey_dao)
     else:
         logger.warning("API key not found in config.")
         raise HTTPException(status_code=401, detail="API key not found in config.")
@@ -65,7 +67,7 @@ async def get_results(
             metadata_provider = Cinemeta(config)
         return metadata_provider.get_metadata(stream_id, stream_type)
 
-    media = redis_cache.get_or_set(
+    media = await redis_cache.get_or_set(
         get_metadata, stream_id, stream_type, config["metadataProvider"]
     )
     logger.info(f"Retrieved media metadata: {str(media.titles)}")
@@ -80,30 +82,16 @@ async def get_results(
         hashed_key = hashlib.sha256(key_string.encode("utf-8")).hexdigest()
         return hashed_key[:16]
 
-    cached_result = redis_cache.get(stream_cache_key(media))
+    cached_result = await redis_cache.get(stream_cache_key(media))
     if cached_result is not None:
         logger.info("Returning cached processed results")
         total_time = time.time() - start
         logger.info(f"Request completed in {total_time:.2f} seconds")
         return SearchResponse(streams=cached_result)
 
-    debrid_service = get_debrid_service(config)
-
-    # def filter_all_results(results, media):
-    #     if media.type == "series":
-    #         filtered = filter_out_non_matching_series(
-    #             results, media.season, media.episode
-    #         )
-    #         logger.info(
-    #             f"Filtered series results: {len(filtered)} (from {len(results)})"
-    #         )
-    #         return filtered
-    #     else:
-    #         filtered = filter_out_non_matching_movies(results, media.year)
-    #         logger.info(
-    #             f"Filtered movie results: {len(filtered)} (from {len(results)})"
-    #         )
-    #     return results
+    debrid_services = get_all_debrid_services(config)
+    logger.info(f"Found {len(debrid_services)} debrid services")
+    logger.info(f"Debrid services: {[debrid.__class__.__name__ for debrid in debrid_services]}")
     
     def media_cache_key(media):
         if isinstance(media, Movie):
@@ -115,11 +103,11 @@ async def get_results(
         hashed_key = hashlib.sha256(key_string.encode("utf-8")).hexdigest()
         return hashed_key[:16]
 
-    def get_search_results(media, config):
+    async def get_search_results(media, config):
         search_results = []
-        torrent_service = TorrentService(config)
+        torrent_service = TorrentService(config, torrent_dao)
 
-        def perform_search(update_cache=False):
+        async def perform_search(update_cache=False):
             nonlocal search_results
             search_results = []
 
@@ -137,7 +125,7 @@ async def get_results(
                     public_cached_results = filter_items(
                         public_cached_results, media, config=config
                     )
-                    public_cached_results = torrent_service.convert_and_process(
+                    public_cached_results = await torrent_service.convert_and_process(
                         public_cached_results
                     )
                     search_results.extend(public_cached_results)
@@ -159,7 +147,7 @@ async def get_results(
                     zilean_search_results = filter_items(
                         zilean_search_results, media, config=config
                     )
-                    zilean_search_results = torrent_service.convert_and_process(
+                    zilean_search_results = await torrent_service.convert_and_process(
                         zilean_search_results
                     )
                     logger.debug(f"Zilean final search results: {len(zilean_search_results)}")
@@ -177,7 +165,7 @@ async def get_results(
                     yggflix_search_results = filter_items(
                         yggflix_search_results, media, config=config
                     )
-                    yggflix_search_results = torrent_service.convert_and_process(
+                    yggflix_search_results = await torrent_service.convert_and_process(
                         yggflix_search_results
                     )
                     search_results = merge_items(search_results, yggflix_search_results)
@@ -194,7 +182,7 @@ async def get_results(
                     sharewood_search_results = filter_items(
                         sharewood_search_results, media, config=config
                     )
-                    sharewood_search_results = torrent_service.convert_and_process(
+                    sharewood_search_results = await torrent_service.convert_and_process(
                         sharewood_search_results
                     )
                     search_results = merge_items(search_results, sharewood_search_results)
@@ -212,7 +200,7 @@ async def get_results(
                     f"Filtered Jackett results: {len(filtered_jackett_search_results)}"
                 )
                 if filtered_jackett_search_results:
-                    torrent_results = torrent_service.convert_and_process(
+                    torrent_results = await torrent_service.convert_and_process(
                         filtered_jackett_search_results
                     )
                     logger.debug(
@@ -225,23 +213,23 @@ async def get_results(
                 try:
                     cache_key = media_cache_key(media)
                     search_results_dict = [item.to_dict() for item in search_results]
-                    redis_cache.set(cache_key, search_results_dict)
+                    await redis_cache.set(cache_key, search_results_dict)
                 except Exception as e:
                     logger.error(f"Error updating cache: {e}")
 
-        perform_search()
+        await perform_search()
         return search_results
 
-    def get_and_filter_results(media, config):
+    async def get_and_filter_results(media, config):
         min_results = int(config.get("minCachedResults", 5))
         cache_key = media_cache_key(media)
 
-        unfiltered_results = redis_cache.get(cache_key)
+        unfiltered_results = await redis_cache.get(cache_key)
         if unfiltered_results is None:
             logger.info("No results in cache. Performing new search.")
-            nocache_results = get_search_results(media, config)
+            nocache_results = await get_search_results(media, config)
             nocache_results_dict = [item.to_dict() for item in nocache_results]
-            redis_cache.set(cache_key, nocache_results_dict)
+            await redis_cache.set(cache_key, nocache_results_dict)
             return nocache_results
         else:
             logger.info(f"Results retrieved from redis cache - {len(unfiltered_results)}.")
@@ -253,28 +241,29 @@ async def get_results(
             logger.info(
                 f"Insufficient filtered results ({len(filtered_results)}). Performing new search."
             )
-            redis_cache.delete(cache_key)
-            unfiltered_results = get_search_results(media, config)
+            await redis_cache.delete(cache_key)
+            unfiltered_results = await get_search_results(media, config)
             unfiltered_results_dict = [item.to_dict() for item in unfiltered_results]
-            redis_cache.set(cache_key, unfiltered_results_dict)
+            await redis_cache.set(cache_key, unfiltered_results_dict)
             filtered_results = filter_items(unfiltered_results, media, config=config)
 
         logger.info(f"Final number of filtered results: {len(filtered_results)}")
         return filtered_results
 
-    search_results = get_and_filter_results(media, config)
+    search_results = await get_and_filter_results(media, config)
 
     def stream_processing(search_results, media, config):
         torrent_smart_container = TorrentSmartContainer(search_results, media)
 
         if config["debrid"]:
-            hashes = torrent_smart_container.get_hashes()
-            ip = request.client.host
-            result = debrid_service.get_availability_bulk(hashes, ip)
-            torrent_smart_container.update_availability(
-                result, type(debrid_service), media
-            )
-            logger.info(f"Checked availability for {len(result.items())} items")
+            for debrid in debrid_services:
+                hashes = torrent_smart_container.get_unaviable_hashes()
+                ip = request.client.host
+                result = debrid.get_availability_bulk(hashes, ip)
+                torrent_smart_container.update_availability(
+                    result, type(debrid), media
+                )
+                logger.info(f"Checked availability for {len(result.items())} items")
 
         if config["cache"]:
             logger.debug("Caching public container items")
@@ -291,7 +280,7 @@ async def get_results(
 
     stream_list = stream_processing(search_results, media, config)
     streams = [Stream(**stream) for stream in stream_list]
-    redis_cache.set(
+    await redis_cache.set(
         stream_cache_key(media), streams, expiration=3600
     )  # Make the cache expire after 1 hour TODO: Make this configurable
     total_time = time.time() - start

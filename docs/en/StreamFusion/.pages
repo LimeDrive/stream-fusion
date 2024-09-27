@@ -1,0 +1,10 @@
+title: StreamFusion
+nav:
+  - Description: streamfusion.md
+  - Prerequisites: prerequis.md
+  - Installation:
+    - Docker-compose: docker_install.md
+  - Reverse Proxy:
+    - Nginx Proxy Manager: proxy_npm.md
+  - Post-Installation: post_install.md
+  - Advanced: config_advanced.md

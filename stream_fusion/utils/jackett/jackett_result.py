@@ -48,14 +48,15 @@ class JackettResult:
         parsed_result = parse(cached_item['title'])
 
         self.raw_title = cached_item['title']
-        self.indexer = "Cache Public"  # Cache doesn't return an indexer sadly (It stores it tho)
+        self.indexer = "Public - Cache"  # Cache doesn't return an indexer sadly (It stores it tho)
         self.magnet = cached_item['magnet']
         self.link = cached_item['magnet']
         self.languages = cached_item['language'].split(";") if cached_item['language'] is not None else []
-        self.seeders = cached_item['seeders']
-        self.size = cached_item['size']
+        self.seeders = int(cached_item['seeders'])
+        self.size = int(cached_item['size'])
         self.type = media.type
         self.from_cache = True
+        self.privacy = "public"
         self.parsed_data = parsed_result
 
         return self
