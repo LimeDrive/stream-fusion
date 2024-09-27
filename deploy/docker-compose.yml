@@ -6,7 +6,7 @@ networks:
 services:
 
   stream-fusion:
-    image: ghcr.io/limedrive/stream-fusion:v2-beta
+    image: ghcr.io/limedrive/stream-fusion:latest
     container_name: stream-fusion
     environment:
       SECRET_API_KEY: ${SECRET_API_KEY:?Please provide a secret API key in the environment}
