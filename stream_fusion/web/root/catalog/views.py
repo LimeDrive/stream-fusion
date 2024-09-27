@@ -7,6 +7,7 @@ from fastapi_simple_rate_limiter import rate_limiter
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi_simple_rate_limiter.database import create_redis_session
 
+from stream_fusion.services.postgresql.dao.apikey_dao import APIKeyDAO
 from stream_fusion.settings import settings
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.security.security_api_key import check_api_key
@@ -23,7 +24,7 @@ from stream_fusion.logging_config import logger
 
 router = APIRouter()
 
-redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port)
+redis_session = create_redis_session(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db)
 
 tmdb = TMDb()
 tmdb.api_key = settings.tmdb_api_key
@@ -47,14 +48,14 @@ async def get_tv_season_details(tmdb_id, season_number):
     return await asyncio.to_thread(season.details, tmdb_id, season_number)
 
 
-async def validate_config_and_api_key(config: str):
+async def validate_config_and_api_key(config: str, apikey_dao: APIKeyDAO):
     config = parse_config(config)
     logger.debug(f"Parsed configuration: {config}")
     api_key = config.get("apiKey")
     if not api_key:
         logger.warning("API key not found in config.")
         raise HTTPException(status_code=401, detail="API key not found in config.")
-    await check_api_key(api_key)
+    await check_api_key(api_key, apikey_dao)
     return api_key
 
 
@@ -160,9 +161,10 @@ async def get_catalog(
     request: Request,
     skip: int = 0,
     redis_client: Redis = Depends(get_redis),
+    apikey_dao: APIKeyDAO = Depends()
 ):
     try:
-        api_key = await validate_config_and_api_key(config)
+        api_key = await validate_config_and_api_key(config, apikey_dao)
         logger.debug(
             f"Received catalog request from api_key: {api_key}, type: {type}, id: {id}"
         )
@@ -259,9 +261,10 @@ async def get_meta(
     id: str,
     request: Request,
     redis_client: Redis = Depends(get_redis),
+    apikey_dao: APIKeyDAO = Depends()
 ):
     try:
-        api_key = await validate_config_and_api_key(config)
+        api_key = await validate_config_and_api_key(config, apikey_dao)
         logger.debug(
             f"Received meta request from api_key: {api_key}, type: {type}, id: {id}"
         )

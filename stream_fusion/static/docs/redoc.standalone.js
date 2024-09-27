@@ -1666,7 +1666,6 @@
   flex-direction: column;
 
   backface-visibility: hidden;
-  /* contain: strict; TODO: breaks layout since Chrome 80*/
 
   height: 100vh;
   position: sticky;

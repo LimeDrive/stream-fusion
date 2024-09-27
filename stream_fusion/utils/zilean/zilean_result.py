@@ -50,7 +50,7 @@ class ZileanResult:
         parsed_result = parse(api_cached_item.raw_title)
 
         self.raw_title = parsed_result.raw_title
-        self.indexer = "DMM API"
+        self.indexer = "DMM - API"
         self.magnet = "magnet:?xt=urn:btih:" + self.info_hash
         self.link = self.magnet
         self.languages = detect_languages(self.raw_title)

@@ -1,5 +1,8 @@
 ### Python template
 
+docs/
+mkdocs.yml
+site/
 deploy/
 .idea/
 .vscode/
@@ -74,9 +77,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 .pybuilder/
 target/
@@ -148,3 +148,5 @@ cython_debug/
 
 # poetry
 poetry.toml
+
+example/

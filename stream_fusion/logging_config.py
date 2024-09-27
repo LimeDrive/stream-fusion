@@ -1,12 +1,12 @@
-# logging_config.py
 import os
-from loguru import logger
-from stream_fusion.settings import settings
 import sys
 import logging
 import inspect
-import re
+from typing import Union
 import stackprinter
+import re
+from loguru import logger
+from stream_fusion.settings import settings
 
 REDACTED = settings.log_redacted
 patterns = [
@@ -25,34 +25,41 @@ class SecretFilter:
 
     def redact(self, message):
         for pattern in self._patterns:
-            message = re.sub(pattern, "**<REDACTED>**", message)
+            message = re.sub(pattern, "<REDACTED>", message)
         return message
 
-
-def format(record):
-    format_ = "{time} {level} {function} {message}\n"
-    pats = [
-        r"/ey.*?/",
-    ]
+def format_console(record):
+    format_ = "<level>{level: <8}</level> | <cyan>{function}</cyan>:<cyan>{line}</cyan> - {message}\n"
     if record["exception"] is not None:
         stack = stackprinter.format(
             record["exception"],
-            suppressed_vars=[
-                r".*ygg_playload.*",
-            ],
+            suppressed_vars=[r".*ygg_playload.*"],
         )
         if REDACTED:
-            for pat in pats:
-                stack = re.sub(pat, "/**<REDACTED>**/", stack)
+            for pat in patterns:
+                stack = re.sub(pat, "/<REDACTED>/", stack)
+        record["extra"]["stack"] = stack
+        format_ += "\n{extra[stack]}"
+    return format_
+
+def format_file(record):
+    format_ = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{function}</cyan>:<cyan>{line}</cyan> - {message}\n"
+    if record["exception"] is not None:
+        stack = stackprinter.format(
+            record["exception"],
+            suppressed_vars=[r".*ygg_playload.*"],
+        )
+        if REDACTED:
+            for pat in patterns:
+                stack = re.sub(pat, "/<REDACTED>/", stack)
         record["extra"]["stack"] = stack
         format_ += "{extra[stack]}\n"
     return format_
 
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
-        level: str | int
         try:
-            level = logger.level(record.levelname).name
+            level: Union[str, int] = logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
 
@@ -65,42 +72,26 @@ class InterceptHandler(logging.Handler):
             level, record.getMessage()
         )
 
-def is_running_under_gunicorn():
-    return "gunicorn" in sys.modules
+def configure_logging() -> None:
+    logger.remove()  # Remove default handler
 
-def configure_logging():
-
-    intercept_handler = InterceptHandler()
-
-    logging.basicConfig(handlers=[intercept_handler], level=logging.NOTSET)
-
-    if is_running_under_gunicorn():
-        # Configuration spécifique pour Gunicorn
-        gunicorn_logger = logging.getLogger('gunicorn.error')
-        logger.remove()
-        logger.add(gunicorn_logger.handlers[0], format=format, level=gunicorn_logger.level)
-
-    for logger_name in logging.root.manager.loggerDict:
-        if logger_name.startswith("uvicorn."):
-            logging.getLogger(logger_name).handlers = []
-
-    # change handler for default uvicorn logger
-    logging.getLogger("uvicorn").handlers = [intercept_handler]
-    logging.getLogger("uvicorn.access").handlers = [intercept_handler]
-
-    logger.remove()
+    log_level = settings.log_level.value
 
     logger.add(
         sys.stdout,
-        format=format,
-        level=settings.log_level.value,
+        format=format_console,
+        level=log_level,
         colorize=True,
+        backtrace=True,
+        diagnose=True,
         filter=SecretFilter(patterns) if REDACTED else None,
+        enqueue=True
     )
 
+    # File logging
     logger.add(
         f"/app/config/logs/api_worker_{os.getpid()}.log",
-        format=format,
+        format=format_file,
         level="DEBUG",
         rotation="2 MB",
         retention="5 days",
@@ -108,3 +99,15 @@ def configure_logging():
         enqueue=True,
         filter=SecretFilter(patterns) if REDACTED else None,
     )
+
+    # Intercept standard library logging
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+
+    # Disable uvicorn access logs
+    for logger_name in logging.root.manager.loggerDict:
+        if logger_name.startswith("uvicorn."):
+            logging.getLogger(logger_name).handlers = []
+
+    # Explicitly handle uvicorn loggers
+    for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+        logging.getLogger(logger_name).handlers = [InterceptHandler()]

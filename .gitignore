@@ -6,6 +6,7 @@ example/
 __pycache__/
 *.py[cod]
 *$py.class
+config/
 
 # C extensions
 *.so
@@ -147,3 +148,9 @@ cython_debug/
 
 # apple
 .DS_Store
+
+#devcontainer
+.devcontainer/
+docker-compose-dev.yml
+# Dev materials
+.materials/

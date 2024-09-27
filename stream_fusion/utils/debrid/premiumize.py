@@ -15,17 +15,17 @@ class Premiumize(BaseDebrid):
     def add_magnet(self, magnet, ip=None):
         url = f"{self.base_url}/transfer/create?apikey={self.config['debridKey']}"
         form = {'src': magnet}
-        return self.get_json_response(url, method='post', data=form)
+        return self.json_response(url, method='post', data=form)
 
     # Doesn't work for the time being. Premiumize does not support torrent file torrents
     def add_torrent(self, torrent_file):
         url = f"{self.base_url}/transfer/create?apikey={self.config['debridKey']}"
         form = {'file': torrent_file}
-        return self.get_json_response(url, method='post', data=form)
+        return self.json_response(url, method='post', data=form)
 
     def list_transfers(self):
         url = f"{self.base_url}/transfer/list?apikey={self.config['debridKey']}"
-        return self.get_json_response(url)
+        return self.json_response(url)
 
     def get_folder_or_file_details(self, item_id, is_folder=True):
         if is_folder:
@@ -34,16 +34,16 @@ class Premiumize(BaseDebrid):
         else:
             logger.info(f"Getting file details with id: {item_id}")
             url = f"{self.base_url}/item/details?id={item_id}&apikey={self.config['debridKey']}"
-        return self.get_json_response(url)
+        return self.json_response(url)
 
     def get_availability(self, hash):
         url = f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]={hash}"
-        return self.get_json_response(url)
+        return self.json_response(url)
 
     def get_availability_bulk(self, hashes_or_magnets, ip=None):
         url = f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]=" + "&items[]=".join(
             hashes_or_magnets)
-        return self.get_json_response(url)
+        return self.json_response(url)
 
     def get_stream_link(self, query, config, ip=None):
         query = json.loads(query)

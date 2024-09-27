@@ -1,0 +1,5 @@
+title: How-To
+nav:
+  - How-To:
+    - secure_vps.md
+    - apikey_alldebrid.md

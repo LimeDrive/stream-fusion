@@ -17,7 +17,10 @@ class SharewoodService:
 
     def __init__(self, config: dict):
         self.sharewood_url = settings.sharewood_url
-        self.sharewood_passkey = config.get("sharewoodPasskey")
+        if settings.sharewood_unique_account and settings.sharewood_passkey:
+            self.sharewood_passkey = settings.sharewood_passkey
+        else:
+            self.sharewood_passkey = config.get("sharewoodPasskey")
         self.sharewood = SharewoodAPI(self.sharewood_passkey)
 
     def search(self, media: Union[Movie, Series]) -> List[SharewoodResult]:
@@ -216,7 +219,7 @@ class SharewoodService:
                 else None
             )
             item.magnet = self.__generate_magnet_link(item.info_hash, item.raw_title)
-            item.indexer = "API - Sharewood"
+            item.indexer = "Sharewood - API"
             item.seeders = result.get("seeders", 0)
             item.privacy = "private"
             item.languages = detect_languages(item.raw_title, default_language="fr")

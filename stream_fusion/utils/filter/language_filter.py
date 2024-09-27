@@ -19,13 +19,13 @@ class LanguageFilter(BaseFilter):
 
             languages = torrent.languages.copy()
 
-            if torrent.indexer == "DMM API" and "multi" in languages:
+            if torrent.indexer == "DMM - API" and "multi" in languages:
                 regex = self.fr_regex.search(torrent.raw_title)
                 logger.debug(f"Regex match for {torrent.raw_title} : {regex}")
                 if not regex:
                     languages.remove("multi")
             
-            if torrent.indexer == "DMM API" and "fr" in languages:
+            if torrent.indexer == "DMM - API" and "fr" in languages:
                 regex = self.fr_regex.search(torrent.raw_title)
                 logger.debug(f"Regex match for {torrent.raw_title} : {regex}")
                 if not regex:

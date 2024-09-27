@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +22,7 @@
 </head>
 <body>
     <div class="theme-switch form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="themeSwitch">
+        <input class="form-check-input" type="checkbox" id="themeSwitch" checked>
         <label class="form-check-label" for="themeSwitch">Dark Mode</label>
     </div>
     <div class="container mt-5">
@@ -40,13 +40,10 @@
                 localStorage.setItem('theme', 'light');
             }
         });
-
-        // Check for saved theme preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-bs-theme', savedTheme);
-            themeSwitch.checked = savedTheme === 'dark';
-        }
+    
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        themeSwitch.checked = savedTheme === 'dark';
     </script>
 </body>
 </html>

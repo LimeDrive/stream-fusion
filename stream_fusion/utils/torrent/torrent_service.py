@@ -1,7 +1,5 @@
 import hashlib
 import os
-import queue
-import threading
 import time
 import urllib.parse
 from typing import List
@@ -10,31 +8,54 @@ import bencode
 import requests
 from RTN import parse
 
+from stream_fusion.services.postgresql.dao.torrentitem_dao import TorrentItemDAO
 from stream_fusion.utils.jackett.jackett_result import JackettResult
 from stream_fusion.utils.sharewood.sharewood_result import SharewoodResult
 from stream_fusion.utils.zilean.zilean_result import ZileanResult
 from stream_fusion.utils.yggfilx.yggflix_result import YggflixResult
-from stream_fusion.services.ygg_conn import YggSessionManager
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.utils.general import get_info_hash_from_magnet
 from stream_fusion.logging_config import logger
 from stream_fusion.settings import settings
 
 class TorrentService:
-    def __init__(self, config):
+    def __init__(self, config, torrent_dao: TorrentItemDAO):
         self.config = config
+        self.torrent_dao = torrent_dao
         self.logger = logger
         self.__session = requests.Session()
-        # if self.config["yggflix"]:
-        #     self.__ygg_session_manager = YggSessionManager(config)
-        #     self.__ygg_session = self.__ygg_session_manager.get_session()
 
-    def convert_and_process(self, results: List[JackettResult | ZileanResult | YggflixResult | SharewoodResult]):
-        threads = []
-        torrent_items_queue = queue.Queue()
+    @staticmethod
+    def __generate_unique_id(raw_title: str, indexer: str = "cached") -> str:
+        unique_string = f"{raw_title}_{indexer}"
+        full_hash = hashlib.sha256(unique_string.encode()).hexdigest()
+        return full_hash[:16]
 
-        def thread_target(result: JackettResult | ZileanResult | YggflixResult | SharewoodResult):
+    async def get_cached_torrent(self, raw_title: str, indexer: str) -> TorrentItem | None:
+        unique_id = self.__generate_unique_id(raw_title, indexer)
+        try:
+            cached_item = await self.torrent_dao.get_torrent_item_by_id(unique_id)
+            if cached_item:
+                return cached_item.to_torrent_item()
+            return None
+        except Exception as e:
+            self.logger.error(f"Error getting cached torrent: {e}")
+            return None
+
+    async def cache_torrent(self, torrent_item: TorrentItem, id: str = None):
+        unique_id = self.__generate_unique_id(torrent_item.raw_title, torrent_item.indexer)
+        await self.torrent_dao.create_torrent_item(torrent_item, unique_id)
+
+    async def convert_and_process(self, results: List[JackettResult | ZileanResult | YggflixResult | SharewoodResult]):
+        torrent_items_result = []
+
+        for result in results:
             torrent_item = result.convert_to_torrent_item()
+
+            cached_item = await self.get_cached_torrent(torrent_item.raw_title, torrent_item.indexer)
+            if cached_item:
+                torrent_items_result.append(cached_item)
+                continue
 
             if torrent_item.link.startswith("magnet:"):
                 processed_torrent_item = self.__process_magnet(torrent_item)
@@ -45,43 +66,11 @@ class TorrentService:
             else:
                 processed_torrent_item = self.__process_web_url(torrent_item)
 
-            torrent_items_queue.put(processed_torrent_item)
-
-        for result in results:
-            threads.append(threading.Thread(target=thread_target, args=(result,)))
-
-        for thread in threads:
-            thread.start()
-
-        for thread in threads:
-            thread.join()
-
-        torrent_items_result = []
-
-        while not torrent_items_queue.empty():
-            torrent_items_result.append(torrent_items_queue.get())
+            await self.cache_torrent(processed_torrent_item)
+            torrent_items_result.append(processed_torrent_item)
 
         return torrent_items_result
-    
-    def __process_ygg_web_url(self, result: TorrentItem):
-        if not self.config["yggflix"]:
-            logger.error("Yggflix is not enabled in the config. Skipping processing of Yggflix URL.")
-        try:
-            response = self.__ygg_session.get(result.link, allow_redirects=False, timeout=40)
-        except requests.exceptions.RequestException:
-            self.logger.error(f"Error while processing url: {result.link}")
-            return result
-        except requests.exceptions.ReadTimeout:
-            self.logger.error(f"Timeout while processing url: {result.link}")
-            return result
         
-        if response.status_code == 200:
-            return self.__process_torrent(result, response.content)
-        else:
-            self.logger.error(f"Error code {response.status_code} while processing ygg url: {result.link}")
-
-        return result
-    
     def __process_sharewood_web_url(self, result: TorrentItem):
         if not self.config["sharewood"]:
             logger.error("Sharewood is not enabled in the config. Skipping processing of Sharewood URL.")
