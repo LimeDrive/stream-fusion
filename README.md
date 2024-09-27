@@ -27,7 +27,7 @@ StreamFusion vise à offrir une expérience de streaming fluide et complète, pa
 
 ## Installation et configuration
 
-Pour installer StreamFusion, veuillez suivre les instructions détaillées dans notre [guide d'installation](https://limedrive.github.io/streamfusion/).
+Pour installer StreamFusion, veuillez suivre les instructions détaillées dans notre [guide d'installation](https://limedrive.github.io/stream-fusion/StreamFusion/streamfusion/).
 
 ### Conseils d'utilisation
 
