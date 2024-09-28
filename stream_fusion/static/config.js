@@ -276,40 +276,51 @@ function loadData() {
       try {
         const decodedData = JSON.parse(atob(data[1]));
         
-        document.getElementById('jackett')?.checked = decodedData.jackett ?? false;
-        document.getElementById('cache')?.checked = decodedData.cache ?? false;
-        document.getElementById('cacheUrl')?.value = decodedData.cacheUrl || '';
-        document.getElementById('zilean')?.checked = decodedData.zilean ?? false;
-        document.getElementById('yggflix')?.checked = decodedData.yggflix ?? false;
-        document.getElementById('sharewood')?.checked = decodedData.sharewood ?? false;
-        document.getElementById('rd_token_info')?.value = decodedData.RDToken || '';
-        document.getElementById('ad_token_info')?.value = decodedData.ADToken || '';
-        document.getElementById('sharewoodPasskey')?.value = decodedData.sharewoodPasskey || '';
-        document.getElementById('yggPasskey')?.value = decodedData.yggPasskey || '';
-        document.getElementById('ApiKey')?.value = decodedData.apiKey || '';
-        document.getElementById('exclusion-keywords')?.value = (decodedData.exclusionKeywords || []).join(', ');
-        document.getElementById('maxSize')?.value = decodedData.maxSize || '';
-        document.getElementById('resultsPerQuality')?.value = decodedData.resultsPerQuality || '';
-        document.getElementById('maxResults')?.value = decodedData.maxResults || '';
-        document.getElementById('minCachedResults')?.value = decodedData.minCachedResults || '';
-        document.getElementById('torrenting')?.checked = decodedData.torrenting ?? false;
-        document.getElementById('ctg_yggtorrent')?.checked = decodedData.yggtorrentCtg ?? false;
-        document.getElementById('ctg_yggflix')?.checked = decodedData.yggflixCtg ?? false;
-        document.getElementById('tmdb')?.checked = decodedData.metadataProvider === 'tmdb';
-        document.getElementById('cinemeta')?.checked = decodedData.metadataProvider === 'cinemeta';
-        document.getElementById('debrid_rd')?.checked = decodedData.service?.includes('Real-Debrid') ?? false;
-        document.getElementById('debrid_ad')?.checked = decodedData.service?.includes('AllDebrid') ?? false;
+        function setElementValue(id, value) {
+          const element = document.getElementById(id);
+          if (element) {
+            if (typeof value === 'boolean') {
+              element.checked = value;
+            } else {
+              element.value = value;
+            }
+          }
+        }
+  
+        setElementValue('jackett', decodedData.jackett ?? false);
+        setElementValue('cache', decodedData.cache ?? false);
+        setElementValue('cacheUrl', decodedData.cacheUrl || '');
+        setElementValue('zilean', decodedData.zilean ?? false);
+        setElementValue('yggflix', decodedData.yggflix ?? false);
+        setElementValue('sharewood', decodedData.sharewood ?? false);
+        setElementValue('rd_token_info', decodedData.RDToken || '');
+        setElementValue('ad_token_info', decodedData.ADToken || '');
+        setElementValue('sharewoodPasskey', decodedData.sharewoodPasskey || '');
+        setElementValue('yggPasskey', decodedData.yggPasskey || '');
+        setElementValue('ApiKey', decodedData.apiKey || '');
+        setElementValue('exclusion-keywords', (decodedData.exclusionKeywords || []).join(', '));
+        setElementValue('maxSize', decodedData.maxSize || '');
+        setElementValue('resultsPerQuality', decodedData.resultsPerQuality || '');
+        setElementValue('maxResults', decodedData.maxResults || '');
+        setElementValue('minCachedResults', decodedData.minCachedResults || '');
+        setElementValue('torrenting', decodedData.torrenting ?? false);
+        setElementValue('ctg_yggtorrent', decodedData.yggtorrentCtg ?? false);
+        setElementValue('ctg_yggflix', decodedData.yggflixCtg ?? false);
+        setElementValue('tmdb', decodedData.metadataProvider === 'tmdb');
+        setElementValue('cinemeta', decodedData.metadataProvider === 'cinemeta');
+        setElementValue('debrid_rd', decodedData.service?.includes('Real-Debrid') ?? false);
+        setElementValue('debrid_ad', decodedData.service?.includes('AllDebrid') ?? false);
   
         sorts.forEach(sort => {
-          document.getElementById(sort)?.checked = decodedData.sort === sort;
+          setElementValue(sort, decodedData.sort === sort);
         });
   
         qualityExclusions.forEach(quality => {
-          document.getElementById(quality)?.checked = decodedData.exclusion?.includes(quality) ?? false;
+          setElementValue(quality, decodedData.exclusion?.includes(quality) ?? false);
         });
   
         languages.forEach(language => {
-          document.getElementById(language)?.checked = decodedData.languages?.includes(language) ?? false;
+          setElementValue(language, decodedData.languages?.includes(language) ?? false);
         });
   
         updateProviderFields();
@@ -318,7 +329,6 @@ function loadData() {
       }
     }
   }
-
 
 function getLink(method) {
     const data = {
