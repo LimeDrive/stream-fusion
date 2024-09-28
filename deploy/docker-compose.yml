@@ -118,7 +118,7 @@ services:
       - proxy_network
 
 volumes:
-  stremio_postgres:
+  stremio-postgres:
   stremio-redis:
   stream-fusion:
   zilean_data:
