@@ -11,6 +11,7 @@ The first step is to access the StreamFusion admin panel to perform the initial 
    ```
    https://your-domain.com/api/admin
    ```
+   
     !!! note "Custom URL"
         Replace `your-domain.com` with the domain you've configured for StreamFusion.
 
@@ -25,6 +26,7 @@ Once logged into the admin panel, you need to create an API key for each StreamF
 
 1. Click on "New API Key" or a similar button.
 2. Fill in the required information:
+
    - User's name
    - Select "never expire" for the key's validity duration
    
@@ -44,6 +46,7 @@ After obtaining a user API key, you can proceed with configuring the StreamFusio
    ```
 2. You'll be directed to the StreamFusion configuration page.
 3. Fill in the requested information:
+
    - User API key (the one you just created)
    - Other parameters according to your preferences
 

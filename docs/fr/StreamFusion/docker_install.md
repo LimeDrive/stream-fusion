@@ -110,13 +110,13 @@ Le tableau suivant détaille chaque variable d'environnement :
 Une fois les fichiers `docker-compose.yml` et `.env` configurés, lancez la stack :
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 Vérifiez que tous les conteneurs sont en cours d'exécution :
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 !!! note "Initialisation et configuration"
@@ -128,7 +128,7 @@ docker-compose ps
 !!! tip "Suivi de l'initialisation"
     Vous pouvez suivre le processus d'initialisation en temps réel avec la commande :
     ```bash
-    docker-compose logs -f zilean
+    docker compose logs -f zilean
     ```
 
 ## Mise à jour et gestion
@@ -141,12 +141,12 @@ Pour mettre à jour les conteneurs de StreamFusion :
 
 1. Tirez les dernières images :
     ```bash
-    docker-compose pull
+    docker compose pull
     ```
 
 2. Redémarrez les conteneurs avec les nouvelles images :
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
 !!! info "Fréquence des mises à jour"
@@ -156,9 +156,9 @@ Pour mettre à jour les conteneurs de StreamFusion :
 
 Commandes utiles pour gérer votre installation :
 
-- **Arrêter la stack** : `docker-compose down`
-- **Voir les logs** : `docker-compose logs -f [nom_du_service]`
-- **Redémarrer un service spécifique** : `docker-compose restart [nom_du_service]`
+- **Arrêter la stack** : `docker compose down`
+- **Voir les logs** : `docker compose logs -f [nom_du_service]`
+- **Redémarrer un service spécifique** : `docker compose restart [nom_du_service]`
 
 !!! tip "Sauvegarde"
     Pensez à sauvegarder régulièrement vos fichiers `docker-compose.yml` et `.env`, ainsi que les volumes Docker si vous souhaitez conserver vos données. Vous pouvez automatiser ce processus avec un script de sauvegarde.
@@ -169,7 +169,7 @@ Commandes utiles pour gérer votre installation :
     BACKUP_DIR="/chemin/vers/backups"
     mkdir -p $BACKUP_DIR
     cp docker-compose.yml .env $BACKUP_DIR
-    docker-compose exec postgres pg_dump -U postgres > $BACKUP_DIR/database_backup.sql
+    docker compose exec postgres pg_dump -U postgres > $BACKUP_DIR/database_backup.sql
     ```
 
 En suivant ces instructions, vous aurez une installation robuste et bien gérée de StreamFusion. N'hésitez pas à consulter la documentation pour des configurations plus avancées ou des optimisations spécifiques à votre cas d'utilisation.

@@ -8,9 +8,10 @@ La première étape consiste à accéder au panel d'administration de StreamFusi
 
 1. Ouvrez votre navigateur web préféré.
 2. Naviguez vers l'URL suivante :
-   ```
-   https://votre-domaine.com/api/admin
-   ```
+    ```
+    https://votre-domaine.com/api/admin
+    ```
+
     !!! note "URL personnalisée"
         Remplacez `votre-domaine.com` par le domaine que vous avez configuré pour StreamFusion.
 
@@ -25,6 +26,7 @@ Une fois connecté au panel d'administration, vous devez créer une clé API pou
 
 1. Cliquez sur "New API Key" ou un bouton similaire.
 2. Remplissez les informations requises :
+
    - Nom de l'utilisateur
    - Sélectionnez "never expire" pour la durée de validité de la clé
    
@@ -45,6 +47,7 @@ Après avoir obtenu une clé API utilisateur, vous pouvez procéder à la config
    ```
 2. Vous serez dirigé vers la page de configuration de StreamFusion.
 3. Remplissez les informations demandées :
+
    - Clé API utilisateur (celle que vous venez de créer)
    - Autres paramètres selon vos préférences
 

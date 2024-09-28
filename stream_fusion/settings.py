@@ -133,10 +133,10 @@ class Settings(BaseSettings):
     public_cache_url: str = "https://stremio-jackett-cacher.elfhosted.com/"
 
     # DEVELOPMENT
-    debug: bool = True
+    debug: bool = False
     dev_host: str = "0.0.0.0"
     dev_port: int = 8080
-    develop: bool = True
+    develop: bool = False
     reload: bool = False
 
     @property

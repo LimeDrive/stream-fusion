@@ -102,7 +102,7 @@ networks:
 Start Nginx Proxy Manager with the following command:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## Configuring Nginx Proxy Manager
@@ -208,7 +208,7 @@ Once you've completed the reverse proxy configuration and verified that everythi
 After modifying the file, restart the container to apply the changes:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 !!! warning "Accessing the Admin Interface"

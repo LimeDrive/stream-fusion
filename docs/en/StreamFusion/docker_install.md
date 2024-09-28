@@ -110,13 +110,13 @@ The following table details each environment variable:
 Once the `docker-compose.yml` and `.env` files are configured, launch the stack:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 Verify that all containers are running:
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 !!! note "Initialization and configuration"
@@ -128,7 +128,7 @@ docker-compose ps
 !!! tip "Monitoring initialization"
     You can follow the initialization process in real-time with the command:
     ```bash
-    docker-compose logs -f zilean
+    docker compose logs -f zilean
     ```
 
 ## Updating and management
@@ -141,12 +141,12 @@ To update StreamFusion containers:
 
 1. Pull the latest images:
     ```bash
-    docker-compose pull
+    docker compose pull
     ```
 
 2. Restart the containers with the new images:
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
 !!! info "Update frequency"
@@ -156,9 +156,9 @@ To update StreamFusion containers:
 
 Useful commands for managing your installation:
 
-- **Stop the stack**: `docker-compose down`
-- **View logs**: `docker-compose logs -f [service_name]`
-- **Restart a specific service**: `docker-compose restart [service_name]`
+- **Stop the stack**: `docker compose down`
+- **View logs**: `docker compose logs -f [service_name]`
+- **Restart a specific service**: `docker compose restart [service_name]`
 
 !!! tip "Backup"
     Remember to regularly backup your `docker-compose.yml` and `.env` files, as well as Docker volumes if you want to preserve your data. You can automate this process with a backup script.
@@ -169,7 +169,7 @@ Useful commands for managing your installation:
     BACKUP_DIR="/path/to/backups"
     mkdir -p $BACKUP_DIR
     cp docker-compose.yml .env $BACKUP_DIR
-    docker-compose exec postgres pg_dump -U postgres > $BACKUP_DIR/database_backup.sql
+    docker compose exec postgres pg_dump -U postgres > $BACKUP_DIR/database_backup.sql
     ```
 
 By following these instructions, you will have a robust and well-managed installation of StreamFusion. Don't hesitate to consult the documentation for more advanced configurations or optimizations specific to your use case.
