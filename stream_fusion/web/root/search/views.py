@@ -282,7 +282,7 @@ async def get_results(
     streams = [Stream(**stream) for stream in stream_list]
     await redis_cache.set(
         stream_cache_key(media), streams, expiration=3600
-    )  # Make the cache expire after 1 hour TODO: Make this configurable
+    )
     total_time = time.time() - start
     logger.info(f"Request completed in {total_time:.2f} seconds")
     return SearchResponse(streams=streams)

@@ -106,6 +106,9 @@ class TorrentSmartContainer:
         self.logger.info("Caching process completed")
 
     def update_availability(self, debrid_response, debrid_type, media):
+        if not debrid_response or debrid_response == {} or debrid_response == []:
+            self.logger.error("Debrid response is empty : " + str(debrid_response))
+            return
         self.logger.info(f"Updating availability for {debrid_type.__name__}")
         if debrid_type is RealDebrid:
             self.__update_availability_realdebrid(debrid_response, media)
