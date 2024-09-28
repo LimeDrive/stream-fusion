@@ -55,7 +55,7 @@ services:
     expose:
       - 8181
     volumes:
-      - zilean_data:/app/data
+      - zilean-data:/app/data
     environment:
         Zilean__Database__ConnectionString: ${ZILEAN_DB_CONNECTION_STRING:-Host=stremio-postgres;Port=5432;Database=zilean;Username=stremio;Password=stremio}
         Zilean__Dmm__ImportBatched: ${ZILEAN_DMM_IMPORT_BATCHED:-True}
@@ -92,7 +92,7 @@ services:
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Europe/London}
     volumes:
-      - jackett_data:/config
+      - jackett-data:/config
     expose:
       - 9117
     restart: unless-stopped
@@ -121,6 +121,6 @@ volumes:
   stremio-postgres:
   stremio-redis:
   stream-fusion:
-  zilean_data:
-  jackett_data:
+  zilean-data:
+  jackett-data:
   warp-data:
