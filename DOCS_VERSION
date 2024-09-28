@@ -10,3 +10,5 @@ To push docs deployment action commit must start with `Docs(deploy):` prefix and
 - Fix: ...
 ## v1.0.3
 - Fix: language switcher
+## v1.0.4
+- Fix: docker-compose cmd
