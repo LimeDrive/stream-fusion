@@ -46,6 +46,7 @@ Une fois votre domaine configuré chez Cloudflare, vous devez créer les sous-do
     | CNAME | streamfusion | @       | Proxied      | StreamFusion |
     | CNAME | jackett      | @       | Proxied      | Jackett ( optionel ) |
     | CNAME | zilean       | @       | Proxied      | Zilean API ( optionel ) |
+    | CNAME | <service>    | @       | Proxied      | Autres services ( optionel ) |
 
     !!! warning "Proxy Cloudflare"
         Assurez-vous que le statut du proxy est activé (orange) pour tous vos enregistrements afin de bénéficier de la protection Cloudflare.
@@ -160,9 +161,12 @@ Voici un tableau récapitulatif des informations par défaut pour les autres ser
 
 | Host | Port |
 |------|------|
-| streamfusion | 8080 |
+| stream-fusion | 8080 |
 | jackett | 9117 |
 | zilean | 8181 |
+| stremio-catalog-providers | 7000 |
+| stremio-trakt-addon | 7000 |
+| stremio-addon-manager | 80 |
 
 ## Vérification et test
 

@@ -1,0 +1,44 @@
+---
+networks:
+  proxy_network:
+    external: true
+
+# Create the DB First : docker exec -e PGPASSWORD=stremio stremio-postgres psql -U stremio -d postgres -c "CREATE DATABASE \"stremio-trakt-db\";"
+
+services:
+  stremio-trakt-addon:
+    image: reddravenn/stremio-trakt-addon:latest
+    container_name: stremio-trakt-addon
+    expose:
+      - 7000
+    environment:
+      PORT: 7000
+      BASE_URL: ${BASE_URL:?Please provide a base URL in the environment}
+      DB_USER: ${POSTGRES_USER:-stremio}
+      DB_HOST: ${POSTGRES_HOST:-stremio-postgres}
+      DB_NAME: ${DB_NAME:-stremio-trakt-db}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-stremio}
+      DB_PORT: ${POSTGRES_PORT:-5432}
+      DB_MAX_CONNECTIONS: ${DB_MAX_CONNECTIONS:-20}
+      DB_IDLE_TIMEOUT: ${DB_IDLE_TIMEOUT:-30000}
+      DB_CONNECTION_TIMEOUT: ${DB_CONNECTION_TIMEOUT:-2000}
+      REDIS_HOST: ${REDIS_HOST:-stremio-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      TRAKT_CLIENT_ID: ${TRAKT_CLIENT_ID:?Please provide a Trakt client ID in the environment}
+      TRAKT_CLIENT_SECRET: ${TRAKT_CLIENT_SECRET:?Please provide a Trakt client secret in the environment}
+      TRAKT_HISTORY_FETCH_INTERVAL: ${TRAKT_HISTORY_FETCH_INTERVAL:-1d}
+      TMDB_CACHE_DURATION: ${TMDB_CACHE_DURATION:-1d}
+      TRAKT_CACHE_DURATION: ${TRAKT_CACHE_DURATION:-1d}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_INTERVAL_DELETION: ${LOG_INTERVAL_DELETION:-1d}
+      NODE_ENV: ${NODE_ENV:-production}
+    restart: unless-stopped
+    volumes:
+      - stremio-trakt-addon-cache:/usr/src/app/cache
+      - stremio-trakt-addon-log:/usr/src/app/log
+    networks:
+      - proxy_network
+
+volumes:
+  stremio-trakt-addon-cache:
+  stremio-trakt-addon-log:

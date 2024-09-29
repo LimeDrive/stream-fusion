@@ -1,7 +1,10 @@
 nav:
-  - Accueil: 
+  - 0. Accueil: 
     - index.md
   - Stremio
   - StreamFusion
+  - Catalogs
+  - Trakt
+  - Manager
   - How-To
   - ...

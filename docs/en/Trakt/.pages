@@ -1,0 +1,8 @@
+title: 3. Trakt-Plugin
+nav:
+  - Description: trakt.md
+  - Prerequisites: prerequis.md
+  - Installation:
+    - Docker-compose: docker_install.md
+
+  # WIP : Configuration

@@ -2,7 +2,7 @@
     --md-primary-fg-color: #7043c9;        /* Light purple for light mode */
     --md-primary-fg-color--light: #a792ce;
     --md-primary-fg-color--dark: #7B68EE;
-    --md-default-bg-color: #b4af99;        /* Light anthracite for background in light mode */
+    --md-default-bg-color: #e3ddb3;        /* Light anthracite for background in light mode */
     --md-text-color: #333333;              /* Main text color in light mode */
     --md-link-color: #cab7de;              /* Link color in light mode */
 }

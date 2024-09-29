@@ -159,9 +159,12 @@ Here's a summary table of default information for other services:
 
 | Host | Port |
 |------|------|
-| streamfusion | 8080 |
+| stream-fusion | 8080 |
 | jackett | 9117 |
 | zilean | 8181 |
+| stremio-catalog-providers | 7000 |
+| stremio-trakt-addon | 7000 |
+| stremio-addon-manager | 80 |
 
 ## Verification and Testing
 

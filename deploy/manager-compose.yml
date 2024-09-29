@@ -1,0 +1,14 @@
+---
+networks:
+  proxy_network:
+    external: true
+
+services:
+  stremio-addon-manager:
+    image: ghcr.io/limedrive/stremio-addon-manager:latest
+    container_name: stremio-addon-manager
+    expose:
+      - 80
+    restart: unless-stopped
+    networks:
+      - proxy_network
