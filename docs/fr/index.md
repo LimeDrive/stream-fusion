@@ -9,17 +9,17 @@
 !!! danger "Disclaimer"
     En utilisant cette documentation et les logiciels décrits, vous acceptez les conditions suivantes :
 
-    1. **Responsabilité de l'utilisateur** : L'utilisateur est seul responsable de l'utilisation qu'il fait de Stremio, de ses plugins, et de tout contenu auquel il accède par ce biais. Le développeur de cette documentation et des plugins associés ne peut en aucun cas être tenu responsable des actions des utilisateurs.
+    1. **Responsabilité de l'utilisateur** : L'utilisateur est seul responsable de l'utilisation qu'il fait de Stremio, de ses addons, et de tout contenu auquel il accède par ce biais. Le développeur de cette documentation et des addons associés ne peut en aucun cas être tenu responsable des actions des utilisateurs.
 
-    2. **Contenu protégé** : Une grande partie du contenu accessible via Stremio et ses plugins peut être protégée par des droits d'auteur. L'utilisation, le téléchargement ou le partage de ce contenu sans autorisation peut être illégal dans votre juridiction. Il est de votre responsabilité de vous assurer que vous respectez toutes les lois applicables.
+    2. **Contenu protégé** : Une grande partie du contenu accessible via Stremio et ses addons peut être protégée par des droits d'auteur. L'utilisation, le téléchargement ou le partage de ce contenu sans autorisation peut être illégal dans votre juridiction. Il est de votre responsabilité de vous assurer que vous respectez toutes les lois applicables.
 
-    3. **Utilisation à vos risques et périls** : L'installation et l'utilisation des logiciels et plugins décrits dans cette documentation se font à vos propres risques. Le développeur ne garantit pas le fonctionnement sans erreur de ces outils et ne peut être tenu responsable de tout dommage résultant de leur utilisation.
+    3. **Utilisation à vos risques et périls** : L'installation et l'utilisation des logiciels et addons décrits dans cette documentation se font à vos propres risques. Le développeur ne garantit pas le fonctionnement sans erreur de ces outils et ne peut être tenu responsable de tout dommage résultant de leur utilisation.
 
     4. **Pas de garantie** : Cette documentation et les logiciels associés sont fournis "tels quels", sans aucune garantie, expresse ou implicite. Le développeur ne garantit pas l'exactitude, l'exhaustivité ou l'utilité de cette documentation ou des logiciels décrits.
 
     5. **Modifications** : Le développeur se réserve le droit de modifier, mettre à jour ou supprimer tout ou partie de cette documentation ou des logiciels associés sans préavis.
 
-    6. **Respect de la vie privée** : Bien que tous les efforts soient faits pour protéger votre vie privée, l'utilisation de ces outils peut impliquer le partage de certaines informations. Veuillez lire attentivement les politiques de confidentialité de Stremio et des plugins tiers.
+    6. **Respect de la vie privée** : Bien que tous les efforts soient faits pour protéger votre vie privée, l'utilisation de ces outils peut impliquer le partage de certaines informations. Veuillez lire attentivement les politiques de confidentialité de Stremio et des addons tiers.
 
     En continuant à utiliser cette documentation et les logiciels associés, vous reconnaissez avoir lu, compris et accepté cet avertissement légal.
 
@@ -57,7 +57,7 @@ Pour commencer, consultez notre guide de contribution [lien vers le guide] et re
 
 ## Remerciements
 
-Nous tenons à exprimer notre profonde gratitude envers les développeurs des différents plugins qui rendent possible cette stack Stremio complètement française. Leur travail acharné, leur créativité et leur dévouement à la communauté open-source ont permis de créer un écosystème riche et diversifié pour les utilisateurs francophones.
+Nous tenons à exprimer notre profonde gratitude envers les développeurs des différents addons qui rendent possible cette stack Stremio complètement française. Leur travail acharné, leur créativité et leur dévouement à la communauté open-source ont permis de créer un écosystème riche et diversifié pour les utilisateurs francophones.
 
 Un grand merci notamment aux développeurs de :
 

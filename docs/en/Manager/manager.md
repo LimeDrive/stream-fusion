@@ -4,13 +4,13 @@
 
 ## Description
 
-Stremio Add-on Manager is a powerful tool designed to enhance your Stremio experience by offering advanced management capabilities for your add-ons. This manager allows you to reorganize, delete, and unlock the deletion of plugins from a Stremio account. It also offers the ability to rename catalogs and edit plugin manifests.
+Stremio Add-on Manager is a powerful tool designed to enhance your Stremio experience by offering advanced management capabilities for your add-ons. This manager allows you to reorganize, delete, and unlock the deletion of addons from a Stremio account. It also offers the ability to rename catalogs and edit addon manifests.
 
 !!! info "Key Feature"
-    One of the main features of this tool is its ability to remove Cinemata, which is normally impossible to delete in the base Stremio installation. This allows you to replace it with the official TMDB plugin, which will then handle providing metadata.
+    One of the main features of this tool is its ability to remove Cinemata, which is normally impossible to delete in the base Stremio installation. This allows you to replace it with the official TMDB addon, which will then handle providing metadata.
 
 !!! tip "Tip"
-    With this plugin, you can set all metadata to your preferred language, significantly improving the localization of your Stremio experience.
+    With this addon, you can set all metadata to your preferred language, significantly improving the localization of your Stremio experience.
 
 ## Installation Guide
 

@@ -90,8 +90,8 @@ Users will need accounts on torrent trackers to access download sources. Here ar
 !!! important "Passkey configuration"
     Tracker passkeys are not mandatory during the initial installation of StreamFusion. However, their management influences the user experience:
     
-    - If a passkey is provided in the environment variables during configuration, it will be used for all plugin users.
-    - If no passkey is provided, each user will need to configure their own passkey on the plugin configuration page. Thus, each user will use their own account on each tracker.
+    - If a passkey is provided in the environment variables during configuration, it will be used for all addon users.
+    - If no passkey is provided, each user will need to configure their own passkey on the addon configuration page. Thus, each user will use their own account on each tracker.
     
     This flexibility allows either a centralized configuration or user-by-user customization according to your needs.
 
@@ -120,7 +120,7 @@ The following dependencies are optional but can enhance StreamFusion's functiona
 - **Prowlarr**: *(NOT AVAILABLE - under development)*
 
 !!! note "Resource optimization"
-    To minimize dependencies, this stack uses a PostgreSQL database and a Redis server for all plugins. StreamFusion automatically manages the creation of its database and tables. You can therefore connect it to an existing database if you have one.
+    To minimize dependencies, this stack uses a PostgreSQL database and a Redis server for all addons. StreamFusion automatically manages the creation of its database and tables. You can therefore connect it to an existing database if you have one.
 
 ## Next Steps
 Once you've verified that you have all the prerequisites, you can proceed to install StreamFusion. Consult the [Docker Install](docker_install.md) section for detailed instructions.

@@ -1,20 +1,20 @@
 # Prérequis d'installation - Stremio Trakt Addon
 
-Avant d'installer le plugin Stremio Trakt Addon, assurez-vous d'avoir rempli les conditions préalables suivantes :
+Avant d'installer l'addon Stremio Trakt Addon, assurez-vous d'avoir rempli les conditions préalables suivantes :
 
-## 1. Installation de Stream Fusion
+## 1. Installation de StreamFusion
 
 !!! important "Obligatoire"
-    Une installation existante de Stream Fusion est requise, car le plugin Stremio Trakt Addon partage la base de données PostgreSQL ainsi que l'instance Redis avec Stream Fusion.
+    Une installation existante de Stream Fusion est requise, car l'addon Stremio Trakt Addon partage la base de données PostgreSQL ainsi que l'instance Redis avec Stream Fusion.
 
-## 2. Domaine dédié
+## 2. Sous-domaine dédié
 
-* Créez un domaine spécifique pour le plugin Stremio Trakt Addon.
+* Créez un domaine spécifique pour l'addon Stremio Trakt Addon.
 
 ## 3. Compte TMDB (The Movie Database)
 
 !!! warning "API-Key requise"
-    Un compte TMDB est nécessaire pour obtenir une API-Key, qui est obligatoire pour le fonctionnement du plugin.
+    Un compte TMDB est nécessaire pour obtenir une API-Key, qui est obligatoire pour le fonctionnement de l'addon.
 
 * Créez un compte sur [TMDB](https://www.themoviedb.org/)
 * Obtenez une API-Key dans les paramètres de votre compte
@@ -22,7 +22,7 @@ Avant d'installer le plugin Stremio Trakt Addon, assurez-vous d'avoir rempli les
 ## 4. Compte Trakt.tv
 
 !!! important "Obligatoire"
-    Un compte Trakt.tv est essentiel pour l'utilisation de ce plugin.
+    Un compte Trakt.tv est essentiel pour l'utilisation de Cette addon.
 
 * Créez un compte sur [Trakt.tv](https://trakt.tv/)
 * Créez une application OAuth dans les paramètres de votre compte Trakt
@@ -46,4 +46,4 @@ Avant d'installer le plugin Stremio Trakt Addon, assurez-vous d'avoir rempli les
 
 ---
 
-Une fois que vous avez rempli tous ces prérequis, vous êtes prêt à procéder à l'installation du plugin Stremio Trakt Addon. Assurez-vous de conserver en lieu sûr toutes les API-Keys que vous avez obtenues, car elles seront nécessaires lors de la configuration du plugin.
+Une fois que vous avez rempli tous ces prérequis, vous êtes prêt à procéder à l'installation de l'addon Stremio Trakt Addon. Assurez-vous de conserver en lieu sûr toutes les API-Keys que vous avez obtenues, car elles seront nécessaires lors de la configuration de l'addon.

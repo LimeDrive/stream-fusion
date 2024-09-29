@@ -113,7 +113,7 @@ Enhance your command-line experience:
    ```
 
 !!! tip "Customization"
-    Explore available themes and plugins for Oh My Zsh to optimize your productivity.
+    Explore available themes and addons for Oh My Zsh to optimize your productivity.
 
 ## Creating a Non-Root User
 

@@ -4,10 +4,10 @@
 
 ## Description
 
-Stremio Catalog Providers est un plugin optimisé pour le contenu français, conçu pour enrichir l'expérience utilisateur de Stremio en ajoutant de nouveaux catalogues. Ce plugin utilise The Movie Database (TMDB) comme source principale d'informations, tout en intégrant les API de Rating Poster Database (RPDB) et FanArt pour améliorer la présentation visuelle et les métadonnées.
+Stremio Catalog Providers est un addon optimisé pour le contenu français, conçu pour enrichir l'expérience utilisateur de Stremio en ajoutant de nouveaux catalogues. Cette addon utilise The Movie Database (TMDB) comme source principale d'informations, tout en intégrant les API de Rating Poster Database (RPDB) et FanArt pour améliorer la présentation visuelle et les métadonnées.
 
 !!! info "Développement actif"
-    Ce plugin est activement développé par un développeur français, assurant une attention particulière aux besoins de la communauté francophone.
+    Cette addon est activement développé par un développeur français, assurant une attention particulière aux besoins de la communauté francophone.
 
 ## Fonctionnalités clés
 

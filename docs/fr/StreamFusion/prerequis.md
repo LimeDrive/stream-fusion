@@ -90,8 +90,8 @@ Les utilisateurs auront besoin de comptes sur des trackers torrents pour accéde
 !!! important "Configuration des passkeys"
     Les passkeys des trackers ne sont pas obligatoires lors de l'installation initiale de StreamFusion. Cependant, leur gestion influence l'expérience utilisateur :
     
-    - Si une passkey est fournie dans les variables d'environnement lors de la configuration, elle sera utilisée pour tous les utilisateurs du plugin.
-    - Si aucune passkey n'est fournie, chaque utilisateur devra configurer sa propre passkey sur la page de configuration du plugin. Ainsi, chaque utilisateur utilisera son propre compte sur chaque tracker.
+    - Si une passkey est fournie dans les variables d'environnement lors de la configuration, elle sera utilisée pour tous les utilisateurs de l'addon.
+    - Si aucune passkey n'est fournie, chaque utilisateur devra configurer sa propre passkey sur la page de configuration de l'addon. Ainsi, chaque utilisateur utilisera son propre compte sur chaque tracker.
     
     Cette flexibilité permet soit une configuration centralisée, soit une personnalisation par utilisateur selon vos besoins.
 
@@ -120,7 +120,7 @@ Les dépendances suivantes sont optionnelles mais peuvent améliorer les fonctio
 - **Prowlarr** : *(NON DISPONIBLE - en cours de développement)*
 
 !!! note "Optimisation des ressources"
-    Afin de minimiser les dépendances, cette stack utilise une base de données PostgreSQL et un serveur Redis pour l'ensemble des plugins. StreamFusion gère automatiquement la création de sa base de données et de ses tables. Vous pouvez donc le connecter à une base déjà existante si vous en avez une.
+    Afin de minimiser les dépendances, cette stack utilise une base de données PostgreSQL et un serveur Redis pour l'ensemble des addons. StreamFusion gère automatiquement la création de sa base de données et de ses tables. Vous pouvez donc le connecter à une base déjà existante si vous en avez une.
 
 ## Étapes suivantes
 Une fois que vous avez vérifié que vous disposez de tous les pré-requis, vous pouvez passer à l'installation de StreamFusion. Consultez la section [Docker Install](docker_install.md) pour les instructions détaillées.

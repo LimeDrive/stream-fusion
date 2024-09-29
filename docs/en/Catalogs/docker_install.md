@@ -1,6 +1,6 @@
 # Installing Stremio Catalog Providers with Docker Compose
 
-This documentation will guide you through the process of installing the Stremio Catalog Providers plugin using Docker Compose.
+This documentation will guide you through the process of installing the Stremio Catalog Providers addon using Docker Compose.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ Make sure you have met all the [installation prerequisites](./prerequis.md) befo
 
 ### 1. Creating the Installation Folder
 
-Create a new folder for the plugin installation:
+Create a new folder for the addon installation:
 
 ```bash
 mkdir stremio-catalog-providers
@@ -25,7 +25,7 @@ cd stremio-catalog-providers
 
 ### 2. Creating the Database
 
-Run the following command to create the database needed for the plugin:
+Run the following command to create the database needed for the addon:
 
 ```bash
 docker exec -e PGPASSWORD=stremio stremio-postgres psql -U stremio -d postgres -c "CREATE DATABASE \"stremio-catalog-db\";"
@@ -107,7 +107,7 @@ Here's a table detailing all available environment variables:
 
 | Variable | Description | Default Value |
 |----------|-------------|---------------|
-| `BASE_URL` | Base URL for the plugin | (required) |
+| `BASE_URL` | Base URL for the addon | (required) |
 | `POSTGRES_USER` | PostgreSQL username | `stremio` |
 | `POSTGRES_HOST` | PostgreSQL host | `stremio-postgres` |
 | `DB_NAME` | Database name | `stremio-catalog-db` |
@@ -138,7 +138,7 @@ Here's a table detailing all available environment variables:
     3. Create a new application by filling in the required information (name, description, etc.).
     4. For the redirect URL, use the following format: `BASE_URL + /callback`
        For example, if your `BASE_URL` is `https://catalogs.example.com`, the redirect URL will be `https://catalogs.example.com/callback`.
-    5. Once the application is created, you will obtain the `TRAKT_CLIENT_ID` and `TRAKT_CLIENT_SECRET` necessary to configure the plugin.
+    5. Once the application is created, you will obtain the `TRAKT_CLIENT_ID` and `TRAKT_CLIENT_SECRET` necessary to configure the addon.
 
     Remember to keep this information confidential and not share it publicly.
 
@@ -162,12 +162,12 @@ Use Nginx Proxy Manager to link your domain name to the `stremio-catalog-provide
 
 ## Maintenance
 
-To perform maintenance on the plugin, use the following Docker Compose commands:
+To perform maintenance on the addon, use the following Docker Compose commands:
 
-* Stop the plugin: `docker compose stop`
-* Restart the plugin: `docker compose restart`
+* Stop the addon: `docker compose stop`
+* Restart the addon: `docker compose restart`
 * View logs: `docker compose logs -f stremio-catalog-providers`
-* Update the plugin:
+* Update the addon:
 
   ```bash
   docker compose pull
@@ -175,11 +175,11 @@ To perform maintenance on the plugin, use the following Docker Compose commands:
   ```
 
 !!! tip "Tip"
-    Regularly check the logs to ensure the plugin is functioning properly.
+    Regularly check the logs to ensure the addon is functioning properly.
 
 ## Uninstallation
 
-To completely uninstall the plugin, follow these steps:
+To completely uninstall the addon, follow these steps:
 
 1. Stop and remove the containers:
    ```bash
@@ -198,9 +198,9 @@ To completely uninstall the plugin, follow these steps:
    ```
 
 !!! warning "Caution"
-    Uninstallation will remove all data associated with the plugin. Make sure to back up any important information before proceeding.
+    Uninstallation will remove all data associated with the addon. Make sure to back up any important information before proceeding.
 
 Don't forget to also remove the domain name configuration in Nginx Proxy Manager if you don't plan to reuse this domain for another service.
 
 !!! note "Final Note"
-    If you encounter any problems during the installation or use of the plugin, don't hesitate to consult the official documentation or ask for help on the support forums.
+    If you encounter any problems during the installation or use of the addon, don't hesitate to consult the official documentation or ask for help on the support forums.

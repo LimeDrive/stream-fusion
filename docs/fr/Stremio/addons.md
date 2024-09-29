@@ -2,17 +2,17 @@
 
 ![!Stremio Addons](./images/image-1rqo9-24-09-2024.png)
 
-# Le système de plugins Stremio
+# Le système de addons Stremio
 
-Stremio utilise un système de plugins (ou add-ons) pour étendre ses fonctionnalités et fournir du contenu. Ces plugins permettent aux utilisateurs de personnaliser leur expérience en ajoutant de nouvelles sources de contenu, des fonctionnalités supplémentaires et des intégrations avec d'autres services.
+Stremio utilise un système de addons (ou add-ons) pour étendre ses fonctionnalités et fournir du contenu. Ces addons permettent aux utilisateurs de personnaliser leur expérience en ajoutant de nouvelles sources de contenu, des fonctionnalités supplémentaires et des intégrations avec d'autres services.
 
-## Types de plugins Stremio
+## Types de addons Stremio
 
-Stremio prend en charge plusieurs types de plugins, chacun ayant un rôle spécifique :
+Stremio prend en charge plusieurs types de addons, chacun ayant un rôle spécifique :
 
-### 1. Plugins de contenu
+### 1. addons de contenu
 
-Ces plugins fournissent des sources de contenu pour les films, séries TV, chaînes en direct, etc.
+Ces addons fournissent des sources de contenu pour les films, séries TV, chaînes en direct, etc.
 
 **Exemples** : 
 
@@ -20,7 +20,7 @@ Ces plugins fournissent des sources de contenu pour les films, séries TV, chaî
 - Netflix (intégration officielle)
 - StreamFusion (addon avancé pour le contenu francophone)
 
-### 2. Plugins de métadonnées
+### 2. addons de métadonnées
 
 Ils fournissent des informations supplémentaires sur le contenu, comme les descriptions, les notes, les acteurs, etc.
 
@@ -29,16 +29,16 @@ Ils fournissent des informations supplémentaires sur le contenu, comme les desc
 - Cinemata
 - TMDB (The Movie Database)
 
-### 3. Plugins de sous-titres
+### 3. addons de sous-titres
 
-Ces plugins ajoutent des sources de sous-titres pour le contenu.
+Ces addons ajoutent des sources de sous-titres pour le contenu.
 
 **Exemples** :
 
 - OpenSubtitles
 - Subscene
 
-### 4. Plugins de catalogues
+### 4. addons de catalogues
 
 Ils ajoutent de nouveaux catalogues ou catégories de contenu à Stremio.
 
@@ -48,51 +48,51 @@ Ils ajoutent de nouveaux catalogues ou catégories de contenu à Stremio.
 - Stremio-Addon-Sagas (pour les sagas de films)
 - Anime Kitsu (pour les catalogues d'anime)
 
-### 5. Plugins utilitaires
+### 5. addons utilitaires
 
-Ces plugins ajoutent des fonctionnalités supplémentaires à Stremio.
+Ces addons ajoutent des fonctionnalités supplémentaires à Stremio.
 
 **Exemples** :
 
 - Trakt (pour suivre ce que vous regardez)
 - DLNA (pour le streaming sur d'autres appareils)
 
-## Fonctionnement des plugins
+## Fonctionnement des addons
 
-Les plugins Stremio fonctionnent comme des API web. Lorsqu'un utilisateur recherche du contenu ou des informations, Stremio interroge les plugins installés pour obtenir les résultats pertinents. Les plugins peuvent être hébergés localement ou sur des serveurs distants.
+Les addons Stremio fonctionnent comme des API web. Lorsqu'un utilisateur recherche du contenu ou des informations, Stremio interroge les addons installés pour obtenir les résultats pertinents. Les addons peuvent être hébergés localement ou sur des serveurs distants.
 
-## Installation des plugins
+## Installation des addons
 
-L'installation des plugins dans Stremio est simple et peut se faire de plusieurs façons :
+L'installation des addons dans Stremio est simple et peut se faire de plusieurs façons :
 
 1. **Via le catalogue officiel** :
 
    - Ouvrez Stremio et cliquez sur l'icône de puzzle en haut à droite.
-   - Parcourez les plugins disponibles et cliquez sur "Installer" pour ceux qui vous intéressent.
+   - Parcourez les addons disponibles et cliquez sur "Installer" pour ceux qui vous intéressent.
 
 2. **Via une URL** :
 
-   - Si vous avez l'URL d'un plugin, vous pouvez l'ajouter en cliquant sur "Ajouter un add-on" dans le menu des plugins.
+   - Si vous avez l'URL d'un addon, vous pouvez l'ajouter en cliquant sur "Ajouter un add-on" dans le menu des addons.
    - Collez l'URL et cliquez sur "Ajouter".
 
 3. **Via un fichier local** :
 
-   - Pour les plugins développés localement, vous pouvez les installer en utilisant leur URL locale (généralement `http://localhost:PORT`).
+   - Pour les addons développés localement, vous pouvez les installer en utilisant leur URL locale (généralement `http://localhost:PORT`).
 
-## Développement de plugins
+## Développement de addons
 
-Les développeurs peuvent créer leurs propres plugins Stremio en utilisant le SDK officiel. Le processus implique généralement :
+Les développeurs peuvent créer leurs propres addons Stremio en utilisant le SDK officiel. Le processus implique généralement :
 
 1. L'utilisation du SDK Stremio (disponible en JavaScript/Node.js).
-2. La définition d'un manifeste qui décrit les capacités du plugin.
+2. La définition d'un manifeste qui décrit les capacités de l'addon.
 3. L'implémentation des handlers pour les différentes fonctionnalités (streaming, métadonnées, etc.).
-4. Le déploiement du plugin sur un serveur accessible publiquement.
+4. Le déploiement de l'addon sur un serveur accessible publiquement.
 
 ## Sécurité et considérations légales
 
-- Les plugins officiels sont généralement sûrs, mais les plugins tiers peuvent présenter des risques.
-- Certains plugins peuvent donner accès à du contenu protégé par le droit d'auteur. Les utilisateurs doivent être conscients des implications légales de l'utilisation de tels plugins.
+- Les addons officiels sont généralement sûrs, mais les addons tiers peuvent présenter des risques.
+- Certains addons peuvent donner accès à du contenu protégé par le droit d'auteur. Les utilisateurs doivent être conscients des implications légales de l'utilisation de tels addons.
 
 ## Conclusion
 
-Le système de plugins de Stremio est ce qui rend l'application si polyvalente et populaire. Il permet aux utilisateurs d'accéder à une vaste gamme de contenus et de fonctionnalités, tout en offrant aux développeurs la possibilité de créer et de partager leurs propres extensions.
+Le système de addons de Stremio est ce qui rend l'application si polyvalente et populaire. Il permet aux utilisateurs d'accéder à une vaste gamme de contenus et de fonctionnalités, tout en offrant aux développeurs la possibilité de créer et de partager leurs propres extensions.

@@ -4,10 +4,10 @@
 
 ## Description
 
-Stremio Trakt Addon est un plugin spécialisé pour Stremio, offrant une intégration profonde avec les services Trakt pour enrichir votre expérience de streaming. Il propose un contenu personnalisé et des options de personnalisation avancées.
+Stremio Trakt Addon est un addon spécialisé pour Stremio, offrant une intégration profonde avec les services Trakt pour enrichir votre expérience de streaming. Il propose un contenu personnalisé et des options de personnalisation avancées.
 
 !!! info "Développement actif"
-    Ce plugin est activement développé pour assurer une expérience optimale aux utilisateurs de Stremio et Trakt.
+    Cette addon est activement développé pour assurer une expérience optimale aux utilisateurs de Stremio et Trakt.
 
 ## Fonctionnalités clés
 

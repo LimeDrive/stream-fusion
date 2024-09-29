@@ -113,7 +113,7 @@ Améliorez votre expérience en ligne de commande :
    ```
 
 !!! tip "Personnalisation"
-    Explorez les thèmes et plugins disponibles pour Oh My Zsh pour optimiser votre productivité.
+    Explorez les thèmes et addons disponibles pour Oh My Zsh pour optimiser votre productivité.
 
 ## Création d'un utilisateur non-root
 

@@ -1,6 +1,6 @@
 # Installation de Stremio Trakt Addon avec Docker Compose
 
-Cette documentation vous guidera à travers le processus d'installation du plugin Stremio Trakt Addon en utilisant Docker Compose.
+Cette documentation vous guidera à travers le processus d'installation de l'addon Stremio Trakt Addon en utilisant Docker Compose.
 
 ## Prérequis
 
@@ -13,7 +13,7 @@ Assurez-vous d'avoir rempli tous les [prérequis d'installation](./prerequis.md)
 
 ### 1. Création du dossier d'installation
 
-Créez un nouveau dossier pour l'installation du plugin :
+Créez un nouveau dossier pour l'installation de l'addon :
 
 ```bash
 mkdir stremio-trakt-addon
@@ -25,7 +25,7 @@ cd stremio-trakt-addon
 
 ### 2. Création de la base de données
 
-Exécutez la commande suivante pour créer la base de données nécessaire au plugin :
+Exécutez la commande suivante pour créer la base de données nécessaire a l'addon :
 
 ```bash
 docker exec -e PGPASSWORD=stremio stremio-postgres psql -U stremio -d postgres -c "CREATE DATABASE \"stremio-trakt-db\";"
@@ -105,7 +105,7 @@ Voici un tableau détaillant toutes les variables d'environnement disponibles :
 
 | Variable | Description | Valeur par défaut |
 |----------|-------------|-------------------|
-| `BASE_URL` | URL de base pour le plugin | (obligatoire) |
+| `BASE_URL` | URL de base pour l'addon | (obligatoire) |
 | `POSTGRES_USER` | Nom d'utilisateur PostgreSQL | `stremio` |
 | `POSTGRES_HOST` | Hôte PostgreSQL | `stremio-postgres` |
 | `DB_NAME` | Nom de la base de données | `stremio-trakt-db` |
@@ -148,12 +148,12 @@ Utilisez Nginx Proxy Manager pour relier votre nom de domaine au conteneur `stre
 
 ## Maintenance
 
-Pour effectuer la maintenance du plugin, utilisez les commandes Docker Compose suivantes :
+Pour effectuer la maintenance de l'addon, utilisez les commandes Docker Compose suivantes :
 
-* Arrêter le plugin : `docker compose stop`
-* Redémarrer le plugin : `docker compose restart`
+* Arrêter l'addon : `docker compose stop`
+* Redémarrer l'addon : `docker compose restart`
 * Voir les logs : `docker compose logs -f stremio-trakt-addon`
-* Mettre à jour le plugin :
+* Mettre à jour l'addon :
 
   ```bash
   docker compose pull
@@ -161,11 +161,11 @@ Pour effectuer la maintenance du plugin, utilisez les commandes Docker Compose s
   ```
 
 !!! tip "Astuce"
-    Consultez régulièrement les logs pour vous assurer du bon fonctionnement du plugin.
+    Consultez régulièrement les logs pour vous assurer du bon fonctionnement de l'addon.
 
 ## Désinstallation
 
-Pour désinstaller complètement le plugin, suivez ces étapes :
+Pour désinstaller complètement l'addon, suivez ces étapes :
 
 1. Arrêtez et supprimez les conteneurs :
    ```bash
@@ -184,9 +184,9 @@ Pour désinstaller complètement le plugin, suivez ces étapes :
    ```
 
 !!! warning "Attention"
-    La désinstallation supprimera toutes les données associées au plugin. Assurez-vous de sauvegarder toutes les informations importantes avant de procéder.
+    La désinstallation supprimera toutes les données associées a l'addon. Assurez-vous de sauvegarder toutes les informations importantes avant de procéder.
 
 N'oubliez pas de supprimer également la configuration du nom de domaine dans Nginx Proxy Manager si vous ne prévoyez pas de réutiliser ce domaine pour un autre service.
 
 !!! note "Note finale"
-    Si vous rencontrez des problèmes lors de l'installation ou de l'utilisation du plugin, n'hésitez pas à consulter la documentation officielle ou à demander de l'aide sur les forums de support de Stremio ou Trakt.
+    Si vous rencontrez des problèmes lors de l'installation ou de l'utilisation de l'addon, n'hésitez pas à consulter la documentation officielle ou à demander de l'aide sur les forums de support de Stremio ou Trakt.

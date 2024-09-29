@@ -2,10 +2,10 @@
 
 ## Prérequis
 
-!!! important "Plugins requis"
-    Avant d'utiliser le Stremio Add-on Manager, assurez-vous d'avoir installé et configuré les plugins suivants sur votre compte Stremio :
+!!! important "addons requis"
+    Avant d'utiliser le Stremio Add-on Manager, assurez-vous d'avoir installé et configuré les addons suivants sur votre compte Stremio :
 
-    * TMDB (plugin officiel)
+    * TMDB (addon officiel)
     * Stream-Fusion
     * Catalogs
     * Trakt
@@ -14,7 +14,7 @@
 
 ### Étape 1 : Connexion au manager
 
-1. Rendez-vous sur la page de votre plugin Stremio Addon Manager.
+1. Rendez-vous sur la page de votre addon Stremio Addon Manager.
 2. Connectez votre compte Stremio (Step 0 sur l'interface).
 
 ![Conn](./images/image-5lutq-29-09-2024(1).png)
@@ -34,9 +34,9 @@
 ### Étape 3 : Déverrouillage et configuration
 
 1. Dans la Step 2 de l'interface, cliquez sur "Unlock Addons".
-    * Cela débloque la suppression des plugins nativement bloqués par Stremio.
+    * Cela débloque la suppression des addons nativement bloqués par Stremio.
 2. Toujours dans la Step 2, cliquez sur "Setup TMDB".
-    * Cette action configure le plugin officiel TMDB pour gérer les métadonnées dans Stremio, fournissant du contenu en français.
+    * Cette action configure l'addon officiel TMDB pour gérer les métadonnées dans Stremio, fournissant du contenu en français.
 
 ![Unlock](./images/image-1ahs1-29-09-2024(1).png)
 
@@ -47,17 +47,17 @@
 
 Dans la Step 3 de l'interface :
 
-1. Configurez l'ordre de vos plugins.
+1. Configurez l'ordre de vos addons.
     * L'ordre influencera également l'ordre des catalogues sur la page d'accueil de Stremio.
 2. Utilisez la configuration avancée pour :
     * Renommer les catalogues
-    * Supprimer les catalogues indésirables de certains plugins
-    * Supprimer les plugins indésirables
+    * Supprimer les catalogues indésirables de certains addons
+    * Supprimer les addons indésirables
 
 ![Customize](./images/image-qbzjb-29-09-2024.png)
 
 !!! warning "Attention"
-    Soyez prudent lors de la suppression de plugins ou de catalogues. Certains peuvent être essentiels au bon fonctionnement de Stremio.
+    Soyez prudent lors de la suppression de addons ou de catalogues. Certains peuvent être essentiels au bon fonctionnement de Stremio.
 
 ### Étape 5 : Synchronisation avec Stremio
 
@@ -76,14 +76,14 @@ Dans la Step 3 de l'interface :
 !!! tip "Problèmes de métadonnées en français"
     Si vous rencontrez des problèmes avec les métadonnées en français :
     
-    1. Vérifiez que le plugin TMDB officiel est bien installé sur votre compte.
+    1. Vérifiez que l'addon TMDB officiel est bien installé sur votre compte.
     2. Retournez sur le Stremio Add-on Manager.
     3. Cliquez à nouveau sur "Setup TMDB" dans la Step 2.
 
 ## Configuration avancée
 
 !!! note "Édition des manifestes"
-    La configuration avancée permet d'éditer complètement le manifeste des plugins. Cependant, cette fonctionnalité est recommandée uniquement pour les utilisateurs ayant une bonne compréhension du fonctionnement des manifestes de plugins Stremio.
+    La configuration avancée permet d'éditer complètement le manifeste des addons. Cependant, cette fonctionnalité est recommandée uniquement pour les utilisateurs ayant une bonne compréhension du fonctionnement des manifestes de addons Stremio.
 
 !!! warning "Précaution"
-    L'édition incorrecte des manifestes peut entraîner des dysfonctionnements des plugins. Procédez avec prudence et sauvegardez vos configurations avant toute modification importante.
+    L'édition incorrecte des manifestes peut entraîner des dysfonctionnements des addons. Procédez avec prudence et sauvegardez vos configurations avant toute modification importante.

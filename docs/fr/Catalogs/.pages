@@ -1,7 +1,7 @@
-title: 3. Catalogs-Plugin
+title: 3. Catalogs-Addon
 nav:
   - Description: catalogs.md
-  - Pré-Requis: prerequis.md
+  - Pré-requis: prerequis.md
   - Installation:
     - Docker-compose: docker_install.md
 

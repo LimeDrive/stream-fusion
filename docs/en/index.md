@@ -9,17 +9,17 @@
 !!! danger "Disclaimer"
     By using this documentation and the described software, you accept the following conditions:
 
-    1. **User Responsibility**: The user is solely responsible for their use of Stremio, its plugins, and any content accessed through them. The developer of this documentation and associated plugins cannot be held responsible for users' actions.
+    1. **User Responsibility**: The user is solely responsible for their use of Stremio, its addons, and any content accessed through them. The developer of this documentation and associated addons cannot be held responsible for users' actions.
 
-    2. **Protected Content**: A large portion of the content accessible via Stremio and its plugins may be protected by copyright. The use, download, or sharing of this content without authorization may be illegal in your jurisdiction. It is your responsibility to ensure that you comply with all applicable laws.
+    2. **Protected Content**: A large portion of the content accessible via Stremio and its addons may be protected by copyright. The use, download, or sharing of this content without authorization may be illegal in your jurisdiction. It is your responsibility to ensure that you comply with all applicable laws.
 
-    3. **Use at Your Own Risk**: The installation and use of the software and plugins described in this documentation are at your own risk. The developer does not guarantee error-free operation of these tools and cannot be held responsible for any damage resulting from their use.
+    3. **Use at Your Own Risk**: The installation and use of the software and addons described in this documentation are at your own risk. The developer does not guarantee error-free operation of these tools and cannot be held responsible for any damage resulting from their use.
 
     4. **No Warranty**: This documentation and associated software are provided "as is," without any express or implied warranty. The developer does not guarantee the accuracy, completeness, or usefulness of this documentation or the described software.
 
     5. **Modifications**: The developer reserves the right to modify, update, or delete all or part of this documentation or associated software without notice.
 
-    6. **Privacy**: While every effort is made to protect your privacy, the use of these tools may involve the sharing of certain information. Please carefully read the privacy policies of Stremio and third-party plugins.
+    6. **Privacy**: While every effort is made to protect your privacy, the use of these tools may involve the sharing of certain information. Please carefully read the privacy policies of Stremio and third-party addons.
 
     By continuing to use this documentation and associated software, you acknowledge that you have read, understood, and accepted this legal disclaimer.
 
@@ -57,7 +57,7 @@ To get started, check our contribution guide [link to guide] and join our passio
 
 ## Acknowledgements
 
-We would like to express our deep gratitude to the developers of the various plugins that make this completely French Stremio stack possible. Their hard work, creativity, and dedication to the open-source community have created a rich and diverse ecosystem for French-speaking users.
+We would like to express our deep gratitude to the developers of the various addons that make this completely French Stremio stack possible. Their hard work, creativity, and dedication to the open-source community have created a rich and diverse ecosystem for French-speaking users.
 
 Special thanks to the developers of:
 

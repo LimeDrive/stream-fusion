@@ -1,20 +1,20 @@
 # Installation Prerequisites - Stremio Catalog Providers
 
-Before installing the Stremio Catalog Providers plugin, make sure you have met the following prerequisites:
+Before installing the Stremio Catalog Providers addon, make sure you have met the following prerequisites:
 
-## 1. Stream Fusion Installation
+## 1. StreamFusion Installation
 
 !!! important "Mandatory"
-    An existing installation of Stream Fusion is required, as the Stremio Catalog Providers plugin shares the PostgreSQL database and Redis instance with Stream Fusion.
+    An existing installation of Stream Fusion is required, as the Stremio Catalog Providers addon shares the PostgreSQL database and Redis instance with Stream Fusion.
 
 ## 2. Dedicated Domain
 
-* Create a specific domain for the Stremio Catalog Providers plugin.
+* Create a specific domain for the Stremio Catalog Providers addon.
 
 ## 3. TMDB (The Movie Database) Account
 
 !!! warning "API Key required"
-    A TMDB account is necessary to obtain an API Key, which is mandatory for the plugin to function.
+    A TMDB account is necessary to obtain an API Key, which is mandatory for the addon to function.
 
 * Create an account on [TMDB](https://www.themoviedb.org/)
 * Obtain an API Key in your account settings
@@ -42,4 +42,4 @@ Before installing the Stremio Catalog Providers plugin, make sure you have met t
 
 ---
 
-Once you have fulfilled all these prerequisites, you are ready to proceed with the installation of the Stremio Catalog Providers plugin. Make sure to keep all the API Keys you have obtained in a safe place, as they will be necessary during the plugin configuration.
+Once you have fulfilled all these prerequisites, you are ready to proceed with the installation of the Stremio Catalog Providers addon. Make sure to keep all the API Keys you have obtained in a safe place, as they will be necessary during the addon configuration.

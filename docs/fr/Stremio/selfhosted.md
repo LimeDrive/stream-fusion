@@ -1,22 +1,22 @@
-# Versions auto-hébergées de Stremio et de ses plugins
+# Versions auto-hébergées de Stremio et de ses addons
 
-## Plugins Stremio auto-hébergés (Selfhosted)
+## addons Stremio auto-hébergés (Selfhosted)
 
-Les plugins auto-hébergés pour Stremio offrent aux utilisateurs un contrôle accru sur leurs sources de contenu et leurs fonctionnalités. Ils permettent de personnaliser l'expérience Stremio tout en gardant le contrôle sur les données et la confidentialité.
+Les addons auto-hébergés pour Stremio offrent aux utilisateurs un contrôle accru sur leurs sources de contenu et leurs fonctionnalités. Ils permettent de personnaliser l'expérience Stremio tout en gardant le contrôle sur les données et la confidentialité.
 
-### Fonctionnement des plugins auto-hébergés
+### Fonctionnement des addons auto-hébergés
 
-Les plugins auto-hébergés fonctionnent comme des serveurs web locaux qui répondent aux requêtes de l'application Stremio. Voici les principes de base :
+Les addons auto-hébergés fonctionnent comme des serveurs web locaux qui répondent aux requêtes de l'application Stremio. Voici les principes de base :
 
-1. **API HTTP** : Les plugins exposent une API HTTP que Stremio peut interroger.
-2. **Manifeste** : Chaque plugin fournit un manifeste décrivant ses capacités et les types de contenu qu'il peut gérer.
-3. **Handlers** : Les plugins implémentent des handlers pour répondre aux différentes requêtes de Stremio (catalogue, métadonnées, flux, etc.).
-4. **Réseau local** : Les plugins peuvent être hébergés sur le réseau local de l'utilisateur, offrant des temps de réponse rapides et un contrôle total.
+1. **API HTTP** : Les addons exposent une API HTTP que Stremio peut interroger.
+2. **Manifeste** : Chaque addon fournit un manifeste décrivant ses capacités et les types de contenu qu'il peut gérer.
+3. **Handlers** : Les addons implémentent des handlers pour répondre aux différentes requêtes de Stremio (catalogue, métadonnées, flux, etc.).
+4. **Réseau local** : Les addons peuvent être hébergés sur le réseau local de l'utilisateur, offrant des temps de réponse rapides et un contrôle total.
 
-### Avantages des plugins auto-hébergés
+### Avantages des addons auto-hébergés
 
 - **Confidentialité** : Les données restent sur votre réseau local.
-- **Personnalisation** : Vous pouvez adapter le plugin à vos besoins spécifiques.
+- **Personnalisation** : Vous pouvez adapter l'addon à vos besoins spécifiques.
 - **Performance** : Potentiellement plus rapide car hébergé localement.
 - **Contrôle** : Vous gérez les mises à jour et la configuration.
 
