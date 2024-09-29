@@ -19,3 +19,5 @@ To push docs deployment action commit must start with `Docs(deploy):` prefix and
 ## v1.1.1
 - Fix: replace all the Plugin with Addon
 - Fix: Step in tab-bar
+## v1.1.2
+- Fix: add-on to addon
