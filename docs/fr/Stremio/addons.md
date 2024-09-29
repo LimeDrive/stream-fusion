@@ -2,13 +2,13 @@
 
 ![!Stremio Addons](./images/image-1rqo9-24-09-2024.png)
 
-# Le système de addons Stremio
+# Le système d'addons Stremio
 
-Stremio utilise un système de addons (ou add-ons) pour étendre ses fonctionnalités et fournir du contenu. Ces addons permettent aux utilisateurs de personnaliser leur expérience en ajoutant de nouvelles sources de contenu, des fonctionnalités supplémentaires et des intégrations avec d'autres services.
+Stremio utilise un système d'addons pour étendre ses fonctionnalités et fournir du contenu. Ces addons permettent aux utilisateurs de personnaliser leur expérience en ajoutant de nouvelles sources de contenu, des fonctionnalités supplémentaires et des intégrations avec d'autres services.
 
-## Types de addons Stremio
+## Types d'addons Stremio
 
-Stremio prend en charge plusieurs types de addons, chacun ayant un rôle spécifique :
+Stremio prend en charge plusieurs types d'addons, chacun ayant un rôle spécifique :
 
 ### 1. addons de contenu
 
@@ -72,14 +72,14 @@ L'installation des addons dans Stremio est simple et peut se faire de plusieurs 
 
 2. **Via une URL** :
 
-   - Si vous avez l'URL d'un addon, vous pouvez l'ajouter en cliquant sur "Ajouter un add-on" dans le menu des addons.
+   - Si vous avez l'URL d'un addon, vous pouvez l'ajouter en cliquant sur "Ajouter un addon" dans le menu des addons.
    - Collez l'URL et cliquez sur "Ajouter".
 
 3. **Via un fichier local** :
 
    - Pour les addons développés localement, vous pouvez les installer en utilisant leur URL locale (généralement `http://localhost:PORT`).
 
-## Développement de addons
+## Développement d'addons
 
 Les développeurs peuvent créer leurs propres addons Stremio en utilisant le SDK officiel. Le processus implique généralement :
 
@@ -95,4 +95,4 @@ Les développeurs peuvent créer leurs propres addons Stremio en utilisant le SD
 
 ## Conclusion
 
-Le système de addons de Stremio est ce qui rend l'application si polyvalente et populaire. Il permet aux utilisateurs d'accéder à une vaste gamme de contenus et de fonctionnalités, tout en offrant aux développeurs la possibilité de créer et de partager leurs propres extensions.
+Le système d'addons de Stremio est ce qui rend l'application si polyvalente et populaire. Il permet aux utilisateurs d'accéder à une vaste gamme de contenus et de fonctionnalités, tout en offrant aux développeurs la possibilité de créer et de partager leurs propres extensions.

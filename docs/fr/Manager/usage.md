@@ -1,9 +1,9 @@
-# Guide d'utilisation du Stremio Add-on Manager
+# Guide d'utilisation du Stremio Addon Manager
 
 ## Prérequis
 
 !!! important "addons requis"
-    Avant d'utiliser le Stremio Add-on Manager, assurez-vous d'avoir installé et configuré les addons suivants sur votre compte Stremio :
+    Avant d'utiliser le Stremio Addon Manager, assurez-vous d'avoir installé et configuré les addons suivants sur votre compte Stremio :
 
     * TMDB (addon officiel)
     * Stream-Fusion
@@ -57,7 +57,7 @@ Dans la Step 3 de l'interface :
 ![Customize](./images/image-qbzjb-29-09-2024.png)
 
 !!! warning "Attention"
-    Soyez prudent lors de la suppression de addons ou de catalogues. Certains peuvent être essentiels au bon fonctionnement de Stremio.
+    Soyez prudent lors de la suppression d'addons ou de catalogues. Certains peuvent être essentiels au bon fonctionnement de Stremio.
 
 ### Étape 5 : Synchronisation avec Stremio
 
@@ -77,13 +77,13 @@ Dans la Step 3 de l'interface :
     Si vous rencontrez des problèmes avec les métadonnées en français :
     
     1. Vérifiez que l'addon TMDB officiel est bien installé sur votre compte.
-    2. Retournez sur le Stremio Add-on Manager.
+    2. Retournez sur le Stremio Addon Manager.
     3. Cliquez à nouveau sur "Setup TMDB" dans la Step 2.
 
 ## Configuration avancée
 
 !!! note "Édition des manifestes"
-    La configuration avancée permet d'éditer complètement le manifeste des addons. Cependant, cette fonctionnalité est recommandée uniquement pour les utilisateurs ayant une bonne compréhension du fonctionnement des manifestes de addons Stremio.
+    La configuration avancée permet d'éditer complètement le manifeste des addons. Cependant, cette fonctionnalité est recommandée uniquement pour les utilisateurs ayant une bonne compréhension du fonctionnement des manifestes d'addons Stremio.
 
 !!! warning "Précaution"
     L'édition incorrecte des manifestes peut entraîner des dysfonctionnements des addons. Procédez avec prudence et sauvegardez vos configurations avant toute modification importante.

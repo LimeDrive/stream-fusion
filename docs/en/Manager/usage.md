@@ -1,9 +1,9 @@
-# Stremio Add-on Manager Usage Guide
+# Stremio Addon Manager Usage Guide
 
 ## Prerequisites
 
 !!! important "Required addons"
-    Before using the Stremio Add-on Manager, make sure you have installed and configured the following addons on your Stremio account:
+    Before using the Stremio Addon Manager, make sure you have installed and configured the following addons on your Stremio account:
 
     * TMDB (official addon)
     * Stream-Fusion
@@ -22,7 +22,7 @@
 !!! tip "Tip"
     Make sure to use the same credentials as for your Stremio application.
 
-### Step 2: Loading Add-ons
+### Step 2: Loading Addons
 
 1. Click on "Load addons" (Step 1 on the interface).
 
@@ -43,7 +43,7 @@
 !!! info "Information"
     The TMDB configuration is crucial for obtaining metadata in your preferred language in Stremio.
 
-### Step 4: Customizing Add-ons
+### Step 4: Customizing Addons
 
 In Step 3 of the interface:
 1. Configure the order of your addons.
@@ -76,7 +76,7 @@ In Step 3 of the interface:
     If you encounter problems with metadata in your preferred language:
 
     1. Verify that the official TMDB addon is properly installed on your account.
-    2. Return to the Stremio Add-on Manager.
+    2. Return to the Stremio Addon Manager.
     3. Click again on "Setup TMDB" in Step 2.
 
 ## Advanced Configuration

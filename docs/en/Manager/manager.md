@@ -1,10 +1,10 @@
-# Stremio Add-on Manager
+# Stremio Addon Manager
 
-![Stremio Add-on Manager](./images/image-l6pce-29-09-2024.png)
+![Stremio Addon Manager](./images/image-l6pce-29-09-2024.png)
 
 ## Description
 
-Stremio Add-on Manager is a powerful tool designed to enhance your Stremio experience by offering advanced management capabilities for your add-ons. This manager allows you to reorganize, delete, and unlock the deletion of addons from a Stremio account. It also offers the ability to rename catalogs and edit addon manifests.
+Stremio Addon Manager is a powerful tool designed to enhance your Stremio experience by offering advanced management capabilities for your add-ons. This manager allows you to reorganize, delete, and unlock the deletion of addons from a Stremio account. It also offers the ability to rename catalogs and edit addon manifests.
 
 !!! info "Key Feature"
     One of the main features of this tool is its ability to remove Cinemata, which is normally impossible to delete in the base Stremio installation. This allows you to replace it with the official TMDB addon, which will then handle providing metadata.
@@ -14,11 +14,11 @@ Stremio Add-on Manager is a powerful tool designed to enhance your Stremio exper
 
 ## Installation Guide
 
-The installation process for the Stremio Add-on Manager is simple. Follow these steps to set it up:
+The installation process for the Stremio Addon Manager is simple. Follow these steps to set it up:
 
 ### 1. Create the Installation Directory
 
-First, create a new directory for the Stremio Add-on Manager:
+First, create a new directory for the Stremio Addon Manager:
 
 ```bash
 mkdir stremio-addon-manager
@@ -48,7 +48,7 @@ services:
 
 ### 3. Launch the Container
 
-To start the Stremio Add-on Manager, run the following command in the directory containing your `docker-compose.yml` file:
+To start the Stremio Addon Manager, run the following command in the directory containing your `docker-compose.yml` file:
 
 ```bash
 docker compose up -d
@@ -59,7 +59,7 @@ docker compose up -d
 
 ## HTTPS Configuration with Nginx Proxy Manager
 
-To secure your Stremio Add-on Manager with HTTPS, you can use Nginx Proxy Manager.
+To secure your Stremio Addon Manager with HTTPS, you can use Nginx Proxy Manager.
 
 !!! info "Information"
     The detailed steps for this process are covered in another section of the documentation. Generally, you will need to:
@@ -73,16 +73,16 @@ To secure your Stremio Add-on Manager with HTTPS, you can use Nginx Proxy Manage
 
 ## Usage
 
-Once installed and configured, you can access the Stremio Add-on Manager via your web browser. Use it to manage your Stremio add-ons, including:
+Once installed and configured, you can access the Stremio Addon Manager via your web browser. Use it to manage your Stremio add-ons, including:
 
 - Reorganizing add-ons
 - Deleting add-ons (including those that are normally undeletable, like Cinemata)
 - Renaming catalogs
-- Editing add-on manifests
+- Editing addon manifests
 
 !!! warning "Caution"
     Remember to use this tool with care, especially when editing manifests or removing essential add-ons, to ensure the continued smooth operation of your Stremio installation.
 
 ## Conclusion
 
-The Stremio Add-on Manager is a valuable tool for customizing and optimizing your Stremio experience. By following this guide, you should now have it installed and be ready to use it. Enjoy the increased control over your Stremio add-ons!
+The Stremio Addon Manager is a valuable tool for customizing and optimizing your Stremio experience. By following this guide, you should now have it installed and be ready to use it. Enjoy the increased control over your Stremio add-ons!

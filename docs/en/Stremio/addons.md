@@ -2,7 +2,7 @@
 
 # The Stremio Addon System
 
-Stremio uses an addon (or add-on) system to extend its functionalities and provide content. These addons allow users to customize their experience by adding new content sources, additional features, and integrations with other services.
+Stremio uses an addon (or addon) system to extend its functionalities and provide content. These addons allow users to customize their experience by adding new content sources, additional features, and integrations with other services.
 
 ## Types of Stremio addons
 
