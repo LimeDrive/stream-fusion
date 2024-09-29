@@ -3,6 +3,7 @@ import time
 from urllib.parse import unquote
 
 from fastapi import HTTPException
+import requests
 
 from stream_fusion.constants import NO_CACHE_VIDEO_URL
 from stream_fusion.services.rd_conn.token_manager import RDTokenManager
@@ -64,7 +65,8 @@ class RealDebrid(BaseDebrid):
         self._torrent_rate_limit()
         url = f"{self.base_url}/rest/1.0/torrents/selectFiles/{torrent_id}"
         data = {"files": str(file_id)}
-        self.__session.post(url, headers=self.get_headers(), data=data)
+        requests.post(url, headers=self.get_headers(), data=data)
+        # Do not touch that requests.post, it is not a mistake. The requests.post is used to have the same ip than token owner.
 
     def unrestrict_link(self, link):
         url = f"{self.base_url}/rest/1.0/unrestrict/link"
