@@ -1,10 +1,7 @@
 nav:
-  - 0. Home: 
-    - index.md
   - Stremio
   - StreamFusion
   - How-To
   - Catalogs
   - Trakt
   - Manager
-  - ...
