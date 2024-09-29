@@ -64,7 +64,7 @@ class RealDebrid(BaseDebrid):
         self._torrent_rate_limit()
         url = f"{self.base_url}/rest/1.0/torrents/selectFiles/{torrent_id}"
         data = {"files": str(file_id)}
-        self.__session.post(url, headers=self.get_headers(), data=data)
+        self.json_response(url, method='post', headers=self.get_headers(), data=data)
 
     def unrestrict_link(self, link):
         url = f"{self.base_url}/rest/1.0/unrestrict/link"
