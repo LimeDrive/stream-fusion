@@ -292,7 +292,7 @@
         <a href="../../StreamFusion/streamfusion/" class="md-tabs__link">
           
   
-  2. StreamFusion-Plugin
+  2. StreamFusion-Addon
 
         </a>
       </li>
@@ -312,7 +312,7 @@
         <a href="../catalogs/" class="md-tabs__link">
           
   
-  3. Catalogs-Plugin
+  3. Catalogs-Addon
 
         </a>
       </li>
@@ -330,7 +330,7 @@
         <a href="../../Trakt/trakt/" class="md-tabs__link">
           
   
-  3. Trakt-Plugin
+  4. Trakt-Addon
 
         </a>
       </li>
@@ -348,7 +348,7 @@
         <a href="../../Manager/manager/" class="md-tabs__link">
           
   
-  4. Addons-Manager
+  5. Addons-Manager
 
         </a>
       </li>
@@ -617,7 +617,7 @@
             
   
   <span class="md-ellipsis">
-    2. StreamFusion-Plugin
+    2. StreamFusion-Addon
   </span>
   
 
@@ -627,7 +627,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            2. StreamFusion-Plugin
+            2. StreamFusion-Addon
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -663,7 +663,7 @@
         
   
   <span class="md-ellipsis">
-    Pré-Requis
+    Pré-requis
   </span>
   
 
@@ -818,7 +818,7 @@
         
   
   <span class="md-ellipsis">
-    Post-Installation
+    Post-installation
   </span>
   
 
@@ -885,7 +885,7 @@
             
   
   <span class="md-ellipsis">
-    3. Catalogs-Plugin
+    3. Catalogs-Addon
   </span>
   
 
@@ -895,7 +895,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
-            3. Catalogs-Plugin
+            3. Catalogs-Addon
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -931,7 +931,7 @@
         
   
   <span class="md-ellipsis">
-    Pré-Requis
+    Pré-requis
   </span>
   
 
@@ -1186,7 +1186,7 @@
             
   
   <span class="md-ellipsis">
-    3. Trakt-Plugin
+    4. Trakt-Addon
   </span>
   
 
@@ -1196,7 +1196,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
-            3. Trakt-Plugin
+            4. Trakt-Addon
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1232,7 +1232,7 @@
         
   
   <span class="md-ellipsis">
-    Pré-Requis
+    Pré-requis
   </span>
   
 
@@ -1340,7 +1340,7 @@
             
   
   <span class="md-ellipsis">
-    4. Addons-Manager
+    5. Addons-Manager
   </span>
   
 
@@ -1350,7 +1350,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
-            4. Addons-Manager
+            5. Addons-Manager
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1640,7 +1640,7 @@
 
 
 <h1 id="installation-de-stremio-catalog-providers-avec-docker-compose">Installation de Stremio Catalog Providers avec Docker Compose</h1>
-<p>Cette documentation vous guidera à travers le processus d'installation du plugin Stremio Catalog Providers en utilisant Docker Compose.</p>
+<p>Cette documentation vous guidera à travers le processus d'installation de l'addon Stremio Catalog Providers en utilisant Docker Compose.</p>
 <h2 id="prerequis">Prérequis</h2>
 <p>Assurez-vous d'avoir rempli tous les <a href="../prerequis/">prérequis d'installation</a> avant de commencer.</p>
 <div class="admonition warning">
@@ -1649,7 +1649,7 @@
 </div>
 <h2 id="etapes-dinstallation">Étapes d'installation</h2>
 <h3 id="1-creation-du-dossier-dinstallation">1. Création du dossier d'installation</h3>
-<p>Créez un nouveau dossier pour l'installation du plugin :</p>
+<p>Créez un nouveau dossier pour l'installation de l'addon :</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkdir<span class="w"> </span>stremio-catalog-providers
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>stremio-catalog-providers
 </code></pre></div>
@@ -1658,7 +1658,7 @@
 <p>Choisissez un emplacement facilement accessible pour votre dossier d'installation.</p>
 </div>
 <h3 id="2-creation-de-la-base-de-donnees">2. Création de la base de données</h3>
-<p>Exécutez la commande suivante pour créer la base de données nécessaire au plugin :</p>
+<p>Exécutez la commande suivante pour créer la base de données nécessaire a l'addon :</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">PGPASSWORD</span><span class="o">=</span>stremio<span class="w"> </span>stremio-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>stremio<span class="w"> </span>-d<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;CREATE DATABASE \&quot;stremio-catalog-db\&quot;;&quot;</span>
 </code></pre></div>
 <div class="admonition note">
@@ -1739,7 +1739,7 @@
 <tbody>
 <tr>
 <td><code>BASE_URL</code></td>
-<td>URL de base pour le plugin</td>
+<td>URL de base pour l'addon</td>
 <td>(obligatoire)</td>
 </tr>
 <tr>
@@ -1847,7 +1847,7 @@
 <li>Créez une nouvelle application en remplissant les informations requises (nom, description, etc.).</li>
 <li>Pour l'URL de redirection, utilisez le format suivant : <code>BASE_URL + /callback</code>
    Par exemple, si votre <code>BASE_URL</code> est <code>https://catalogs.example.com</code>, l'URL de redirection sera <code>https://catalogs.example.com/callback</code>.</li>
-<li>Une fois l'application créée, vous obtiendrez le <code>TRAKT_CLIENT_ID</code> et le <code>TRAKT_CLIENT_SECRET</code> nécessaires pour configurer le plugin.</li>
+<li>Une fois l'application créée, vous obtiendrez le <code>TRAKT_CLIENT_ID</code> et le <code>TRAKT_CLIENT_SECRET</code> nécessaires pour configurer l'addon.</li>
 </ol>
 <p>N'oubliez pas de garder ces informations confidentielles et de ne pas les partager publiquement.</p>
 </div>
@@ -1866,22 +1866,22 @@
 <p>Assurez-vous que votre domaine est correctement configuré et que les certificats SSL sont à jour.</p>
 </div>
 <h2 id="maintenance">Maintenance</h2>
-<p>Pour effectuer la maintenance du plugin, utilisez les commandes Docker Compose suivantes :</p>
+<p>Pour effectuer la maintenance de l'addon, utilisez les commandes Docker Compose suivantes :</p>
 <ul>
-<li>Arrêter le plugin : <code>docker compose stop</code></li>
-<li>Redémarrer le plugin : <code>docker compose restart</code></li>
+<li>Arrêter l'addon : <code>docker compose stop</code></li>
+<li>Redémarrer l'addon : <code>docker compose restart</code></li>
 <li>Voir les logs : <code>docker compose logs -f stremio-catalog-providers</code></li>
-<li>Mettre à jour le plugin :</li>
+<li>Mettre à jour l'addon :</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>pull
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Astuce</p>
-<p>Consultez régulièrement les logs pour vous assurer du bon fonctionnement du plugin.</p>
+<p>Consultez régulièrement les logs pour vous assurer du bon fonctionnement de l'addon.</p>
 </div>
 <h2 id="desinstallation">Désinstallation</h2>
-<p>Pour désinstaller complètement le plugin, suivez ces étapes :</p>
+<p>Pour désinstaller complètement l'addon, suivez ces étapes :</p>
 <ol>
 <li>
 <p>Arrêtez et supprimez les conteneurs :
@@ -1902,12 +1902,12 @@
 </ol>
 <div class="admonition warning">
 <p class="admonition-title">Attention</p>
-<p>La désinstallation supprimera toutes les données associées au plugin. Assurez-vous de sauvegarder toutes les informations importantes avant de procéder.</p>
+<p>La désinstallation supprimera toutes les données associées a l'addon. Assurez-vous de sauvegarder toutes les informations importantes avant de procéder.</p>
 </div>
 <p>N'oubliez pas de supprimer également la configuration du nom de domaine dans Nginx Proxy Manager si vous ne prévoyez pas de réutiliser ce domaine pour un autre service.</p>
 <div class="admonition note">
 <p class="admonition-title">Note finale</p>
-<p>Si vous rencontrez des problèmes lors de l'installation ou de l'utilisation du plugin, n'hésitez pas à consulter la documentation officielle ou à demander de l'aide sur les forums de support.</p>
+<p>Si vous rencontrez des problèmes lors de l'installation ou de l'utilisation de l'addon, n'hésitez pas à consulter la documentation officielle ou à demander de l'aide sur les forums de support.</p>
 </div>
 
 
