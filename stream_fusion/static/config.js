@@ -3,10 +3,10 @@ const qualityExclusions = ['2160p', '1080p', '720p', '480p', 'rips', 'cam', 'hev
 const languages = ['en', 'fr', 'multi'];
 
 document.addEventListener('DOMContentLoaded', function () {
-    handleUniqueAccounts();
-    updateProviderFields();
-    loadData();
-    updateDebridOrderList();
+  loadData();
+  handleUniqueAccounts();
+  updateProviderFields();
+  updateDebridOrderList();
 });
 
 function setElementDisplay(elementId, displayStatus) {
@@ -224,12 +224,10 @@ function startADAuth() {
   }
 
 function handleUniqueAccounts() {
-    const rdCheckbox = document.getElementById('debrid_rd');
-    const adCheckbox = document.getElementById('debrid_ad');
-    const sharewoodCheckbox = document.getElementById('sharewood');
-    const yggCheckbox = document.getElementById('yggflix');
-
-    function setUniqueAccountState(checkbox) {
+    const accounts = ['debrid_rd', 'debrid_ad', 'sharewood', 'yggflix'];
+    
+    accounts.forEach(account => {
+        const checkbox = document.getElementById(account);
         if (checkbox) {
             const isUnique = checkbox.dataset.uniqueAccount === 'true';
             checkbox.checked = isUnique;
@@ -238,12 +236,7 @@ function handleUniqueAccounts() {
                 checkbox.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
             }
         }
-    }
-
-    setUniqueAccountState(rdCheckbox);
-    setUniqueAccountState(adCheckbox);
-    setUniqueAccountState(sharewoodCheckbox);
-    setUniqueAccountState(yggCheckbox);
+    });
 }
 
 function updateDebridOrderList() {
@@ -300,6 +293,7 @@ function updateDebridOrderList() {
       }
   });
 }
+
 
 function addDebridToList(serviceName) {
   const debridOrderList = document.getElementById('debridOrderList');
@@ -441,54 +435,56 @@ function loadData() {
       }
   }
 
-  function setElementValue(id, value) {
+  function setElementValue(id, value, defaultValue) {
       const element = document.getElementById(id);
       if (element) {
           if (typeof value === 'boolean') {
-              element.checked = value;
+              element.checked = value ?? defaultValue;
           } else {
-              element.value = value;
+              element.value = value || defaultValue || '';
           }
       }
   }
 
-  setElementValue('jackett', decodedData.jackett ?? false);
-  setElementValue('cache', decodedData.cache ?? false);
-  setElementValue('cacheUrl', decodedData.cacheUrl || '');
-  setElementValue('zilean', decodedData.zilean ?? false);
-  setElementValue('yggflix', decodedData.yggflix ?? false);
-  setElementValue('sharewood', decodedData.sharewood ?? false);
-  setElementValue('rd_token_info', decodedData.RDToken || '');
-  setElementValue('ad_token_info', decodedData.ADToken || '');
-  setElementValue('sharewoodPasskey', decodedData.sharewoodPasskey || '');
-  setElementValue('yggPasskey', decodedData.yggPasskey || '');
-  setElementValue('ApiKey', decodedData.apiKey || '');
-  setElementValue('exclusion-keywords', (decodedData.exclusionKeywords || []).join(', '));
-  setElementValue('maxSize', decodedData.maxSize || '');
-  setElementValue('resultsPerQuality', decodedData.resultsPerQuality || '');
-  setElementValue('maxResults', decodedData.maxResults || '');
-  setElementValue('minCachedResults', decodedData.minCachedResults || '');
-  setElementValue('torrenting', decodedData.torrenting ?? false);
-  setElementValue('ctg_yggtorrent', decodedData.yggtorrentCtg ?? false);
-  setElementValue('ctg_yggflix', decodedData.yggflixCtg ?? false);
-  setElementValue('tmdb', decodedData.metadataProvider === 'tmdb');
-  setElementValue('cinemeta', decodedData.metadataProvider === 'cinemeta');
-  setElementValue('debrid_rd', decodedData.service?.includes('Real-Debrid') ?? false);
-  setElementValue('debrid_ad', decodedData.service?.includes('AllDebrid') ?? false);
-  setElementValue('debrid_order', decodedData.service && decodedData.service.length > 0);
+  // Configuration des éléments avec des valeurs par défaut
+  setElementValue('jackett', decodedData.jackett, false);
+  setElementValue('cache', decodedData.cache, false);
+  setElementValue('cacheUrl', decodedData.cacheUrl, '');
+  setElementValue('zilean', decodedData.zilean, false);
+  setElementValue('yggflix', decodedData.yggflix, false);
+  setElementValue('sharewood', decodedData.sharewood, false);
+  setElementValue('rd_token_info', decodedData.RDToken, '');
+  setElementValue('ad_token_info', decodedData.ADToken, '');
+  setElementValue('sharewoodPasskey', decodedData.sharewoodPasskey, '');
+  setElementValue('yggPasskey', decodedData.yggPasskey, '');
+  setElementValue('ApiKey', decodedData.apiKey, '');
+  setElementValue('exclusion-keywords', (decodedData.exclusionKeywords || []).join(', '), '');
+  setElementValue('maxSize', decodedData.maxSize, '');
+  setElementValue('resultsPerQuality', decodedData.resultsPerQuality, '');
+  setElementValue('maxResults', decodedData.maxResults, '');
+  setElementValue('minCachedResults', decodedData.minCachedResults, '');
+  setElementValue('torrenting', decodedData.torrenting, false);
+  setElementValue('ctg_yggtorrent', decodedData.yggtorrentCtg, false);
+  setElementValue('ctg_yggflix', decodedData.yggflixCtg, false);
+  setElementValue('tmdb', decodedData.metadataProvider === 'tmdb', true);
+  setElementValue('cinemeta', decodedData.metadataProvider === 'cinemeta', false);
+  setElementValue('debrid_rd', decodedData.service?.includes('Real-Debrid'), false);
+  setElementValue('debrid_ad', decodedData.service?.includes('AllDebrid'), false);
+  setElementValue('debrid_order', decodedData.service && decodedData.service.length > 0, false);
 
   sorts.forEach(sort => {
-      setElementValue(sort, decodedData.sort === sort);
+      setElementValue(sort, decodedData.sort === sort, sort === 'quality');
   });
 
   qualityExclusions.forEach(quality => {
-      setElementValue(quality, decodedData.exclusion?.includes(quality) ?? false);
+      setElementValue(quality, decodedData.exclusion?.includes(quality), false);
   });
 
   languages.forEach(language => {
-      setElementValue(language, decodedData.languages?.includes(language) ?? false);
+      setElementValue(language, decodedData.languages?.includes(language), language === 'en');
   });
 
+  handleUniqueAccounts();
   updateProviderFields();
 
   const debridDownloader = decodedData.debridDownloader;
@@ -500,7 +496,6 @@ function loadData() {
   }
 
   updateDebridDownloaderOptions();
-
   updateDebridOrderList();
 }
 
