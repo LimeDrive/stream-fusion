@@ -246,15 +246,15 @@ function updateDebridOrderList() {
   debridOrderList.innerHTML = '';
 
   let debridOrder = [];
-  try {
-      const currentUrl = window.location.href;
-      let data = currentUrl.match(/\/([^\/]+)\/configure$/);
-      if (data && data[1]) {
+  const currentUrl = window.location.href;
+  let data = currentUrl.match(/\/([^\/]+)\/configure$/);
+  if (data && data[1]) {
+      try {
           const decodedData = JSON.parse(atob(data[1]));
           debridOrder = decodedData.service || [];
+      } catch (error) {
+          console.warn("No valid debrid order data in URL, using default order.");
       }
-  } catch (error) {
-      console.error("Error getting debrid order:", error);
   }
 
   const rdEnabled = document.getElementById('debrid_rd').checked || document.getElementById('debrid_rd').disabled;
@@ -431,14 +431,14 @@ function loadData() {
       try {
           decodedData = JSON.parse(atob(data[1]));
       } catch (error) {
-          console.error("Error decoding data:", error);
+          console.warn("No valid data to decode in URL, using default values.");
       }
   }
 
   function setElementValue(id, value, defaultValue) {
       const element = document.getElementById(id);
       if (element) {
-          if (typeof value === 'boolean') {
+          if (typeof defaultValue === 'boolean') {
               element.checked = value ?? defaultValue;
           } else {
               element.value = value || defaultValue || '';
@@ -446,7 +446,6 @@ function loadData() {
       }
   }
 
-  // Configuration des éléments avec des valeurs par défaut
   setElementValue('jackett', decodedData.jackett, false);
   setElementValue('cache', decodedData.cache, false);
   setElementValue('cacheUrl', decodedData.cacheUrl, '');
@@ -498,7 +497,6 @@ function loadData() {
   updateDebridDownloaderOptions();
   updateDebridOrderList();
 }
-
 
 function getLink(method) {
     const data = {
