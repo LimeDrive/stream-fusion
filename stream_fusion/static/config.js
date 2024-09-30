@@ -3,10 +3,10 @@ const qualityExclusions = ['2160p', '1080p', '720p', '480p', 'rips', 'cam', 'hev
 const languages = ['en', 'fr', 'multi'];
 
 document.addEventListener('DOMContentLoaded', function () {
-  loadData();
-  handleUniqueAccounts();
-  updateProviderFields();
-  updateDebridOrderList();
+    loadData();
+    handleUniqueAccounts();
+    updateProviderFields();
+    updateDebridOrderList();
 });
 
 function setElementDisplay(elementId, displayStatus) {
@@ -19,7 +19,6 @@ function setElementDisplay(elementId, displayStatus) {
 function startRealDebridAuth() {
     document.getElementById('rd-auth-button').disabled = true;
     document.getElementById('rd-auth-button').textContent = "Authentification en cours...";
-    console.log('Début de l\'authentification Real-Debrid');
 
     fetch('/api/auth/realdebrid/device_code', {
         method: 'POST',
@@ -29,14 +28,12 @@ function startRealDebridAuth() {
         body: JSON.stringify({})
     })
         .then(response => {
-            console.log('Réponse reçue', response);
             if (!response.ok) {
                 throw new Error('Erreur de requête');
             }
             return response.json();
         })
         .then(data => {
-            console.log('Réponse reçue:', data);
             document.getElementById('verification-url').href = data.direct_verification_url;
             document.getElementById('verification-url').textContent = data.verification_url;
             document.getElementById('user-code').textContent = data.user_code;
@@ -44,14 +41,12 @@ function startRealDebridAuth() {
             pollForCredentials(data.device_code, data.expires_in);
         })
         .catch(error => {
-            console.error('Erreur détaillée:', error);
             alert("Erreur lors de l'authentification. Veuillez réessayer.");
             resetAuthButton();
         });
 }
 
 function pollForCredentials(deviceCode, expiresIn) {
-    console.log('Début du polling avec device_code:', deviceCode);
     const pollInterval = setInterval(() => {
         fetch(`/api/auth/realdebrid/credentials?device_code=${encodeURIComponent(deviceCode)}`, {
             method: 'POST',
@@ -138,101 +133,98 @@ function resetAuthButton() {
 function startADAuth() {
     document.getElementById('ad-auth-button').disabled = true;
     document.getElementById('ad-auth-button').textContent = "Authentication in progress...";
-    
+
     console.log('Starting AllDebrid authentication');
     fetch('/api/auth/alldebrid/pin/get', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => {
-      console.log('Response received', response);
-      if (!response.ok) {
-        throw new Error('Request error');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Data received:', data);
-      document.getElementById('ad-verification-url').href = data.data.user_url;
-      document.getElementById('ad-verification-url').textContent = data.data.base_url;
-      document.getElementById('ad-user-code').textContent = data.data.pin;
-      document.getElementById('ad-auth-instructions').style.display = 'block';
-      pollForADCredentials(data.data.check, data.data.pin, data.data.expires_in);
-    })
-    .catch(error => {
-      console.error('Detailed error:', error);
-      alert("Authentication error. Please try again.");
-      resetADAuthButton();
-    });
-  }
-  
-  function pollForADCredentials(check, pin, expiresIn) {
-    console.log('Starting polling with check:', check);
-    const pollInterval = setInterval(() => {
-      fetch(`/api/auth/alldebrid/pin/check?agent=streamfusion&check=${encodeURIComponent(check)}&pin=${encodeURIComponent(pin)}`, {
         method: 'GET',
         headers: {
-          'accept': 'application/json'
+            'Content-Type': 'application/json'
         }
-      })
-      .then(response => {
-        if (response.status === 400) {
-          console.log('Waiting for user authorization...');
-          return null;
-        }
-        if (!response.ok) {
-          throw new Error('Request error');
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data === null) return; // Skip processing if user hasn't entered PIN yet
-        console.log('Poll response:', data);
-        if (data.data && data.data.activated && data.data.apikey) {
-          clearInterval(pollInterval);
-          clearTimeout(timeoutId);
-          document.getElementById('ad_token_info').value = data.data.apikey;
-          document.getElementById('ad-auth-status').style.display = 'block';
-          document.getElementById('ad-auth-instructions').style.display = 'none';
-          document.getElementById('ad-auth-button').disabled = true;
-          document.getElementById('ad-auth-button').textContent = "Connection successful";
-          console.log('AllDebrid authentication successful');
-        } else {
-          console.log('Waiting for user authorization...');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        console.log('Next attempt in 5 seconds...');
-      });
+    })
+        .then(response => {
+            console.log('Response received', response);
+            if (!response.ok) {
+                throw new Error('Request error');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('ad-verification-url').href = data.data.user_url;
+            document.getElementById('ad-verification-url').textContent = data.data.base_url;
+            document.getElementById('ad-user-code').textContent = data.data.pin;
+            document.getElementById('ad-auth-instructions').style.display = 'block';
+            pollForADCredentials(data.data.check, data.data.pin, data.data.expires_in);
+        })
+        .catch(error => {
+            console.error('Detailed error:', error);
+            alert("Authentication error. Please try again.");
+            resetADAuthButton();
+        });
+}
+
+function pollForADCredentials(check, pin, expiresIn) {
+    const pollInterval = setInterval(() => {
+        fetch(`/api/auth/alldebrid/pin/check?agent=streamfusion&check=${encodeURIComponent(check)}&pin=${encodeURIComponent(pin)}`, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.status === 400) {
+                    console.log('Waiting for user authorization...');
+                    return null;
+                }
+                if (!response.ok) {
+                    throw new Error('Request error');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data === null) return; // Skip processing if user hasn't entered PIN yet
+                if (data.data && data.data.activated && data.data.apikey) {
+                    clearInterval(pollInterval);
+                    clearTimeout(timeoutId);
+                    document.getElementById('ad_token_info').value = data.data.apikey;
+                    document.getElementById('ad-auth-status').style.display = 'block';
+                    document.getElementById('ad-auth-instructions').style.display = 'none';
+                    document.getElementById('ad-auth-button').disabled = true;
+                    document.getElementById('ad-auth-button').textContent = "Connection successful";
+                    console.log('AllDebrid authentication successful');
+                } else {
+                    console.log('Waiting for user authorization...');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                console.log('Next attempt in 5 seconds...');
+            });
     }, 5000);
-  
+
     const timeoutId = setTimeout(() => {
-      clearInterval(pollInterval);
-      alert("Authentication timeout. Please try again.");
-      resetADAuthButton();
+        clearInterval(pollInterval);
+        alert("Authentication timeout. Please try again.");
+        resetADAuthButton();
     }, expiresIn * 1000);
-  }
-  
-  function resetADAuthButton() {
+}
+
+function resetADAuthButton() {
     const button = document.getElementById('ad-auth-button');
     button.disabled = false;
     button.textContent = "Connect with AllDebrid";
-    console.log('AllDebrid auth button reset');
-  }
+}
 
 function handleUniqueAccounts() {
     const accounts = ['debrid_rd', 'debrid_ad', 'sharewood', 'yggflix'];
-    
+
     accounts.forEach(account => {
         const checkbox = document.getElementById(account);
         if (checkbox) {
             const isUnique = checkbox.dataset.uniqueAccount === 'true';
-            checkbox.checked = isUnique;
-            checkbox.disabled = isUnique;
-            if (isUnique) {
+            if (!isUnique) {
+            } else {
+                checkbox.checked = isUnique;
+                checkbox.disabled = isUnique;
                 checkbox.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
             }
         }
@@ -240,262 +232,304 @@ function handleUniqueAccounts() {
 }
 
 function updateDebridOrderList() {
-  const debridOrderList = document.getElementById('debridOrderList');
-  if (!debridOrderList) return;
+    const debridOrderList = document.getElementById('debridOrderList');
+    if (!debridOrderList) return;
 
-  debridOrderList.innerHTML = '';
+    debridOrderList.innerHTML = '';
 
-  let debridOrder = [];
-  const currentUrl = window.location.href;
-  let data = currentUrl.match(/\/([^\/]+)\/configure$/);
-  if (data && data[1]) {
-      try {
-          const decodedData = JSON.parse(atob(data[1]));
-          debridOrder = decodedData.service || [];
-      } catch (error) {
-          console.warn("No valid debrid order data in URL, using default order.");
-      }
-  }
+    let debridOrder = [];
+    const currentUrl = window.location.href;
+    let data = currentUrl.match(/\/([^\/]+)\/configure$/);
+    if (data && data[1]) {
+        try {
+            const decodedData = JSON.parse(atob(data[1]));
+            debridOrder = decodedData.service || [];
+        } catch (error) {
+            console.warn("No valid debrid order data in URL, using default order.");
+        }
+    }
 
-  const rdEnabled = document.getElementById('debrid_rd').checked || document.getElementById('debrid_rd').disabled;
-  const adEnabled = document.getElementById('debrid_ad').checked || document.getElementById('debrid_ad').disabled;
+    const rdEnabled = document.getElementById('debrid_rd').checked || document.getElementById('debrid_rd').disabled;
+    const adEnabled = document.getElementById('debrid_ad').checked || document.getElementById('debrid_ad').disabled;
 
-  if (debridOrder.length === 0 || 
-      !debridOrder.every(service => 
-          (service === 'Real-Debrid' && rdEnabled) || 
-          (service === 'AllDebrid' && adEnabled)
-      )) {
-      debridOrder = [];
-      if (rdEnabled) debridOrder.push('Real-Debrid');
-      if (adEnabled) debridOrder.push('AllDebrid');
-  }
+    if (debridOrder.length === 0 ||
+        !debridOrder.every(service =>
+            (service === 'Real-Debrid' && rdEnabled) ||
+            (service === 'AllDebrid' && adEnabled)
+        )) {
+        debridOrder = [];
+        if (rdEnabled) debridOrder.push('Real-Debrid');
+        if (adEnabled) debridOrder.push('AllDebrid');
+    }
 
-  debridOrder.forEach(serviceName => {
-      if ((serviceName === 'Real-Debrid' && rdEnabled) ||
-          (serviceName === 'AllDebrid' && adEnabled)) {
-          addDebridToList(serviceName);
-      }
-  });
+    debridOrder.forEach(serviceName => {
+        if ((serviceName === 'Real-Debrid' && rdEnabled) ||
+            (serviceName === 'AllDebrid' && adEnabled)) {
+            addDebridToList(serviceName);
+        }
+    });
 
-  if (rdEnabled && !debridOrder.includes('Real-Debrid')) {
-      addDebridToList('Real-Debrid');
-  }
-  if (adEnabled && !debridOrder.includes('AllDebrid')) {
-      addDebridToList('AllDebrid');
-  }
+    if (rdEnabled && !debridOrder.includes('Real-Debrid')) {
+        addDebridToList('Real-Debrid');
+    }
+    if (adEnabled && !debridOrder.includes('AllDebrid')) {
+        addDebridToList('AllDebrid');
+    }
 
-  Sortable.create(debridOrderList, {
-      animation: 150,
-      ghostClass: 'bg-gray-100',
-      onEnd: function() {
-          const newOrder = Array.from(debridOrderList.children).map(li => li.dataset.serviceName);
-          console.log("Nouvel ordre des débrideurs:", newOrder);
-      }
-  });
+    Sortable.create(debridOrderList, {
+        animation: 150,
+        ghostClass: 'bg-gray-100',
+        onEnd: function () {
+            const newOrder = Array.from(debridOrderList.children).map(li => li.dataset.serviceName);
+            console.log("Nouvel ordre des débrideurs:", newOrder);
+        }
+    });
 }
 
 
 function addDebridToList(serviceName) {
-  const debridOrderList = document.getElementById('debridOrderList');
-  const li = document.createElement('li');
-  li.className = 'bg-gray-700 text-white text-sm p-1.5 rounded shadow cursor-move flex items-center justify-between w-64 mb-2';
-  
-  const text = document.createElement('span');
-  text.textContent = serviceName;
-  text.className = 'flex-grow truncate';
-  
-  const icon = document.createElement('span');
-  icon.innerHTML = '&#8942;';
-  icon.className = 'text-gray-400 ml-2 flex-shrink-0';
-  
-  li.appendChild(text);
-  li.appendChild(icon);
-  li.dataset.serviceName = serviceName;
-  debridOrderList.appendChild(li);
+    const debridOrderList = document.getElementById('debridOrderList');
+    const li = document.createElement('li');
+    li.className = 'bg-gray-700 text-white text-sm p-1.5 rounded shadow cursor-move flex items-center justify-between w-64 mb-2';
+
+    const text = document.createElement('span');
+    text.textContent = serviceName;
+    text.className = 'flex-grow truncate';
+
+    const icon = document.createElement('span');
+    icon.innerHTML = '&#8942;';
+    icon.className = 'text-gray-400 ml-2 flex-shrink-0';
+
+    li.appendChild(text);
+    li.appendChild(icon);
+    li.dataset.serviceName = serviceName;
+    debridOrderList.appendChild(li);
 }
 
 function toggleDebridOrderList() {
-  const orderList = document.getElementById('debridOrderList');
-  const isChecked = document.getElementById('debrid_order').checked;
-  orderList.classList.toggle('hidden', !isChecked);
+    const orderList = document.getElementById('debridOrderList');
+    const isChecked = document.getElementById('debrid_order').checked;
+    orderList.classList.toggle('hidden', !isChecked);
 
-  if (isChecked) {
-      updateDebridOrderList();
-  }
+    if (isChecked) {
+        updateDebridOrderList();
+    }
 }
 
 function updateDebridDownloaderOptions() {
-  const debridDownloaderOptions = document.getElementById('debridDownloaderOptions');
-  if (!debridDownloaderOptions) return;
+    const debridDownloaderOptions = document.getElementById('debridDownloaderOptions');
+    if (!debridDownloaderOptions) return;
 
-  debridDownloaderOptions.innerHTML = '';
+    debridDownloaderOptions.innerHTML = '';
 
-  const rdEnabled = document.getElementById('debrid_rd').checked || document.getElementById('debrid_rd').disabled;
-  const adEnabled = document.getElementById('debrid_ad').checked || document.getElementById('debrid_ad').disabled;
+    const rdEnabled = document.getElementById('debrid_rd').checked || document.getElementById('debrid_rd').disabled;
+    const adEnabled = document.getElementById('debrid_ad').checked || document.getElementById('debrid_ad').disabled;
 
-  let firstOption = null;
+    let firstOption = null;
 
-  if (rdEnabled) {
-    firstOption = addDebridDownloaderOption('Real-Debrid');
-  }
-  if (adEnabled) {
-    if (!firstOption) {
-      firstOption = addDebridDownloaderOption('AllDebrid');
-    } else {
-      addDebridDownloaderOption('AllDebrid');
+    if (rdEnabled) {
+        firstOption = addDebridDownloaderOption('Real-Debrid');
     }
-  }
+    if (adEnabled) {
+        if (!firstOption) {
+            firstOption = addDebridDownloaderOption('AllDebrid');
+        } else {
+            addDebridDownloaderOption('AllDebrid');
+        }
+    }
 
-  if (firstOption && !document.querySelector('input[name="debrid_downloader"]:checked')) {
-    firstOption.checked = true;
-  }
+    if (firstOption && !document.querySelector('input[name="debrid_downloader"]:checked')) {
+        firstOption.checked = true;
+    }
 }
 
 function addDebridDownloaderOption(serviceName) {
-  const debridDownloaderOptions = document.getElementById('debridDownloaderOptions');
-  const id = `debrid_downloader_${serviceName.toLowerCase().replace('-', '_')}`;
+    const debridDownloaderOptions = document.getElementById('debridDownloaderOptions');
+    const id = `debrid_downloader_${serviceName.toLowerCase().replace('-', '_')}`;
 
-  const div = document.createElement('div');
-  div.className = 'flex items-center';
+    const div = document.createElement('div');
+    div.className = 'flex items-center';
 
-  const input = document.createElement('input');
-  input.type = 'radio';
-  input.id = id;
-  input.name = 'debrid_downloader';
-  input.value = serviceName;
-  input.className = 'h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600';
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.id = id;
+    input.name = 'debrid_downloader';
+    input.value = serviceName;
+    input.className = 'h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600';
 
-  const label = document.createElement('label');
-  label.htmlFor = id;
-  label.className = 'ml-3 block text-sm font-medium text-white';
-  label.textContent = serviceName;
+    const label = document.createElement('label');
+    label.htmlFor = id;
+    label.className = 'ml-3 block text-sm font-medium text-white';
+    label.textContent = serviceName;
 
-  div.appendChild(input);
-  div.appendChild(label);
-  debridDownloaderOptions.appendChild(div);
+    div.appendChild(input);
+    div.appendChild(label);
+    debridDownloaderOptions.appendChild(div);
 
-  return input;
+    return input;
 }
 
 
 function updateProviderFields() {
-  const RDdebridChecked = document.getElementById('debrid_rd').checked ||
-      document.getElementById('debrid_rd').disabled;
-  const ADdebridChecked = document.getElementById('debrid_ad').checked ||
-      document.getElementById('debrid_ad').disabled;
-  const cacheChecked = document.getElementById('cache')?.checked;
-  const yggflixChecked = document.getElementById('yggflix')?.checked ||
-      document.getElementById('yggflix')?.disabled;
-  const sharewoodChecked = document.getElementById('sharewood')?.checked ||
-      document.getElementById('sharewood')?.disabled;
+    const RDdebridChecked = document.getElementById('debrid_rd').checked ||
+        document.getElementById('debrid_rd').disabled;
+    const ADdebridChecked = document.getElementById('debrid_ad').checked ||
+        document.getElementById('debrid_ad').disabled;
+    const cacheChecked = document.getElementById('cache')?.checked;
+    const yggflixChecked = document.getElementById('yggflix')?.checked ||
+        document.getElementById('yggflix')?.disabled;
+    const sharewoodChecked = document.getElementById('sharewood')?.checked ||
+        document.getElementById('sharewood')?.disabled;
 
-  const RDdebridFields = document.getElementById('rd_debrid-fields');
-  const ADdebridFields = document.getElementById('ad_debrid-fields');
-  const cacheFields = document.getElementById('cache-fields');
-  const yggFields = document.getElementById('ygg-fields');
-  const sharewoodFields = document.getElementById('sharewood-fields');
+    // Mise à jour de l'affichage des champs
+    setElementDisplay('rd_debrid-fields', RDdebridChecked ? 'block' : 'none');
+    setElementDisplay('ad_debrid-fields', ADdebridChecked ? 'block' : 'none');
+    setElementDisplay('cache-fields', cacheChecked ? 'block' : 'none');
+    setElementDisplay('ygg-fields', yggflixChecked ? 'block' : 'none');
+    setElementDisplay('sharewood-fields', sharewoodChecked ? 'block' : 'none');
 
-  if (RDdebridFields) RDdebridFields.style.display = RDdebridChecked ? 'block' : 'none';
-  if (ADdebridFields) ADdebridFields.style.display = ADdebridChecked ? 'block' : 'none';
-  if (cacheFields) cacheFields.style.display = cacheChecked ? 'block' : 'none';
-  if (yggFields) yggFields.style.display = yggflixChecked ? 'block' : 'none';
-  if (sharewoodFields) sharewoodFields.style.display = sharewoodChecked ? 'block' : 'none';
+    const debridOrderCheckbox = document.getElementById('debrid_order');
+    const debridOrderList = document.getElementById('debridOrderList');
 
-  const debridOrderCheckbox = document.getElementById('debrid_order');
-  const debridOrderList = document.getElementById('debridOrderList');
+    if (debridOrderCheckbox && debridOrderList) {
+        const anyDebridEnabled = RDdebridChecked || ADdebridChecked;
 
-  if (debridOrderCheckbox && debridOrderList) {
-      const anyDebridEnabled = RDdebridChecked || ADdebridChecked;
-      
-      debridOrderCheckbox.disabled = !anyDebridEnabled;
-      debridOrderCheckbox.checked = anyDebridEnabled && debridOrderCheckbox.checked;
+        debridOrderCheckbox.disabled = !anyDebridEnabled;
+        
+        // Mise à jour de l'état de la case à cocher debrid_order
+        if (!anyDebridEnabled) {
+            debridOrderCheckbox.checked = false;
+        }
 
-      if (anyDebridEnabled && debridOrderCheckbox.checked) {
-          debridOrderList.classList.remove('hidden');
-          updateDebridOrderList();
-      } else {
-          debridOrderList.classList.add('hidden');
-      }
-  }
+        // Mise à jour de l'affichage de la liste d'ordre des débrideurs
+        debridOrderList.classList.toggle('hidden', !(anyDebridEnabled && debridOrderCheckbox.checked));
+    }
 
-  updateDebridOrderList();
-  updateDebridDownloaderOptions();
+    // Mise à jour des options de débrideur
+    updateDebridOrderList();
+    updateDebridDownloaderOptions();
+
+    // Vérification finale de la cohérence des états
+    ensureDebridConsistency();
+}
+
+function ensureDebridConsistency() {
+    const RDdebridChecked = document.getElementById('debrid_rd').checked;
+    const ADdebridChecked = document.getElementById('debrid_ad').checked;
+    const debridOrderChecked = document.getElementById('debrid_order').checked;
+
+    if (!RDdebridChecked && !ADdebridChecked) {
+        document.getElementById('debrid_order').checked = false;
+        document.getElementById('debridOrderList').classList.add('hidden');
+    }
+
+    if (debridOrderChecked && !RDdebridChecked && !ADdebridChecked) {
+        document.getElementById('debrid_order').checked = false;
+    }
+
+    updateDebridDownloaderOptions();
 }
 
 function loadData() {
-  const currentUrl = window.location.href;
-  let data = currentUrl.match(/\/([^\/]+)\/configure$/);
-  let decodedData = {};
+    const currentUrl = window.location.href;
+    let data = currentUrl.match(/\/([^\/]+)\/configure$/);
+    let decodedData = {};
+    if (data && data[1]) {
+        try {
+            decodedData = JSON.parse(atob(data[1]));
+        } catch (error) {
+            console.warn("No valid data to decode in URL, using default values.");
+        }
+    }
 
-  if (data && data[1]) {
-      try {
-          decodedData = JSON.parse(atob(data[1]));
-      } catch (error) {
-          console.warn("No valid data to decode in URL, using default values.");
-      }
-  }
+    function setElementValue(id, value, defaultValue) {
+        const element = document.getElementById(id);
+        if (element) {
+            if (element.type === 'radio' || element.type === 'checkbox') {
+                element.checked = (value !== undefined) ? value : defaultValue;
+            } else {
+                element.value = value || defaultValue || '';
+            }
+        }
+    }
 
-  function setElementValue(id, value, defaultValue) {
-      const element = document.getElementById(id);
-      if (element) {
-          if (typeof defaultValue === 'boolean') {
-              element.checked = value ?? defaultValue;
-          } else {
-              element.value = value || defaultValue || '';
-          }
-      }
-  }
+    const defaultConfig = {
+        jackett: false,
+        cache: true,
+        cacheUrl: 'https://stremio-jackett-cacher.elfhosted.com/',
+        zilean: true,
+        yggflix: true,
+        sharewood: false,
+        maxSize: '18',
+        resultsPerQuality: '10',
+        maxResults: '30',
+        minCachedResults: '10',
+        torrenting: false,
+        ctg_yggtorrent: true,
+        ctg_yggflix: false,
+        metadataProvider: 'tmdb',
+        sort: 'qualitythensize',
+        exclusion: ['cam', '2160p'],
+        languages: ['fr', 'multi'],
+        debrid_rd: false,
+        debrid_ad: false,
+        debrid_order: false
+    };
 
-  setElementValue('jackett', decodedData.jackett, false);
-  setElementValue('cache', decodedData.cache, false);
-  setElementValue('cacheUrl', decodedData.cacheUrl, '');
-  setElementValue('zilean', decodedData.zilean, false);
-  setElementValue('yggflix', decodedData.yggflix, false);
-  setElementValue('sharewood', decodedData.sharewood, false);
-  setElementValue('rd_token_info', decodedData.RDToken, '');
-  setElementValue('ad_token_info', decodedData.ADToken, '');
-  setElementValue('sharewoodPasskey', decodedData.sharewoodPasskey, '');
-  setElementValue('yggPasskey', decodedData.yggPasskey, '');
-  setElementValue('ApiKey', decodedData.apiKey, '');
-  setElementValue('exclusion-keywords', (decodedData.exclusionKeywords || []).join(', '), '');
-  setElementValue('maxSize', decodedData.maxSize, '');
-  setElementValue('resultsPerQuality', decodedData.resultsPerQuality, '');
-  setElementValue('maxResults', decodedData.maxResults, '');
-  setElementValue('minCachedResults', decodedData.minCachedResults, '');
-  setElementValue('torrenting', decodedData.torrenting, false);
-  setElementValue('ctg_yggtorrent', decodedData.yggtorrentCtg, false);
-  setElementValue('ctg_yggflix', decodedData.yggflixCtg, false);
-  setElementValue('tmdb', decodedData.metadataProvider === 'tmdb', true);
-  setElementValue('cinemeta', decodedData.metadataProvider === 'cinemeta', false);
-  setElementValue('debrid_rd', decodedData.service?.includes('Real-Debrid'), false);
-  setElementValue('debrid_ad', decodedData.service?.includes('AllDebrid'), false);
-  setElementValue('debrid_order', decodedData.service && decodedData.service.length > 0, false);
+    // Appliquer les valeurs (de l'URL ou par défaut)
+    Object.keys(defaultConfig).forEach(key => {
+        const value = decodedData[key] !== undefined ? decodedData[key] : defaultConfig[key];
+        if (key === 'metadataProvider') {
+            setElementValue('tmdb', value === 'tmdb', true);
+            setElementValue('cinemeta', value === 'cinemeta', false);
+        } else if (key === 'sort') {
+            sorts.forEach(sort => {
+                setElementValue(sort, value === sort, sort === defaultConfig.sort);
+            });
+        } else if (key === 'exclusion') {
+            qualityExclusions.forEach(quality => {
+                setElementValue(quality, value.includes(quality), defaultConfig.exclusion.includes(quality));
+            });
+        } else if (key === 'languages') {
+            languages.forEach(language => {
+                setElementValue(language, value.includes(language), defaultConfig.languages.includes(language));
+            });
+        } else {
+            setElementValue(key, value, defaultConfig[key]);
+        }
+    });
 
-  sorts.forEach(sort => {
-      setElementValue(sort, decodedData.sort === sort, sort === 'quality');
-  });
+    const serviceArray = decodedData.service || [];
+    setElementValue('debrid_rd', serviceArray.includes('Real-Debrid'), defaultConfig.debrid_rd);
+    setElementValue('debrid_ad', serviceArray.includes('AllDebrid'), defaultConfig.debrid_ad);
+    setElementValue('debrid_order', serviceArray.length > 0, defaultConfig.debrid_order);
 
-  qualityExclusions.forEach(quality => {
-      setElementValue(quality, decodedData.exclusion?.includes(quality), false);
-  });
+    // Catalogues
+    setElementValue('ctg_yggtorrent', decodedData.yggtorrentCtg, defaultConfig.ctg_yggtorrent);
+    setElementValue('ctg_yggflix', decodedData.yggflixCtg, defaultConfig.ctg_yggflix);
 
-  languages.forEach(language => {
-      setElementValue(language, decodedData.languages?.includes(language), language === 'en');
-  });
+    // Tokens et passkeys
+    setElementValue('rd_token_info', decodedData.RDToken, '');
+    setElementValue('ad_token_info', decodedData.ADToken, '');
+    setElementValue('sharewoodPasskey', decodedData.sharewoodPasskey, '');
+    setElementValue('yggPasskey', decodedData.yggPasskey, '');
+    setElementValue('ApiKey', decodedData.apiKey, '');
+    setElementValue('exclusion-keywords', (decodedData.exclusionKeywords || []).join(', '), '');
 
-  handleUniqueAccounts();
-  updateProviderFields();
+    handleUniqueAccounts();
+    updateProviderFields();
 
-  const debridDownloader = decodedData.debridDownloader;
-  if (debridDownloader) {
-      const radioButton = document.querySelector(`input[name="debrid_downloader"][value="${debridDownloader}"]`);
-      if (radioButton) {
-          radioButton.checked = true;
-      }
-  }
+    const debridDownloader = decodedData.debridDownloader;
+    if (debridDownloader) {
+        const radioButton = document.querySelector(`input[name="debrid_downloader"][value="${debridDownloader}"]`);
+        if (radioButton) {
+            radioButton.checked = true;
+        }
+    }
 
-  updateDebridDownloaderOptions();
-  updateDebridOrderList();
+    updateDebridDownloaderOptions();
+    updateDebridOrderList();
+    ensureDebridConsistency();
 }
 
 function getLink(method) {
@@ -541,7 +575,7 @@ function getLink(method) {
     if (!data.apiKey) missingRequiredFields.push("API Key");
     if (data.yggflix && document.getElementById('yggPasskey') && !data.yggPasskey) missingRequiredFields.push("Ygg Passkey");
     if (data.sharewood && document.getElementById('sharewoodPasskey') && !data.sharewoodPasskey) missingRequiredFields.push("Sharewood Passkey");
-    
+
     if (missingRequiredFields.length > 0) {
         alert(`Please fill all required fields: ${missingRequiredFields.join(", ")}`);
         return false;
