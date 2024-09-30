@@ -579,8 +579,6 @@ function getLink(method) {
         return false;
     }
 
-    console.log("Données avant encodage :", JSON.parse(JSON.stringify(data)));
-
     const encodedData = btoa(JSON.stringify(data));
     const stremio_link = `${window.location.host}/${encodedData}/manifest.json`;
 
