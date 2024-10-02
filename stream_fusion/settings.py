@@ -1,7 +1,7 @@
 import enum
 import multiprocessing
 import os
-from pydantic import Field, ValidationError
+from pydantic import Field, ValidationError, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from yarl import URL
 
@@ -57,7 +57,7 @@ class Settings(BaseSettings):
 
     # PROXY
     proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
-    proxy_url: str | None = None
+    proxy_url: str | URL | None = None
     playback_proxy: bool | None = (
         None  # If set, the link will be proxied through the given proxy.
     )
@@ -138,6 +138,20 @@ class Settings(BaseSettings):
     dev_port: int = 8080
     develop: bool = False
     reload: bool = False
+
+    @field_validator('proxy_url')
+    @classmethod
+    def validate_and_create_proxy_url(cls, v: str | None) -> URL | None:
+        if v is None:
+            return None
+        
+        v = v.strip('"\'')
+        if not v.startswith(('http://', 'https://')):
+            v = 'http://' + v
+        try:
+            return URL(v)
+        except ValueError as e:
+            raise ValueError(f"Invalid proxy URL: {e}")
 
     @property
     def pg_url(self) -> URL:

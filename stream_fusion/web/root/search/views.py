@@ -260,10 +260,14 @@ async def get_results(
                 hashes = torrent_smart_container.get_unaviable_hashes()
                 ip = request.client.host
                 result = debrid.get_availability_bulk(hashes, ip)
-                torrent_smart_container.update_availability(
-                    result, type(debrid), media
-                )
-                logger.info(f"Checked availability for {len(result.items())} items")
+                if result:
+                    torrent_smart_container.update_availability(
+                        result, type(debrid), media
+                    )
+                    logger.info(f"Checked availability for {len(result.items())} items")
+                else:
+                    logger.info("No availability results found in debrid service")
+                    logger.info("Please check your proxy settings")
 
         if config["cache"]:
             logger.debug("Caching public container items")
