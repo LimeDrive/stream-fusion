@@ -27,8 +27,8 @@ class BaseDebrid:
         if settings.proxy_url:
             self.logger.info(f"Using proxy: {settings.proxy_url}")
             session.proxies = {
-                'http': settings.proxy_url,
-                'https': settings.proxy_url
+                'http': str(settings.proxy_url),
+                'https': str(settings.proxy_url)
             }
         return session
 

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script>
         const secretKey = "{{ session_key }}";
     </script>
@@ -72,8 +73,8 @@
                             </div>
                             <div class="text-sm leading-6">
                                 <label for="debrid_rd" class="font-medium text-white">Enable Real-Debrid Service</label>
-                                <p class="text-gray-500 dark:text-gray-300">Activate Real-Débrid service for
-                                    streaming.</p>
+                                <p class="text-gray-500 dark:text-gray-300">Activate Real-Débrid service for streaming.
+                                </p>
                             </div>
                         </div>
 
@@ -86,8 +87,8 @@
                             </div>
                             <div class="text-sm leading-6">
                                 <label for="debrid_ad" class="font-medium text-white">Enable AllDebrid Service</label>
-                                <p class="text-gray-500 dark:text-gray-300">Activate AllDebrid service for
-                                    streaming.</p>
+                                <p class="text-gray-500 dark:text-gray-300">Activate AllDebrid service for streaming.
+                                </p>
                             </div>
                         </div>
 
@@ -190,6 +191,42 @@
                 </div>
 
                 <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                    <h2 class="text-white font-semibold leading-7">Debrid Custom Config</h2>
+                    <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Customize your debrid service
+                        settings here.</p>
+                    <div class="mt-10 space-y-10">
+                        <div class="relative flex gap-x-3">
+                            <div class="flex h-6 items-center">
+                                <input id="debrid_order" name="debrid_order" type="checkbox"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                    onchange="toggleDebridOrderList()">
+                            </div>
+                            <div class="text-sm leading-6">
+                                <label for="debrid_order" class="font-medium text-white">Customize Debrid Service
+                                    Order</label>
+                                <p class="text-gray-500 dark:text-gray-300">
+                                    Set the priority order for streaming services. The cache of each debrid service will
+                                    be checked in this order.
+                                </p>
+                                <ul id="debridOrderList" class="mt-4 space-y-2 hidden">
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="relative flex flex-col gap-y-3">
+                            <div class="text-sm leading-6">
+                                <label class="font-medium text-white">Debrid Service Downloader</label>
+                                <p class="text-gray-500 dark:text-gray-300">
+                                    Select which debrid service to use for downloading torrents.
+                                </p>
+                            </div>
+                            <div id="debridDownloaderOptions" class="mt-2 space-y-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                     <h2 class="text-white font-semibold leading-7">Catalogs Providers</h2>
                     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Configure your catalogs
                         preferences here.</p>
@@ -213,7 +250,8 @@
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                             </div>
                             <div class="text-sm leading-6">
-                                <label for="ctg_yggtorrent" class="font-medium text-white">Enable Yggtorrent Catalogs</label>
+                                <label for="ctg_yggtorrent" class="font-medium text-white">Enable Yggtorrent
+                                    Catalogs</label>
                                 <p class="text-gray-500 dark:text-gray-300">Activate yggtorrent catalogs for discovers
                                     contents.</p>
                             </div>
@@ -264,8 +302,10 @@
                                 </button>
                                 <div id="ad-auth-instructions" class="mt-2 text-sm text-gray-600 dark:text-gray-400"
                                     style="display: none;">
-                                    Veuillez entrer ce code PIN sur le site AllDebrid : <span id="ad-user-code"></span><br>
-                                    Visitez <a id="ad-verification-url" class="text-blue-500 hover:underline" target="_blank"></a>
+                                    Veuillez entrer ce code PIN sur le site AllDebrid : <span
+                                        id="ad-user-code"></span><br>
+                                    Visitez <a id="ad-verification-url" class="text-blue-500 hover:underline"
+                                        target="_blank"></a>
                                 </div>
                                 <div id="ad-auth-status" class="mt-2 text-sm text-green-600 dark:text-green-400"
                                     style="display: none;">
@@ -422,8 +462,9 @@
                                 </div>
                                 <div class="flex items-center gap-x-3">
                                     <input id="hevc" name="hevc" type="checkbox"
-                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                                    <label for="hevc" class="block text-sm font-medium leading-6 text-white">Exclude HEVC
+                                        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                    <label for="hevc" class="block text-sm font-medium leading-6 text-white">Exclude
+                                        HEVC
                                         (x265, H265, HEVC codec) quality</label>
                                 </div>
                                 <!-- <div class="flex items-center gap-x-3">

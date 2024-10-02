@@ -9,12 +9,16 @@ from stream_fusion.settings import settings
 def get_all_debrid_services(config):
     services = config['service']
     debrid_service = []
-    if "Real-Debrid" in services:
-        debrid_service.append(RealDebrid(config))
-        logger.debug("Real Debrid service added to be use")
-    if "AllDebrid" in services:
-        debrid_service.append(AllDebrid(config))
-        logger.debug("All Debrid service added to be use")
+    if not services:
+        logger.error("No service configuration found in the config file.")
+        return
+    for service in services:
+        if service == "Real-Debrid":
+            debrid_service.append(RealDebrid(config))
+            logger.debug("Real Debrid service added to be use")
+        if service == "AllDebrid":
+            debrid_service.append(AllDebrid(config))
+            logger.debug("All Debrid service added to be use")
     if not debrid_service:
         raise HTTPException(status_code=500, detail="Invalid service configuration.")
     

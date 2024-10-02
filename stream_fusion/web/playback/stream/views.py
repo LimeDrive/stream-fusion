@@ -65,12 +65,16 @@ async def get_stream_link(
     logger.debug("Stream link not found in cache, generating new link")
 
     query = json.loads(decoded_query)
-    debrid = query.get("service", False)
+    service = query.get("service", False)
 
-    if debrid:
-        debrid_service = get_debrid_service(config, debrid)
-    
-    link = debrid_service.get_stream_link(query, config, ip)
+    if service:
+        debrid_service = get_debrid_service(config, service)
+        link = debrid_service.get_stream_link(query, config, ip)
+    else:
+        debrid_service = get_debrid_service(config, "RD")
+        # TODO: add the method to dowlnoad the torrent in the selected debrid service in config.
+        debrid_service.get_stream_link(query, config, ip)
+        link = NO_CACHE_VIDEO_URL
 
     if link != NO_CACHE_VIDEO_URL:
         logger.debug(f"Caching new stream link: {link}")
