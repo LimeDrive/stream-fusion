@@ -21,7 +21,7 @@ services:
       PG_USER: ${POSTGRES_USER:-stremio}
       PG_PASS: ${POSTGRES_PASSWORD:-stremio}
       USE_HTTPS: ${USE_HTTPS:-True}
-      PROXY_URL: ${PROXY_URL:-'http://warp:1080'}
+      PROXY_URL: ${PROXY_URL:-http://warp:1080}
       TZ: ${TZ:-Europe/London}
     expose:
       - 8080
