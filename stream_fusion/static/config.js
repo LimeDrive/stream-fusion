@@ -538,7 +538,7 @@ function loadData() {
     
     setElementValue('tb_usenet', decodedData.TBUsenet, defaultConfig.tb_usenet);
     setElementValue('tb_search', decodedData.TBSearch, defaultConfig.tb_search);
-    
+
     handleUniqueAccounts();
     updateProviderFields();
 
