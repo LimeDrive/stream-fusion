@@ -77,6 +77,12 @@ class Settings(BaseSettings):
     ad_base_url: str = "https://api.alldebrid.com"
     ad_api_version: str = "v4"
 
+    # TORBOX
+    tb_token: str | None = None
+    tb_unique_account: bool = check_env_variable("TB_TOKEN")
+    tb_base_url: str = "https://api.torbox.app"
+    tb_api_version: str = "v1"
+
     # LOGGING
     log_level: LogLevel = LogLevel.INFO
     log_path: str = "/app/config/logs/stream-fusion.log"

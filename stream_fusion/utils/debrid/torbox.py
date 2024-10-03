@@ -8,12 +8,12 @@ from stream_fusion.settings import settings
 class Torbox(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
-        self.base_url = f"https://api.torbox.app/v1/api"
+        self.base_url = f"{settings.tb_base_url}/{settings.tb_api_version}/api"
         logger.info(f"Torbox: Initialized with base URL: {self.base_url}")
 
     def get_headers(self):
         # TODO: Add support for unique account and check for token conn
-        return {"Authorization": f"Bearer {settings.torbox_api_key}"}
+        return {"Authorization": f"Bearer {settings.tb_token}"}
 
     def add_magnet(self, magnet, ip=None):
         logger.info(f"Torbox: Adding magnet: {magnet[:50]}...")

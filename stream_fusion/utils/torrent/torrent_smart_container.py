@@ -6,6 +6,7 @@ from RTN import parse
 from stream_fusion.utils.debrid.alldebrid import AllDebrid
 from stream_fusion.utils.debrid.premiumize import Premiumize
 from stream_fusion.utils.debrid.realdebrid import RealDebrid
+from stream_fusion.utils.debrid.torbox import Torbox
 from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.utils.cache.cache import cache_public
 from stream_fusion.utils.general import season_episode_in_filename
@@ -114,6 +115,8 @@ class TorrentSmartContainer:
             self.__update_availability_realdebrid(debrid_response, media)
         elif debrid_type is AllDebrid:
             self.__update_availability_alldebrid(debrid_response, media)
+        elif debrid_type is Torbox:
+            self.__update_availability_torbox(debrid_response, media)
         elif debrid_type is Premiumize:
             self.__update_availability_premiumize(debrid_response)
         else:
@@ -187,6 +190,10 @@ class TorrentSmartContainer:
             self.__explore_folders(data["files"], files, 1, torrent_item.type, media)
             self.__update_file_details(torrent_item, files, debrid="AD")
         self.logger.info("AllDebrid availability update completed")
+
+    def __update_availability_torbox(self, response, media):
+        # TODO: Implement Torbox availability update
+        pass
 
     def __update_availability_premiumize(self, response):
         self.logger.info("Updating availability for Premiumize")

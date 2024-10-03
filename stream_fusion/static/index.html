@@ -94,6 +94,20 @@
 
                         <div class="relative flex gap-x-3">
                             <div class="flex h-6 items-center">
+                                <input id="debrid_tb" name="debrid_tb" type="checkbox"
+                                    data-unique-account="{{ tb_unique_account|lower }}"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                    onchange="updateProviderFields(true)">
+                            </div>
+                            <div class="text-sm leading-6">
+                                <label for="debrid_tb" class="font-medium text-white">Enable TorBox Service</label>
+                                <p class="text-gray-500 dark:text-gray-300">Activate TorBox service for streaming.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="relative flex gap-x-3">
+                            <div class="flex h-6 items-center">
                                 <input id="torrenting" name="torrenting" type="checkbox"
                                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                             </div>
@@ -316,6 +330,43 @@
                                 <textarea id="ad_token_info" rows="2"
                                     class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2"
                                     readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if not tb_unique_account %}
+                <div id="tb_debrid-fields" style="display: none;">
+                    <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                        <h2 class="text-white font-semibold leading-7">Torbox Configuration</h2>
+                        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                            <div class="sm:col-span-4">
+                                <label for="tb_token_info" class="block text-sm font-medium leading-6 text-white">Torbox Token</label>
+                                <input type="text" name="tb_token_info" id="tb_token_info"
+                                    class="mt-2 block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            </div>
+                        </div>
+                        <div class="mt-6 space-y-6">
+                            <div class="relative flex gap-x-3">
+                                <div class="flex h-6 items-center">
+                                    <input id="tb_usenet" name="tb_usenet" type="checkbox"
+                                        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                </div>
+                                <div class="text-sm leading-6">
+                                    <label for="tb_usenet" class="font-medium text-white">Use Usenets</label>
+                                    <p class="text-gray-500 dark:text-gray-300">Enable usenet search and usenets download functionality.</p>
+                                </div>
+                            </div>
+                            <div class="relative flex gap-x-3">
+                                <div class="flex h-6 items-center">
+                                    <input id="tb_search" name="tb_search" type="checkbox"
+                                        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                </div>
+                                <div class="text-sm leading-6">
+                                    <label for="tb_search" class="font-medium text-white">Use TorBox Public Torrent Search Engine</label>
+                                    <p class="text-gray-500 dark:text-gray-300">Enable public torrent search functionality.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
