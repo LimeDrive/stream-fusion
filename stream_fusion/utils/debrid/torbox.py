@@ -93,7 +93,7 @@ class Torbox(BaseDebrid):
 
         if not torrent_info or "id" not in torrent_info:
             logger.error("Torbox: Failed to add or find torrent.")
-            return "Error: Failed to add or find torrent."
+            return None
 
         torrent_id = torrent_info["id"]
         logger.info(f"Torbox: Working with torrent ID: {torrent_id}")

@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from RTN import title_match, RTN, DefaultRanking, SettingsModel, sort_torrents
+from RTN import title_match
 
 from stream_fusion.utils.filter.language_filter import LanguageFilter
 from stream_fusion.utils.filter.max_size_filter import MaxSizeFilter
@@ -24,7 +24,6 @@ def sort_quality(item: TorrentItem):
 
 
 def items_sort(items, config):
-    logger.info(f"Starting item sorting. Sort method: {config['sort']}")
     # settings = SettingsModel(
     #     require=[],
     #     exclude=config["exclusionKeywords"] + config["exclusion"],
@@ -60,14 +59,14 @@ def items_sort(items, config):
     return sorted_items
 
 def filter_out_non_matching_movies(items, year):
-    logger.info(f"Filtering non-matching movies for year : {year}")
+    logger.debug(f"Filtering non-matching movies for year : {year}")
     year_min = str(int(year) - 1)
     year_max = str(int(year) + 1)
     year_pattern = re.compile(rf'\b{year_max}|{year}|{year_min}\b')
     filtered_items = []
     for item in items:
         if year_pattern.search(item.raw_title):
-            logger.debug(f"Match found for year {year} in item: {item.raw_title}")
+            logger.trace(f"Match found for year {year} in item: {item.raw_title}")
             filtered_items.append(item)
         else:
             logger.debug(f"No match found for year {year} in item: {item.raw_title}")
@@ -88,26 +87,26 @@ def filter_out_non_matching_series(items, season, episode):
     for item in items:
         if len(item.parsed_data.seasons) == 0 and len(item.parsed_data.episodes) == 0:
             if integrale_pattern.search(item.raw_title):
-                logger.debug(f"Integrale match found for item: {item.raw_title}")
+                logger.trace(f"Integrale match found for item: {item.raw_title}")
                 filtered_items.append(item)
-            logger.debug(f"No season or episode information found for item: {item.raw_title}")
+            logger.trace(f"No season or episode information found for item: {item.raw_title}")
             continue
         if (
             len(item.parsed_data.episodes) == 0
             and numeric_season in item.parsed_data.seasons
         ):
-            logger.debug(f"Exact season match found for item: {item.raw_title}")
+            logger.trace(f"Exact season match found for item: {item.raw_title}")
             filtered_items.append(item)
             continue
         if (
             numeric_season in item.parsed_data.seasons
             and numeric_episode in item.parsed_data.episodes
         ):
-            logger.debug(f"Exact season and episode match found for item: {item.raw_title}")
+            logger.trace(f"Exact season and episode match found for item: {item.raw_title}")
             filtered_items.append(item)
             continue
 
-    logger.info(
+    logger.debug(
         f"Filtering complete. {len(filtered_items)} matching items found out of {len(items)} total"
     )
     return filtered_items
@@ -150,26 +149,26 @@ def remove_non_matching_title(items, titles):
     for item in items:
         cleaned_item_title = integrale_pattern.sub('', item.parsed_data.parsed_title).strip()
         for title in cleaned_titles:
-            logger.debug(f"Comparing item title: {cleaned_item_title} with title: {title}")
+            logger.trace(f"Comparing item title: {cleaned_item_title} with title: {title}")
             
             if is_ordered_subset(cleaned_item_title, title):
-                logger.debug(f"Ordered subset match found. Item accepted: {cleaned_item_title}")
+                logger.trace(f"Ordered subset match found. Item accepted: {cleaned_item_title}")
                 filtered_items.append(item)
                 break
             elif is_ordered_subset(title, cleaned_item_title):
-                logger.debug(f"Reverse ordered subset match found. Item accepted: {cleaned_item_title}")
+                logger.trace(f"Reverse ordered subset match found. Item accepted: {cleaned_item_title}")
                 filtered_items.append(item)
                 break
             else:
-                logger.debug(f"No ordered subset match. Trying title_match()")
+                logger.trace(f"No ordered subset match. Trying title_match()")
                 if title_match(title, cleaned_item_title):
-                    logger.debug(f"title_match() succeeded. Item accepted: {cleaned_item_title}")
+                    logger.trace(f"title_match() succeeded. Item accepted: {cleaned_item_title}")
                     filtered_items.append(item)
                     break
         else:
-            logger.debug(f"No match found, item skipped: {cleaned_item_title}")
+            logger.trace(f"No match found, item skipped: {cleaned_item_title}")
     
-    logger.info(
+    logger.debug(
         f"Title filtering complete. {len(filtered_items)} items kept out of {len(items)} total"
     )
     return filtered_items
@@ -190,25 +189,26 @@ def filter_items(items, media, config):
     if media.type == "series":
         logger.info(f"Filtering out non-matching series torrents")
         items = filter_out_non_matching_series(items, media.season, media.episode)
-        logger.info(f"Item count after season/episode filtering: {len(items)}")
+        logger.success(f"Item count after season/episode filtering: {len(items)}")
 
     if media.type == "movie":
         logger.info(f"Filtering out non-matching movie torrents")
         items = filter_out_non_matching_movies(items, media.year)
-        logger.info(f"Item count after year filtering: {len(items)}")
+        logger.success(f"Item count after year filtering: {len(items)}")
 
+    logger.info(f"Filtering out items not matching titles: {media.titles}")
     items = remove_non_matching_title(items, media.titles)
-    logger.info(f"Item count after title filtering: {len(items)}")
+    logger.success(f"Item count after title filtering: {len(items)}")
 
     for filter_name, filter_instance in filters.items():
         try:
             logger.info(f"Applying {filter_name} filter: {config[filter_name]}")
             items = filter_instance(items)
-            logger.info(f"Item count after {filter_name} filter: {len(items)}")
+            logger.success(f"Item count after {filter_name} filter: {len(items)}")
         except Exception as e:
             logger.error(f"Error while applying {filter_name} filter", exc_info=e)
 
-    logger.info(f"Filtering complete. Final item count: {len(items)}")
+    logger.success(f"Filtering complete. Final item count: {len(items)}")
     return items
 
 
@@ -240,5 +240,5 @@ def merge_items(
         add_to_merged(item)
 
     merged_items = list(merged_dict.values())
-    logger.info(f"Merging complete. Total unique items: {len(merged_items)}")
+    logger.success(f"Merging complete. Total unique items: {len(merged_items)}")
     return merged_items

@@ -20,7 +20,7 @@ from stream_fusion.logging_config import logger
 class RealDebrid(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
-        self.base_url = "https://api.real-debrid.com"
+        self.base_url = f"{settings.rd_base_url}/{settings.rd_api_version}/"
         if not settings.rd_unique_account:
             self.token_manager = RDTokenManager(config)
 
@@ -49,7 +49,7 @@ class RealDebrid(BaseDebrid):
             return {"Authorization": f"Bearer {self.token_manager.get_access_token()}"}
 
     def add_magnet(self, magnet, ip=None):
-        url = f"{self.base_url}/rest/1.0/torrents/addMagnet"
+        url = f"{self.base_url}torrents/addMagnet"
         data = {"magnet": magnet}
         logger.info(f"Real-Debrid: Adding magnet: {magnet}")
         return self.json_response(
@@ -57,18 +57,18 @@ class RealDebrid(BaseDebrid):
         )
 
     def add_torrent(self, torrent_file):
-        url = f"{self.base_url}/rest/1.0/torrents/addTorrent"
+        url = f"{self.base_url}torrents/addTorrent"
         return self.json_response(
             url, method="put", headers=self.get_headers(), data=torrent_file
         )
 
     def delete_torrent(self, id):
-        url = f"{self.base_url}/rest/1.0/torrents/delete/{id}"
+        url = f"{self.base_url}torrents/delete/{id}"
         return self.json_response(url, method="delete", headers=self.get_headers())
 
     def get_torrent_info(self, torrent_id):
         logger.info(f"Real-Debrid: Getting torrent info for ID: {torrent_id}")
-        url = f"{self.base_url}/rest/1.0/torrents/info/{torrent_id}"
+        url = f"{self.base_url}torrents/info/{torrent_id}"
         torrent_info = self.json_response(url, headers=self.get_headers())
         if not torrent_info or "files" not in torrent_info:
             return None
@@ -79,12 +79,12 @@ class RealDebrid(BaseDebrid):
             f"Real-Debrid: Selecting file(s): {file_id} for torrent ID: {torrent_id}"
         )
         self._torrent_rate_limit()
-        url = f"{self.base_url}/rest/1.0/torrents/selectFiles/{torrent_id}"
+        url = f"{self.base_url}torrents/selectFiles/{torrent_id}"
         data = {"files": str(file_id)}
         requests.post(url, headers=self.get_headers(), data=data)
 
     def unrestrict_link(self, link):
-        url = f"{self.base_url}/rest/1.0/unrestrict/link"
+        url = f"{self.base_url}unrestrict/link"
         data = {"link": link}
         max_retries = 3
         retry_delay = 5
@@ -108,7 +108,7 @@ class RealDebrid(BaseDebrid):
 
     def is_already_added(self, magnet):
         hash = magnet.split("urn:btih:")[1].split("&")[0].lower()
-        url = f"{self.base_url}/rest/1.0/torrents"
+        url = f"{self.base_url}torrents"
         torrents = self.json_response(url, headers=self.get_headers())
         for torrent in torrents:
             if torrent["hash"].lower() == hash:
@@ -133,7 +133,7 @@ class RealDebrid(BaseDebrid):
         if len(hashes_or_magnets) == 0:
             logger.info("Real-Debrid: No hashes to be sent.")
             return dict()
-        url = f"{self.base_url}/rest/1.0/torrents/instantAvailability/{'/'.join(hashes_or_magnets)}"
+        url = f"{self.base_url}torrents/instantAvailability/{'/'.join(hashes_or_magnets)}"
         return self.json_response(url, headers=self.get_headers())
 
     def get_stream_link(self, query, config, ip=None):
@@ -172,7 +172,8 @@ class RealDebrid(BaseDebrid):
         if torrent_info is None:
             torrent_info = self._add_magnet_or_torrent(magnet, torrent_download)
             if not torrent_info or "files" not in torrent_info:
-                return "Error: Failed to get torrent info."
+                logger.error("Real-Debrid: Failed to add or find torrent.")
+                return None
 
             # Determine if it's a season pack
             is_season_pack = stream_type == "series" and len(torrent_info["files"]) > 5
@@ -212,7 +213,8 @@ class RealDebrid(BaseDebrid):
         logger.info(f"Real-Debrid: Unrestricting the download link: {download_link}")
         unrestrict_response = self.unrestrict_link(download_link)
         if not unrestrict_response or "download" not in unrestrict_response:
-            return "Error: Failed to unrestrict link."
+            logger.error("Real-Debrid: Failed to unrestrict link.")
+            return None
 
         logger.info(
             f"Real-Debrid: Got download link: {unrestrict_response['download']}"
@@ -221,7 +223,7 @@ class RealDebrid(BaseDebrid):
 
     def _get_cached_torrent_ids(self, info_hash):
         self._torrent_rate_limit()
-        url = f"{self.base_url}/rest/1.0/torrents"
+        url = f"{self.base_url}torrents"
         torrents = self.json_response(url, headers=self.get_headers())
 
         logger.info(f"Real-Debrid: Searching user's downloads for hash: {info_hash}")
