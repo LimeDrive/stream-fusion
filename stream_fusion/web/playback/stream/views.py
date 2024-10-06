@@ -1,4 +1,7 @@
+from io import BytesIO
 import json
+import aiohttp
+from fastapi.concurrency import run_in_threadpool
 import redis.asyncio as redis
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
@@ -6,7 +9,6 @@ from redis.exceptions import LockError
 from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi_simple_rate_limiter import rate_limiter
 from fastapi_simple_rate_limiter.database import create_redis_session
-from starlette.background import BackgroundTask
 
 from stream_fusion.services.postgresql.dao.apikey_dao import APIKeyDAO
 from stream_fusion.services.redis.redis_config import get_redis_cache_dependency
@@ -36,18 +38,74 @@ class ProxyStreamer:
         self.url = url
         self.headers = headers
         self.response = None
+        self.buffer_size = 10 * 1024 * 1024  # 20 MB buffer
+        self.chunk_size = 1 * 1024 * 1024  # 1 MB chunks for reading
+        self.retry_count = 3
+        self.retry_delay = 1  # 1 second
 
     async def stream_content(self):
-        async with self.request.app.state.http_session.get(
-            self.url, headers=self.headers
-        ) as self.response:
-            async for chunk in self.response.content.iter_any():
-                yield chunk
+        """
+        Stream content from the source URL with buffering and error handling.
+        """
+        for attempt in range(self.retry_count):
+            try:
+                async with self.request.app.state.http_session.get(
+                    self.url, headers=self.headers
+                ) as self.response:
+                    logger.info(f"Streaming started for URL: {self.url}")
+                    buffer = BytesIO()
+                    async for chunk in self._iter_content():
+                        buffer.write(chunk)
+                        if buffer.tell() >= self.buffer_size:
+                            yield await self._process_buffer(buffer)
+                        
+                        if await self.request.is_disconnected():
+                            logger.info("Client disconnected, stopping stream")
+                            return
+
+                    if buffer.tell() > 0:
+                        yield await self._process_buffer(buffer)
+                    
+                    logger.info("Streaming completed successfully")
+                    return
+            except aiohttp.ClientError as e:
+                logger.error(f"Streaming error (attempt {attempt+1}/{self.retry_count}): {str(e)}")
+                if attempt == self.retry_count - 1:
+                    raise
+                await asyncio.sleep(self.retry_delay)
+
+    async def _iter_content(self):
+        """
+        Iterate over the content in chunks.
+        """
+        while True:
+            chunk = await self.response.content.read(self.chunk_size)
+            if not chunk:
+                break
+            yield chunk
+
+    async def _process_buffer(self, buffer):
+        """
+        Process and yield the buffer content.
+        """
+        content = buffer.getvalue()
+        buffer.seek(0)
+        buffer.truncate()
+        return await run_in_threadpool(lambda: content)
 
     async def close(self):
+        """
+        Close the streaming response and release resources.
+        """
         if self.response:
             await self.response.release()
         logger.debug("Streaming connection closed")
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()
 
 
 async def get_stream_link(
@@ -160,39 +218,35 @@ async def get_playback(
             headers["Range"] = f"bytes={start}-{end}"
             logger.debug(f"Range header set: {headers['Range']}")
 
-        streamer = ProxyStreamer(request, link, headers)
+        async with ProxyStreamer(request, link, headers) as streamer:
+            logger.debug(f"Initiating request to: {link}")
+            async with request.app.state.http_session.head(link, headers=headers) as response:
+                logger.debug(f"Response status: {response.status}")
+                stream_headers = {
+                    "Content-Type": "video/mp4",
+                    "Accept-Ranges": "bytes",
+                    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+                    "Pragma": "no-cache",
+                    "Connection": "keep-alive",
+                    "Content-Disposition": "inline",
+                    "Access-Control-Allow-Origin": "*",
+                }
 
-        logger.debug(f"Initiating request to: {link}")
-        async with request.app.state.http_session.head(
-            link, headers=headers
-        ) as response:
-            logger.debug(f"Response status: {response.status}")
-            stream_headers = {
-                "Content-Type": "video/mp4",
-                "Accept-Ranges": "bytes",
-                "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-                "Pragma": "no-cache",
-                "Connection": "keep-alive",
-                "Content-Disposition": "inline",
-                "Access-Control-Allow-Origin": "*",
-            }
+                if response.status == 206:
+                    logger.debug("Partial content response")
+                    stream_headers["Content-Range"] = response.headers["Content-Range"]
 
-            if response.status == 206:
-                logger.debug("Partial content response")
-                stream_headers["Content-Range"] = response.headers["Content-Range"]
+                for header in ["Content-Length", "ETag", "Last-Modified"]:
+                    if header in response.headers:
+                        stream_headers[header] = response.headers[header]
+                        logger.debug(f"Header set: {header}: {stream_headers[header]}")
 
-            for header in ["Content-Length", "ETag", "Last-Modified"]:
-                if header in response.headers:
-                    stream_headers[header] = response.headers[header]
-                    logger.debug(f"Header set: {header}: {stream_headers[header]}")
-
-            logger.debug("Preparing streaming response")
-            return StreamingResponse(
-                streamer.stream_content(),
-                status_code=206 if "Range" in headers else 200,
-                headers=stream_headers,
-                background=BackgroundTask(streamer.close),
-            )
+                logger.debug("Preparing streaming response")
+                return StreamingResponse(
+                    streamer.stream_content(),
+                    status_code=206 if "Range" in headers else 200,
+                    headers=stream_headers,
+                )
 
     except Exception as e:
         logger.error(f"Playback error: {str(e)}", exc_info=True)

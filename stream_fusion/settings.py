@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     default_debrid_service: DebridService = DebridService.RD
 
     # PROXY
-    proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
+    proxied_link: bool = True#check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
     proxy_url: str | URL | None = None
     playback_proxy: bool | None = (
         None  # If set, the link will be proxied through the given proxy.
