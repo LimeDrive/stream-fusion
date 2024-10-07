@@ -1,4 +1,8 @@
+from itertools import islice
+import tenacity
 from urllib.parse import unquote
+
+from fastapi import HTTPException
 from stream_fusion.constants import NO_CACHE_VIDEO_URL
 from stream_fusion.utils.debrid.base_debrid import BaseDebrid
 from stream_fusion.utils.general import get_info_hash_from_magnet, season_episode_in_filename, is_video_file
@@ -9,11 +13,22 @@ class Torbox(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
         self.base_url = f"{settings.tb_base_url}/{settings.tb_api_version}/api"
+        self.token = settings.tb_token if not settings.tb_unique_account else self.config["TBToken"]
         logger.info(f"Torbox: Initialized with base URL: {self.base_url}")
 
     def get_headers(self):
-        # TODO: Add support for unique account and check for token conn
-        return {"Authorization": f"Bearer {settings.tb_token}"}
+        if settings.tb_unique_account:
+            if not settings.proxied_link:
+                logger.warning("TorBox: Unique account enabled, but proxied link is disabled. This may lead to account ban.")
+                logger.warning("TorBox: Please enable proxied link in the settings.")
+                raise HTTPException(status_code=500, detail="Proxied link is disabled.")
+            if settings.tb_token:
+                return {"Authorization": f"Bearer {settings.tb_token}"}
+            else:
+                logger.warning("TorBox: Unique account enabled, but no token provided. Please provide a token in the env.")
+                raise HTTPException(status_code=500, detail="AllDebrid token is not provided.")
+        else:
+            return {"Authorization": f"Bearer {self.config["TBToken"]}"}
 
     def add_magnet(self, magnet, ip=None):
         logger.info(f"Torbox: Adding magnet: {magnet[:50]}...")
@@ -21,7 +36,7 @@ class Torbox(BaseDebrid):
         data = {
             "magnet": magnet,
             "seed": 1,  # Auto seeding
-            "allow_zip": "true"
+            "allow_zip": "false"
         }
         response = self.json_response(url, method='post', headers=self.get_headers(), data=data)
         logger.info(f"Torbox: Add magnet response: {response}")
@@ -33,7 +48,7 @@ class Torbox(BaseDebrid):
         files = {"file": torrent_file}
         data = {
             "seed": 1,  # Auto seeding
-            "allow_zip": "true"
+            "allow_zip": "false"
         }
         response = self.json_response(url, method='post', headers=self.get_headers(), data=data, files=files)
         logger.info(f"Torbox: Add torrent file response: {response}")
@@ -41,7 +56,7 @@ class Torbox(BaseDebrid):
 
     def get_torrent_info(self, torrent_id):
         logger.info(f"Torbox: Getting info for torrent ID: {torrent_id}")
-        url = f"{self.base_url}/torrents/mylist?id={torrent_id}"
+        url = f"{self.base_url}/torrents/mylist?bypass_cache=true&id={torrent_id}"
         response = self.json_response(url, headers=self.get_headers())
         logger.info(f"Torbox: Torrent info response: {response}")
         return response
@@ -57,10 +72,16 @@ class Torbox(BaseDebrid):
         logger.info(f"Torbox: Control torrent response: {response}")
         return response
 
+    @tenacity.retry(
+        stop=tenacity.stop_after_attempt(3),
+        wait=tenacity.wait_fixed(2),
+        retry=tenacity.retry_if_exception_type((HTTPException, TimeoutError))
+    )
     def request_download_link(self, torrent_id, file_id=None, zip_link=False):
         logger.info(f"Torbox: Requesting download link for torrent ID: {torrent_id}, file ID: {file_id}, zip link: {zip_link}")
         url = f"{self.base_url}/torrents/requestdl"
         params = {
+            "token": self.token,
             "torrent_id": torrent_id,
             "zip_link": str(zip_link).lower()
         }
@@ -123,10 +144,28 @@ class Torbox(BaseDebrid):
     def get_availability_bulk(self, hashes_or_magnets, ip=None):
         logger.info(f"Torbox: Checking availability for {len(hashes_or_magnets)} hashes/magnets")
         url = f"{self.base_url}/torrents/checkcached"
-        params = {"hash": ",".join(hashes_or_magnets), "format": "object"}
-        response = self.json_response(url, headers=self.get_headers(), method='get', data=params)
-        logger.info(f"Torbox: Availability check response: {response}")
-        return response
+        
+        all_results = []
+        
+        for i in range(0, len(hashes_or_magnets), 50):
+            batch = list(islice(hashes_or_magnets, i, i + 50))
+            logger.info(f"Torbox: Checking batch of {len(batch)} hashes/magnets (batch {i//50 + 1})")
+            
+            params = {"hash": ",".join(batch), "format": "list", "list_files": "true"}
+            response = self.json_response(url, headers=self.get_headers(), method='get', data=params)
+            
+            if response and response.get("success") and "data" in response:
+                all_results.extend(response["data"])
+            else:
+                logger.error(f"Torbox: Failed to get response for batch {i//50 + 1}")
+                logger.error(f"Torbox: Response: {response}")
+        
+        logger.info(f"Torbox: Availability check completed for all {len(hashes_or_magnets)} hashes/magnets")
+        return {
+            "success": True,
+            "detail": "Torrent cache status retrieved successfully.",
+            "data": all_results
+        }
 
     def _find_existing_torrent(self, info_hash):
         logger.info(f"Torbox: Searching for existing torrent with hash: {info_hash}")
@@ -156,7 +195,7 @@ class Torbox(BaseDebrid):
 
         return response["data"]
 
-    def _wait_for_torrent_completion(self, torrent_id, timeout=300, interval=10):
+    def _wait_for_torrent_completion(self, torrent_id, timeout=60, interval=10):
         logger.info(f"Torbox: Waiting for torrent completion, ID: {torrent_id}")
         def check_status():
             torrent_info = self.get_torrent_info(torrent_id)
@@ -192,7 +231,7 @@ class Torbox(BaseDebrid):
             
             matching_files = [
                 file for file in files
-                if season_episode_in_filename(file["name"], season, episode) and is_video_file(file["name"])
+                if season_episode_in_filename(file["short_name"], season, episode) and is_video_file(file["short_name"])
             ]
             
             if matching_files:
