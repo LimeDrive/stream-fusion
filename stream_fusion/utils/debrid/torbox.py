@@ -13,7 +13,7 @@ class Torbox(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
         self.base_url = f"{settings.tb_base_url}/{settings.tb_api_version}/api"
-        self.token = settings.tb_token if not settings.tb_unique_account else self.config["TBToken"]
+        self.token = settings.tb_token if settings.tb_unique_account else self.config["TBToken"]
         logger.info(f"Torbox: Initialized with base URL: {self.base_url}")
 
     def get_headers(self):
@@ -79,15 +79,9 @@ class Torbox(BaseDebrid):
     )
     def request_download_link(self, torrent_id, file_id=None, zip_link=False):
         logger.info(f"Torbox: Requesting download link for torrent ID: {torrent_id}, file ID: {file_id}, zip link: {zip_link}")
-        url = f"{self.base_url}/torrents/requestdl"
-        params = {
-            "token": self.token,
-            "torrent_id": torrent_id,
-            "zip_link": str(zip_link).lower()
-        }
-        if file_id:
-            params["file_id"] = file_id
-        response = self.json_response(url, headers=self.get_headers(), method='get', data=params)
+        url = f"{self.base_url}/torrents/requestdl?token={self.token}&torrent_id={torrent_id}&file_id={file_id}&zip_link={str(zip_link).lower()}"
+        logger.info(f"Torbox: Requesting URL: {url}")
+        response = self.json_response(url, headers=self.get_headers())
         logger.info(f"Torbox: Request download link response: {response}")
         return response
 
@@ -108,15 +102,18 @@ class Torbox(BaseDebrid):
         if existing_torrent:
             logger.info(f"Torbox: Found existing torrent with ID: {existing_torrent['id']}")
             torrent_info = existing_torrent
+            if not torrent_info or "id" not in torrent_info:
+                logger.error("Torbox: Failed to add or find torrent.")
+                return None
+            torrent_id = torrent_info["id"]
         else:
             # Add the magnet or torrent file
             torrent_info = self._add_magnet_or_torrent(magnet, torrent_download)
+            if not torrent_info or "torrent_id" not in torrent_info:
+                logger.error("Torbox: Failed to add or find torrent.")
+                return None
+            torrent_id = torrent_info["torrent_id"]
 
-        if not torrent_info or "id" not in torrent_info:
-            logger.error("Torbox: Failed to add or find torrent.")
-            return None
-
-        torrent_id = torrent_info["id"]
         logger.info(f"Torbox: Working with torrent ID: {torrent_id}")
 
         # Wait for the torrent to be ready
@@ -127,7 +124,7 @@ class Torbox(BaseDebrid):
         # Select the appropriate file
         file_id = self._select_file(torrent_info, stream_type, file_index, season, episode)
         
-        if not file_id:
+        if file_id == None:
             logger.error("Torbox: No matching file found.")
             return NO_CACHE_VIDEO_URL
 
@@ -143,23 +140,22 @@ class Torbox(BaseDebrid):
 
     def get_availability_bulk(self, hashes_or_magnets, ip=None):
         logger.info(f"Torbox: Checking availability for {len(hashes_or_magnets)} hashes/magnets")
-        url = f"{self.base_url}/torrents/checkcached"
         
         all_results = []
         
         for i in range(0, len(hashes_or_magnets), 50):
             batch = list(islice(hashes_or_magnets, i, i + 50))
             logger.info(f"Torbox: Checking batch of {len(batch)} hashes/magnets (batch {i//50 + 1})")
+            url = f"{self.base_url}/torrents/checkcached?hash={','.join(batch)}&format=list&list_files=true"
+            logger.trace(f"Torbox: Requesting URL: {url}")
+            response = self.json_response(url, headers=self.get_headers())
             
-            params = {"hash": ",".join(batch), "format": "list", "list_files": "true"}
-            response = self.json_response(url, headers=self.get_headers(), method='get', data=params)
-            
-            if response and response.get("success") and "data" in response:
+            if response and response.get("success") and response["data"]:
                 all_results.extend(response["data"])
             else:
-                logger.error(f"Torbox: Failed to get response for batch {i//50 + 1}")
-                logger.error(f"Torbox: Response: {response}")
-        
+                logger.debug(f"Torbox: No cached avaibility for batch {i//50 + 1}")
+                return None
+            
         logger.info(f"Torbox: Availability check completed for all {len(hashes_or_magnets)} hashes/magnets")
         return {
             "success": True,
@@ -200,9 +196,9 @@ class Torbox(BaseDebrid):
         def check_status():
             torrent_info = self.get_torrent_info(torrent_id)
             if torrent_info and "data" in torrent_info:
-                status = torrent_info["data"].get("download_state", "")
-                logger.info(f"Torbox: Current torrent status: {status}")
-                return status in ["uploading", "completed", "cached"]
+                files = torrent_info["data"].get("files", [])
+                logger.info(f"Torbox: Current torrent status: {torrent_info['data']['download_state']}")
+                return True if len(files) > 0 else False
             return False
 
         result = self.wait_for_ready_status(check_status, timeout, interval)

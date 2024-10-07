@@ -31,7 +31,7 @@ class TorrentSmartContainer:
             if item.availability is False:
                 hashes.append(hash)
         self.logger.debug(
-            f"TorrentSmartContainer: Retrieved {len(hashes)} hashes to process for RealDebrid"
+            f"TorrentSmartContainer: Retrieved {len(hashes)} hashes to process"
         )
         return hashes
 
@@ -290,12 +290,12 @@ class TorrentSmartContainer:
 
     def _process_torbox_files(self, files, type, media):
         processed_files = []
-        for file in files:
+        for index, file in enumerate(files):
             if type == "series":
                 if self._is_matching_episode_torbox(file["name"], media):
                     processed_files.append(
                         {
-                            "file_index": len(processed_files) + 1,
+                            "file_index": index,
                             "title": file["name"],
                             "size": file["size"],
                         }
@@ -303,7 +303,7 @@ class TorrentSmartContainer:
             elif type == "movie":
                 processed_files.append(
                     {
-                        "file_index": len(processed_files) + 1,
+                        "file_index": index,
                         "title": file["name"],
                         "size": file["size"],
                     }
