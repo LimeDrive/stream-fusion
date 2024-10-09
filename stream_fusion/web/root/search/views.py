@@ -19,6 +19,7 @@ from stream_fusion.utils.filter_results import (
 )
 from stream_fusion.utils.jackett.jackett_result import JackettResult
 from stream_fusion.utils.jackett.jackett_service import JackettService
+from stream_fusion.utils.parser.parser_service import StreamParser
 from stream_fusion.utils.sharewood.sharewood_service import SharewoodService
 from stream_fusion.utils.yggfilx.yggflix_service import YggflixService
 from stream_fusion.utils.metdata.cinemeta import Cinemeta
@@ -307,7 +308,8 @@ async def get_results(
         best_matching_results = sort_items(best_matching_results, config)
         logger.info(f"Search: Found {len(best_matching_results)} best matching results")
 
-        stream_list = parse_to_stremio_streams(best_matching_results, config, media)
+        parser = StreamParser(config)
+        stream_list = parser.parse_to_stremio_streams(best_matching_results, media)
         logger.success(f"Search: Processed {len(stream_list)} streams for Stremio")
 
         return stream_list
