@@ -140,72 +140,44 @@ class RealDebrid(BaseDebrid):
         # Extract query parameters
         magnet = query["magnet"]
         stream_type = query["type"]
-        file_index = (
-            int(query["file_index"]) if query["file_index"] is not None else None
-        )
+        file_index = int(query["file_index"]) if query["file_index"] is not None else None
         season = query["season"]
         episode = query["episode"]
-        torrent_download = (
-            unquote(query["torrent_download"])
-            if query["torrent_download"] is not None
-            else None
-        )
         info_hash = get_info_hash_from_magnet(magnet)
 
-        logger.info(
-            f"Real-Debrid: Getting stream link for {stream_type} with hash: {info_hash}"
-        )
+        logger.info(f"Real-Debrid: Getting stream link for {stream_type} with hash: {info_hash}")
 
         # Check for cached torrents
         cached_torrent_ids = self._get_cached_torrent_ids(info_hash)
-        logger.info(
-            f"Real-Debrid: Found {len(cached_torrent_ids)} cached torrents with hash: {info_hash}"
-        )
+        logger.info(f"Real-Debrid: Found {len(cached_torrent_ids)} cached torrents with hash: {info_hash}")
 
-        torrent_info = None
+        torrent_id = None
         if cached_torrent_ids:
-            torrent_info = self._get_cached_torrent_info(
-                cached_torrent_ids, file_index, season, episode, stream_type
-            )
+            torrent_info = self._get_cached_torrent_info(cached_torrent_ids, file_index, season, episode, stream_type)
+            if torrent_info:
+                torrent_id = torrent_info["id"]
+                logger.info(f"Real-Debrid: Found cached torrent with ID: {torrent_id}")
 
         # If the torrent is not in cache, add it
-        if torrent_info is None:
-            torrent_info = self._add_magnet_or_torrent(magnet, torrent_download)
-            if not torrent_info or "files" not in torrent_info:
+        if torrent_id is None:
+            torrent_id = self.add_magnet_or_torrent_and_select(query, ip)
+            if not torrent_id:
                 logger.error("Real-Debrid: Failed to add or find torrent.")
-                return None
+                raise HTTPException(status_code=500, detail="Real-Debrid: Failed to add or find torrent.")
 
-            # Determine if it's a season pack
-            is_season_pack = stream_type == "series" and len(torrent_info["files"]) > 5
-
-            if is_season_pack:
-                logger.info("Real-Debrid: Processing season pack")
-                self._process_season_pack(torrent_info)
-            else:
-                logger.info("Real-Debrid: Selecting specific file")
-                self._select_file(
-                    torrent_info, stream_type, file_index, season, episode
-                )
-
-        # Wait for the links to be ready
-        torrent_id = torrent_info["id"]
-        logger.info(
-            f"Real-Debrid: Waiting for link(s) to be ready for torrent ID: {torrent_id}"
-        )
-        links = self.wait_for_link(torrent_id, timeout=20)  # Increased timeout
+        logger.info(f"Real-Debrid: Waiting for link(s) to be ready for torrent ID: {torrent_id}")
+        links = self.wait_for_link(torrent_id, timeout=20)  # Increased timeout to allow for slow servers
         if links is None:
             logger.warning("Real-Debrid: No links available after waiting. Returning NO_CACHE_VIDEO_URL.")
             return NO_CACHE_VIDEO_URL
-        
+
         # Refresh torrent info to ensure we have the latest data
         torrent_info = self.get_torrent_info(torrent_id)
-        
+
         # Select the appropriate link
         if len(links) > 1:
             logger.info("Real-Debrid: Finding appropriate link")
-            download_link = self._find_appropriate_link(
-                torrent_info, links, file_index, season, episode
-            )
+            download_link = self._find_appropriate_link(torrent_info, links, file_index, season, episode)
         else:
             download_link = links[0]
 
@@ -216,9 +188,7 @@ class RealDebrid(BaseDebrid):
             logger.error("Real-Debrid: Failed to unrestrict link.")
             return None
 
-        logger.info(
-            f"Real-Debrid: Got download link: {unrestrict_response['download']}"
-        )
+        logger.info(f"Real-Debrid: Got download link: {unrestrict_response['download']}")
         return unrestrict_response["download"]
 
     def _get_cached_torrent_ids(self, info_hash):
@@ -267,28 +237,17 @@ class RealDebrid(BaseDebrid):
                 )
         return False
 
-    def _add_magnet_or_torrent(self, magnet, torrent_download=None, anon_magnet=False):
+    def add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):
         if torrent_download is None:
             logger.info("Real-Debrid: Adding magnet")
-            if anon_magnet:
-                magnet = re.sub(r"&tr=[^&]*", "", magnet)
             magnet_response = self.add_magnet(magnet)
             logger.info(f"Real-Debrid: Add magnet response: {magnet_response}")
 
             if not magnet_response or "id" not in magnet_response:
-                return "Error: Failed to add magnet."
-
-            torrent_id = magnet_response["id"]
-        elif anon_magnet and torrent_download:
-            logger.info("Real-Debrid: Adding anonymous magnet")
-            clean_magnet = re.sub(r"&tr=[^&]*", "", magnet)
-            magnet_response = self.add_magnet(clean_magnet)
-            logger.info(
-                f"Real-Debrid: Add anonymous magnet response: {magnet_response}"
-            )
-
-            if not magnet_response or "id" not in magnet_response:
-                return "Error: Failed to add magnet."
+                logger.error("Real-Debrid: Failed to add magnet.")
+                raise HTTPException(
+                    status_code=500, detail="Real-Debrid: Failed to add magnet."
+                )
 
             torrent_id = magnet_response["id"]
         else:
@@ -298,12 +257,42 @@ class RealDebrid(BaseDebrid):
             logger.info(f"Real-Debrid: Add torrent file response: {upload_response}")
 
             if not upload_response or "id" not in upload_response:
-                return "Error: Failed to add torrent file."
+                logger.error("Real-Debrid: Failed to add torrent file.")
+                raise HTTPException(
+                    status_code=500, detail="Real-Debrid: Failed to add torrent file."
+                )
 
             torrent_id = upload_response["id"]
 
         logger.info(f"Real-Debrid: New torrent added with ID: {torrent_id}")
         return self.get_torrent_info(torrent_id)
+    
+    def add_magnet_or_torrent_and_select(self, query, ip=None):
+        magnet = query['magnet']
+        torrent_download = unquote(query["torrent_download"]) if query["torrent_download"] is not None else None
+        stream_type = query['type']
+        file_index = int(query["file_index"]) if query["file_index"] is not None else None
+        season = query["season"]
+        episode = query["episode"]
+
+        torrent_info = self.add_magnet_or_torrent(magnet, torrent_download, ip)
+        if not torrent_info or "files" not in torrent_info:
+            logger.error("Real-Debrid: Failed to add or find torrent.")
+            return None
+
+        is_season_pack = stream_type == "series" and len(torrent_info["files"]) > 5
+
+        if is_season_pack:
+            logger.info("Real-Debrid: Processing season pack")
+            self._process_season_pack(torrent_info)
+        else:
+            logger.info("Real-Debrid: Selecting specific file")
+            self._select_file(
+                torrent_info, stream_type, file_index, season, episode
+            )
+
+        logger.info(f"Real-Debrid: Added magnet or torrent to download service: {magnet[:50]}")
+        return torrent_info['id']
 
     def _process_season_pack(self, torrent_info):
         logger.info("Real-Debrid: Processing season pack files")

@@ -21,6 +21,7 @@ class DebridService(str, enum.Enum):
 
     RD = "RD"
     AD = "AD"
+    TB = "TB"
 
 def get_default_worker_count():
     """
@@ -53,7 +54,7 @@ class Settings(BaseSettings):
         )
     )
     use_https: bool = False
-    default_debrid_service: DebridService = DebridService.RD
+    download_service: DebridService = DebridService.TB
 
     # PROXY
     proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")

@@ -1,4 +1,5 @@
 from itertools import islice
+import uuid
 import tenacity
 from urllib.parse import unquote
 
@@ -45,10 +46,12 @@ class Torbox(BaseDebrid):
     def add_torrent(self, torrent_file):
         logger.info("Torbox: Adding torrent file")
         url = f"{self.base_url}/torrents/createtorrent"
-        files = {"file": torrent_file}
         data = {
             "seed": 1,  # Auto seeding
             "allow_zip": "false"
+        }
+        files = {
+            "file": (str(uuid.uuid4()) + ".torrent", torrent_file, 'application/x-bittorrent')
         }
         response = self.json_response(url, method='post', headers=self.get_headers(), data=data, files=files)
         logger.info(f"Torbox: Add torrent file response: {response}")
@@ -58,7 +61,7 @@ class Torbox(BaseDebrid):
         logger.info(f"Torbox: Getting info for torrent ID: {torrent_id}")
         url = f"{self.base_url}/torrents/mylist?bypass_cache=true&id={torrent_id}"
         response = self.json_response(url, headers=self.get_headers())
-        logger.info(f"Torbox: Torrent info response: {response}")
+        logger.debug(f"Torbox: Torrent info response: {response}")
         return response
 
     def control_torrent(self, torrent_id, operation):
@@ -108,7 +111,7 @@ class Torbox(BaseDebrid):
             torrent_id = torrent_info["id"]
         else:
             # Add the magnet or torrent file
-            torrent_info = self._add_magnet_or_torrent(magnet, torrent_download)
+            torrent_info = self.add_magnet_or_torrent(magnet, torrent_download)
             if not torrent_info or "torrent_id" not in torrent_info:
                 logger.error("Torbox: Failed to add or find torrent.")
                 return None
@@ -174,7 +177,7 @@ class Torbox(BaseDebrid):
         logger.info("Torbox: No existing torrent found")
         return None
 
-    def _add_magnet_or_torrent(self, magnet, torrent_download=None):
+    def add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):
         if torrent_download is None:
             logger.info("Torbox: Adding magnet")
             response = self.add_magnet(magnet)

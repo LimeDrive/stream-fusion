@@ -164,6 +164,9 @@ class BaseDebrid:
 
     def get_stream_link(self, query, ip=None):
         raise NotImplementedError
+    
+    def add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):
+        raise NotImplementedError
 
     def add_magnet(self, magnet, ip=None):
         raise NotImplementedError

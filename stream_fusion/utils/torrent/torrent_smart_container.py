@@ -58,16 +58,16 @@ class TorrentSmartContainer:
             f"TorrentSmartContainer: Total items to process: {len(self.__itemsDict)}"
         )
         for torrent_item in self.__itemsDict.values():
-            self.logger.debug(
+            self.logger.trace(
                 f"TorrentSmartContainer: Processing item: {torrent_item.raw_title} - Has torrent: {torrent_item.torrent_download is not None}"
             )
             if torrent_item.torrent_download is not None:
-                self.logger.debug(
+                self.logger.trace(
                     f"TorrentSmartContainer: Has file index: {torrent_item.file_index is not None}"
                 )
                 if torrent_item.file_index is not None:
                     best_matching.append(torrent_item)
-                    self.logger.debug(
+                    self.logger.trace(
                         "TorrentSmartContainer: Item added to best matching (has file index)"
                     )
                 else:
@@ -81,30 +81,31 @@ class TorrentSmartContainer:
                         torrent_item.file_name = matching_file["file_name"]
                         torrent_item.size = matching_file["size"]
                         best_matching.append(torrent_item)
-                        self.logger.debug(
+                        self.logger.trace(
                             f"TorrentSmartContainer: Item added to best matching (found matching file: {matching_file['file_name']})"
                         )
                     else:
-                        self.logger.debug(
+                        self.logger.trace(
                             "TorrentSmartContainer: No matching file found, item not added to best matching"
                         )
             else:
-                best_matching.append(torrent_item)
-                self.logger.debug(
-                    "TorrentSmartContainer: Item added to best matching (magnet link)"
-                )
-        self.logger.info(
+                if not (( not torrent_item.availability or torrent_item.availability == "DL" ) and torrent_item.indexer == "DMM - API"):
+                    best_matching.append(torrent_item)
+                    self.logger.trace(
+                        "TorrentSmartContainer: Item added to best matching (magnet link)"
+                    )
+        self.logger.success(
             f"TorrentSmartContainer: Found {len(best_matching)} best matching items"
         )
         return best_matching
 
     def _find_matching_file(self, full_index, season, episode):
-        self.logger.info(
+        self.logger.trace(
             f"TorrentSmartContainer: Searching for matching file: Season {season}, Episode {episode}"
         )
 
         if not full_index:
-            self.logger.warning(
+            self.logger.trace(
                 "TorrentSmartContainer: Full index is empty, cannot find matching file"
             )
             return None
@@ -125,12 +126,12 @@ class TorrentSmartContainer:
             ):
                 if best_match is None or file_entry["size"] > best_match["size"]:
                     best_match = file_entry
-                    self.logger.debug(
+                    self.logger.trace(
                         f"TorrentSmartContainer: Found potential match: {file_entry['file_name']}"
                     )
 
         if best_match:
-            self.logger.info(
+            self.logger.trace(
                 f"TorrentSmartContainer: Best matching file found: {best_match['file_name']}"
             )
             return best_match

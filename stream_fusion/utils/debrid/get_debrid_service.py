@@ -22,25 +22,42 @@ def get_all_debrid_services(config):
             logger.debug("AllDebrid: service added to be use")
         if service == "TorBox":
             debrid_service.append(Torbox(config))
-            logger.debug("TorBox: service not supported yet.")
+            logger.debug("TorBox: service added to be use")
     if not debrid_service:
         raise HTTPException(status_code=500, detail="Invalid service configuration.")
     
     return debrid_service
 
-
-def get_debrid_service(config, service):
+def get_download_service(config):
+    if not settings.download_service:
+        service = config['debridDownloader']
+    else:
+        service = settings.download_service
     if not service:
-        service == settings.default_debrid_service
+        logger.error("No download service found in the user config.")
+        return
     if service == "RD":
         return RealDebrid(config)
     elif service == "AD":
         return AllDebrid(config)
     elif service == "TB":
         return Torbox(config)
-    elif service == "DL": # TODO: Implement this service
-        logger.error("Not implemented yet.")
-        raise HTTPException(status_code=500, detail="Service not implemented yet.")
+    else:
+        logger.error("Invalid service configuration return by stremio in the query.")
+        raise HTTPException(status_code=500, detail="Invalid service configuration return by stremio.")
+
+
+def get_debrid_service(config, service):
+    if not service:
+        service == settings.download_service
+    if service == "RD":
+        return RealDebrid(config)
+    elif service == "AD":
+        return AllDebrid(config)
+    elif service == "TB":
+        return Torbox(config)
+    elif service == "DL":
+        return get_download_service(config)
     else:
         logger.error("Invalid service configuration return by stremio in the query.")
         raise HTTPException(status_code=500, detail="Invalid service configuration return by stremio.")

@@ -54,7 +54,7 @@ class AllDebrid(BaseDebrid):
         stream_type = query['type']
         torrent_download = unquote(query["torrent_download"]) if query["torrent_download"] is not None else None
 
-        torrent_id = self.__add_magnet_or_torrent(magnet, torrent_download, ip)
+        torrent_id = self.add_magnet_or_torrent(magnet, torrent_download, ip)
         logger.info(f"AllDebrid: Torrent ID: {torrent_id}")
 
         if not self.wait_for_ready_status(
@@ -115,7 +115,7 @@ class AllDebrid(BaseDebrid):
         data = {"magnets[]": hashes_or_magnets}
         return self.json_response(url, method='post', headers=self.get_headers(), data=data)
 
-    def __add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):
+    def add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):
         torrent_id = ""
         if torrent_download is None:
             logger.info(f"AllDebrid: Adding magnet")

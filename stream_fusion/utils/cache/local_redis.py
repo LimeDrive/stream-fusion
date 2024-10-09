@@ -28,12 +28,11 @@ class RedisCache(CacheBase):
                     max_connections=10
                 )
             except Exception as e:
-                self.logger.error(f"Failed to create Redis client: {e}")
+                self.logger.error(f"RedisCache: Failed to create Redis client: {e}")
                 self._redis_client = None
         return self._redis_client
     
     async def reconnect(self):
-        self.logger.info("Attempting to reconnect to Redis")
         self._redis_client = None
         return await self.get_redis_client()
 
@@ -44,10 +43,10 @@ class RedisCache(CacheBase):
                 return await operation(*args, **kwargs)
             except ConnectionError:
                 if attempt < max_retries - 1:
-                    self.logger.warning(f"Redis connection lost. Attempting reconnection (attempt {attempt + 1}/{max_retries})")
+                    self.logger.warning(f"RedisCache: Connection lost. Attempting reconnection (attempt {attempt + 1}/{max_retries})")
                     await self.reconnect()
                 else:
-                    self.logger.error("Max retries reached. Unable to reconnect to Redis.")
+                    self.logger.error("RedisCache: Max retries reached. Unable to reconnect to Redis.")
                     raise
 
     async def get_list(self, key: str) -> List[Any]:
@@ -80,46 +79,45 @@ class RedisCache(CacheBase):
         try:
             client = await self.get_redis_client()
             await client.flushdb()
-            self.logger.info("Cache cleared successfully")
         except Exception as e:
-            self.logger.error(f"Error clearing cache: {e}")
+            self.logger.error(f"RedisCache: Error clearing cache: {e}")
 
     async def get_or_set(self, func: callable, *args, **kwargs) -> Any:
-        self.logger.debug(f"Entering get_or_set for function: {func.__name__}")
+        self.logger.debug(f"RedisCache: Entering get_or_set for function: {func.__name__}")
         start_time = time.time()
 
         if not await self.can_cache():
-            self.logger.debug("Cache is not available, executing function directly")
+            self.logger.debug("RedisCache: Cache is not available, executing function directly")
             return await self._execute_func(func, *args, **kwargs)
 
         key = self.generate_key(func.__name__, *args, **kwargs)
-        self.logger.debug(f"Generated cache key: {key}")
+        self.logger.debug(f"RedisCache: Generated cache key: {key}")
 
         cached_result = await self.get(key)
-        self.logger.debug(f"Attempted to get result from cache. Found: {cached_result is not None}")
+        self.logger.debug(f"RedisCache: Attempted to get result from cache. Found: {cached_result is not None}")
 
         if cached_result is not None:
-            self.logger.debug(f"Returning cached result for key: {key}")
+            self.logger.debug(f"RedisCache: Returning cached result for key: {key}")
             return cached_result
 
-        self.logger.debug(f"Cache miss for key: {key}. Executing function.")
+        self.logger.debug(f"RedisCache: Cache miss for key: {key}. Executing function.")
         result = await self._execute_func(func, *args, **kwargs)
-        self.logger.debug(f"Function execution completed. Setting result in cache.")
+        self.logger.debug(f"RedisCache: Function execution completed. Setting result in cache.")
         await self.set(key, result)
 
         end_time = time.time()
-        self.logger.debug(f"get_or_set completed in {end_time - start_time:.2f} seconds")
+        self.logger.debug(f"RedisCache: get_or_set completed in {end_time - start_time:.2f} seconds")
         return result
 
     async def _execute_func(self, func, *args, **kwargs):
-        self.logger.debug(f"Executing function: {func.__name__}")
+        self.logger.debug(f"RedisCache: Executing function: {func.__name__}")
         start_time = time.time()
 
         sig = inspect.signature(func)
         params = sig.parameters
 
-        self.logger.debug(f"Function {func.__name__} expects {len(params)} arguments")
-        self.logger.debug(f"Received args: {args}, kwargs: {kwargs}")
+        self.logger.debug(f"RedisCache: Function {func.__name__} expects {len(params)} arguments")
+        self.logger.trace(f"RedisCache: Received args: {args}, kwargs: {kwargs}")
 
         call_args = {}
         for i, (param_name, param) in enumerate(params.items()):
@@ -130,41 +128,41 @@ class RedisCache(CacheBase):
             elif param.default is not param.empty:
                 call_args[param_name] = param.default
             else:
-                self.logger.error(f"Missing required argument: {param_name}")
+                self.logger.error(f"RedisCache: Missing required argument: {param_name}")
                 raise TypeError(f"Missing required argument: {param_name}")
 
-        self.logger.debug(f"Prepared arguments for {func.__name__}: {call_args}")
+        self.logger.trace(f"RedisCache: Prepared arguments for {func.__name__}: {call_args}")
 
         if asyncio.iscoroutinefunction(func):
-            self.logger.debug(f"Function {func.__name__} is asynchronous")
+            self.logger.debug(f"RedisCache: Function {func.__name__} is asynchronous")
             try:
                 result = await func(**call_args)
-                self.logger.debug(f"Asynchronous function {func.__name__} completed successfully")
+                self.logger.debug(f"RedisCache: Asynchronous function {func.__name__} completed successfully")
             except Exception as e:
-                self.logger.error(f"Error executing asynchronous function {func.__name__}: {str(e)}")
+                self.logger.error(f"RedisCache: Error executing asynchronous function {func.__name__}: {str(e)}")
                 raise
         else:
-            self.logger.debug(f"Function {func.__name__} is synchronous")
+            self.logger.debug(f"RedisCache: Function {func.__name__} is synchronous")
             try:
                 result = func(**call_args)
-                self.logger.debug(f"Synchronous function {func.__name__} completed successfully")
+                self.logger.debug(f"RedisCache: Synchronous function {func.__name__} completed successfully")
             except Exception as e:
-                self.logger.error(f"Error executing synchronous function {func.__name__}: {str(e)}")
+                self.logger.error(f"RedisCache: Error executing synchronous function {func.__name__}: {str(e)}")
                 raise
 
         end_time = time.time()
-        self.logger.debug(f"Function {func.__name__} executed in {end_time - start_time:.2f} seconds")
+        self.logger.debug(f"RedisCache: Function {func.__name__} executed in {end_time - start_time:.2f} seconds")
         return result
 
     async def can_cache(self) -> bool:
-        self.logger.debug("Checking if caching is possible")
+        self.logger.debug("RedisCache: Checking if caching is possible")
         try:
             client = await self.get_redis_client()
             result = await client.ping()
-            self.logger.debug(f"Redis ping result: {result}")
+            self.logger.debug(f"RedisCache: Redis ping result: {result}")
             return result
         except Exception as e:
-            self.logger.error(f"Unable to connect to Redis: {e}")
+            self.logger.error(f"RedisCache: Unable to connect to Redis: {e}")
             return False
 
     async def get(self, key: str) -> Any:

@@ -9,6 +9,9 @@ from stream_fusion.utils.cache.cache import search_public
 from stream_fusion.utils.cache.local_redis import RedisCache
 from stream_fusion.logging_config import logger
 from stream_fusion.utils.debrid.get_debrid_service import get_all_debrid_services
+from stream_fusion.utils.filter.results_per_quality_filter import (
+    ResultsPerQualityFilter,
+)
 from stream_fusion.utils.filter_results import (
     filter_items,
     merge_items,
@@ -45,10 +48,10 @@ async def get_results(
     request: Request,
     redis_cache: RedisCache = Depends(get_redis_cache_dependency),
     apikey_dao: APIKeyDAO = Depends(),
-    torrent_dao: TorrentItemDAO = Depends()
+    torrent_dao: TorrentItemDAO = Depends(),
 ) -> SearchResponse:
     start = time.time()
-    logger.info(f"Stream request: {stream_type} - {stream_id}")
+    logger.info(f"Search: Stream request initiated for {stream_type} - {stream_id}")
 
     stream_id = stream_id.replace(".json", "")
     config = parse_config(config)
@@ -56,11 +59,11 @@ async def get_results(
     if api_key:
         await check_api_key(api_key, apikey_dao)
     else:
-        logger.warning("API key not found in config.")
+        logger.warning("Search: API key not found in config.")
         raise HTTPException(status_code=401, detail="API key not found in config.")
 
     def get_metadata():
-        logger.info(f"Fetching metadata from {config['metadataProvider']}")
+        logger.info(f"Search: Fetching metadata from {config['metadataProvider']}")
         if config["metadataProvider"] == "tmdb" and settings.tmdb_api_key:
             metadata_provider = TMDB(config)
         else:
@@ -70,29 +73,36 @@ async def get_results(
     media = await redis_cache.get_or_set(
         get_metadata, stream_id, stream_type, config["metadataProvider"]
     )
-    logger.info(f"Retrieved media metadata: {str(media.titles)}")
+    logger.debug(f"Search: Retrieved media metadata for {str(media.titles)}")
 
     def stream_cache_key(media):
         if isinstance(media, Movie):
-            key_string = f"stream:{api_key}:{media.titles[0]}:{media.year}:{media.languages[0]}"
+            key_string = (
+                f"stream:{api_key}:{media.titles[0]}:{media.year}:{media.languages[0]}"
+            )
         elif isinstance(media, Series):
             key_string = f"stream:{api_key}:{media.titles[0]}:{media.languages[0]}:{media.season}{media.episode}"
         else:
-            raise TypeError("Only Movie and Series are allowed as media!")
+            logger.error("Search: Only Movie and Series are allowed as media!")
+            raise HTTPException(
+                status_code=500, detail="Only Movie and Series are allowed as media!"
+            )
         hashed_key = hashlib.sha256(key_string.encode("utf-8")).hexdigest()
         return hashed_key[:16]
 
     cached_result = await redis_cache.get(stream_cache_key(media))
     if cached_result is not None:
-        logger.info("Returning cached processed results")
+        logger.info("Search: Returning cached processed results")
         total_time = time.time() - start
-        logger.info(f"Request completed in {total_time:.2f} seconds")
+        logger.success(f"Search: Request completed in {total_time:.2f} seconds")
         return SearchResponse(streams=cached_result)
 
     debrid_services = get_all_debrid_services(config)
-    logger.info(f"Found {len(debrid_services)} debrid services")
-    logger.info(f"Debrid services: {[debrid.__class__.__name__ for debrid in debrid_services]}")
-    
+    logger.debug(f"Search: Found {len(debrid_services)} debrid services")
+    logger.info(
+        f"Search: Debrid services: {[debrid.__class__.__name__ for debrid in debrid_services]}"
+    )
+
     def media_cache_key(media):
         if isinstance(media, Movie):
             key_string = f"media:{media.titles[0]}:{media.year}:{media.languages[0]}"
@@ -114,8 +124,8 @@ async def get_results(
             if config["cache"] and not update_cache:
                 public_cached_results = search_public(media)
                 if public_cached_results:
-                    logger.info(
-                        f"Found {len(public_cached_results)} public cached results"
+                    logger.success(
+                        f"Search: Found {len(public_cached_results)} public cached results"
                     )
                     public_cached_results = [
                         JackettResult().from_cached_item(torrent, media)
@@ -130,14 +140,31 @@ async def get_results(
                     )
                     search_results.extend(public_cached_results)
 
+            if config["yggflix"] and len(search_results) < int(
+                config["minCachedResults"]
+            ):
+                yggflix_service = YggflixService(config)
+                yggflix_search_results = yggflix_service.search(media)
+                if yggflix_search_results:
+                    logger.success(
+                        f"Search: Found {len(yggflix_search_results)} results from YggFlix"
+                    )
+                    yggflix_search_results = filter_items(
+                        yggflix_search_results, media, config=config
+                    )
+                    yggflix_search_results = await torrent_service.convert_and_process(
+                        yggflix_search_results
+                    )
+                    search_results = merge_items(search_results, yggflix_search_results)
+
             if config["zilean"] and len(search_results) < int(
                 config["minCachedResults"]
             ):
                 zilean_service = ZileanService(config)
                 zilean_search_results = zilean_service.search(media)
                 if zilean_search_results:
-                    logger.info(
-                        f"Found {len(zilean_search_results)} results from Zilean"
+                    logger.success(
+                        f"Search: Found {len(zilean_search_results)} results from Zilean"
                     )
                     zilean_search_results = [
                         ZileanResult().from_api_cached_item(torrent, media)
@@ -150,25 +177,10 @@ async def get_results(
                     zilean_search_results = await torrent_service.convert_and_process(
                         zilean_search_results
                     )
-                    logger.debug(f"Zilean final search results: {len(zilean_search_results)}")
-                    search_results = merge_items(search_results, zilean_search_results)
-
-            if config["yggflix"] and len(search_results) < int(
-                config["minCachedResults"]
-            ):
-                yggflix_service = YggflixService(config)
-                yggflix_search_results = yggflix_service.search(media)
-                if yggflix_search_results:
                     logger.info(
-                        f"Found {len(yggflix_search_results)} results from YggFlix"
+                        f"Search: Zilean final search results: {len(zilean_search_results)}"
                     )
-                    yggflix_search_results = filter_items(
-                        yggflix_search_results, media, config=config
-                    )
-                    yggflix_search_results = await torrent_service.convert_and_process(
-                        yggflix_search_results
-                    )
-                    search_results = merge_items(search_results, yggflix_search_results)
+                    search_results = merge_items(search_results, zilean_search_results)
 
             if config["sharewood"] and len(search_results) < int(
                 config["minCachedResults"]
@@ -176,46 +188,49 @@ async def get_results(
                 sharewood_service = SharewoodService(config)
                 sharewood_search_results = sharewood_service.search(media)
                 if sharewood_search_results:
-                    logger.info(
-                        f"Found {len(sharewood_search_results)} results from Sharewood"
+                    logger.success(
+                        f"Search: Found {len(sharewood_search_results)} results from Sharewood"
                     )
                     sharewood_search_results = filter_items(
                         sharewood_search_results, media, config=config
                     )
-                    sharewood_search_results = await torrent_service.convert_and_process(
-                        sharewood_search_results
+                    sharewood_search_results = (
+                        await torrent_service.convert_and_process(
+                            sharewood_search_results
+                        )
                     )
-                    search_results = merge_items(search_results, sharewood_search_results)
+                    search_results = merge_items(
+                        search_results, sharewood_search_results
+                    )
 
             if config["jackett"] and len(search_results) < int(
                 config["minCachedResults"]
             ):
                 jackett_service = JackettService(config)
                 jackett_search_results = jackett_service.search(media)
-                logger.info(f"Found {len(jackett_search_results)} results from Jackett")
+                logger.success(
+                    f"Search: Found {len(jackett_search_results)} results from Jackett"
+                )
                 filtered_jackett_search_results = filter_items(
                     jackett_search_results, media, config=config
-                )
-                logger.info(
-                    f"Filtered Jackett results: {len(filtered_jackett_search_results)}"
                 )
                 if filtered_jackett_search_results:
                     torrent_results = await torrent_service.convert_and_process(
                         filtered_jackett_search_results
                     )
-                    logger.debug(
-                        f"Converted {len(torrent_results)} Jackett results to TorrentItems"
-                    )
                     search_results = merge_items(search_results, torrent_results)
 
             if update_cache and search_results:
-                logger.info(f"Updating cache with {len(search_results)} results")
+                logger.info(
+                    f"Search: Updating cache with {len(search_results)} results"
+                )
                 try:
                     cache_key = media_cache_key(media)
                     search_results_dict = [item.to_dict() for item in search_results]
                     await redis_cache.set(cache_key, search_results_dict)
+                    logger.success("Search: Cache update successful")
                 except Exception as e:
-                    logger.error(f"Error updating cache: {e}")
+                    logger.error(f"Search: Error updating cache: {e}")
 
         await perform_search()
         return search_results
@@ -226,20 +241,27 @@ async def get_results(
 
         unfiltered_results = await redis_cache.get(cache_key)
         if unfiltered_results is None:
-            logger.info("No results in cache. Performing new search.")
+            logger.debug("Search: No results in cache. Performing new search.")
             nocache_results = await get_search_results(media, config)
             nocache_results_dict = [item.to_dict() for item in nocache_results]
             await redis_cache.set(cache_key, nocache_results_dict)
+            logger.info(
+                f"Search: New search completed, found {len(nocache_results)} results"
+            )
             return nocache_results
         else:
-            logger.info(f"Results retrieved from redis cache - {len(unfiltered_results)}.")
-            unfiltered_results = [TorrentItem.from_dict(item) for item in unfiltered_results]
+            logger.info(
+                f"Search: Retrieved {len(unfiltered_results)} results from redis cache"
+            )
+            unfiltered_results = [
+                TorrentItem.from_dict(item) for item in unfiltered_results
+            ]
 
         filtered_results = filter_items(unfiltered_results, media, config=config)
 
         if len(filtered_results) < min_results:
             logger.info(
-                f"Insufficient filtered results ({len(filtered_results)}). Performing new search."
+                f"Search: Insufficient filtered results ({len(filtered_results)}). Performing new search."
             )
             await redis_cache.delete(cache_key)
             unfiltered_results = await get_search_results(media, config)
@@ -247,10 +269,15 @@ async def get_results(
             await redis_cache.set(cache_key, unfiltered_results_dict)
             filtered_results = filter_items(unfiltered_results, media, config=config)
 
-        logger.info(f"Final number of filtered results: {len(filtered_results)}")
+        logger.success(
+            f"Search: Final number of filtered results: {len(filtered_results)}"
+        )
         return filtered_results
 
-    search_results = await get_and_filter_results(media, config)
+    raw_search_results = await get_and_filter_results(media, config)
+    logger.debug(f"Search: Filtered search results: {len(raw_search_results)}")
+    search_results = ResultsPerQualityFilter(config).filter(raw_search_results)
+    logger.info(f"Search: Filtered search results per quality: {len(search_results)}")
 
     def stream_processing(search_results, media, config):
         torrent_smart_container = TorrentSmartContainer(search_results, media)
@@ -264,29 +291,30 @@ async def get_results(
                     torrent_smart_container.update_availability(
                         result, type(debrid), media
                     )
-                    logger.info(f"Checked availability for {len(result.items())} items")
+                    logger.info(
+                        f"Search: Checked availability for {len(result.items())} items with {type(debrid).__name__}"
+                    )
                 else:
-                    logger.info("No availability results found in debrid service")
-                    logger.info("Please check your proxy settings")
+                    logger.warning(
+                        "Search: No availability results found in debrid service"
+                    )
 
         if config["cache"]:
-            logger.debug("Caching public container items")
+            logger.info("Search: Caching public container items")
             torrent_smart_container.cache_container_items()
 
         best_matching_results = torrent_smart_container.get_best_matching()
         best_matching_results = sort_items(best_matching_results, config)
-        logger.info(f"Found {len(best_matching_results)} best matching results")
+        logger.info(f"Search: Found {len(best_matching_results)} best matching results")
 
         stream_list = parse_to_stremio_streams(best_matching_results, config, media)
-        logger.info(f"Processed {len(stream_list)} streams for Stremio")
+        logger.success(f"Search: Processed {len(stream_list)} streams for Stremio")
 
         return stream_list
 
     stream_list = stream_processing(search_results, media, config)
     streams = [Stream(**stream) for stream in stream_list]
-    await redis_cache.set(
-        stream_cache_key(media), streams, expiration=3600
-    )
+    await redis_cache.set(stream_cache_key(media), streams, expiration=3600)
     total_time = time.time() - start
-    logger.info(f"Request completed in {total_time:.2f} seconds")
+    logger.info(f"Search: Request completed in {total_time:.2f} seconds")
     return SearchResponse(streams=streams)
