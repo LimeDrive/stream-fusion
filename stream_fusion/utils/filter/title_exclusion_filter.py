@@ -13,7 +13,7 @@ class TitleExclusionFilter(BaseFilter):
             if self._should_include_stream(stream):
                 filtered_items.append(stream)
         
-        logger.info(f"TitleExclusionFilter: input {len(data)}, output {len(filtered_items)}")
+        logger.debug(f"TitleExclusionFilter: input {len(data)}, output {len(filtered_items)}")
         return filtered_items
 
     def _should_include_stream(self, stream):
@@ -21,7 +21,7 @@ class TitleExclusionFilter(BaseFilter):
             title_upper = stream.raw_title.upper()
             for keyword in self.excluded_keywords:
                 if keyword in title_upper:
-                    logger.debug(f"Excluded stream: {stream.raw_title} (keyword: {keyword})")
+                    logger.trace(f"Excluded stream: {stream.raw_title} (keyword: {keyword})")
                     return False
             return True
         except AttributeError:

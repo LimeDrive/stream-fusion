@@ -14,8 +14,8 @@ class MaxSizeFilter(BaseFilter):
             if torrent_size <= self.max_size_bytes:
                 filtered_data.append(torrent)
             else:
-                logger.debug(f"Excluded torrent due to size: {torrent.raw_title}, Size: {torrent_size / (1024*1024*1024):.2f} GB")
-        logger.info(f"MaxSizeFilter: input {len(data)}, output {len(filtered_data)}")
+                logger.trace(f"Excluded torrent due to size: {torrent.raw_title}, Size: {torrent_size / (1024*1024*1024):.2f} GB")
+        logger.debug(f"MaxSizeFilter: input {len(data)}, output {len(filtered_data)}")
         return filtered_data
 
     def can_filter(self):
