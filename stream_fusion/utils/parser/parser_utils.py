@@ -3,7 +3,7 @@ from typing import Dict
 from stream_fusion.constants import FR_RELEASE_GROUPS, FRENCH_PATTERNS
 
 INSTANTLY_AVAILABLE = "⚡"
-DOWNLOAD_REQUIRED = "📡​​"
+DOWNLOAD_REQUIRED = "⬇️​​"
 DIRECT_TORRENT = "🏴‍☠️"
 
 def get_emoji(language: str) -> str:
