@@ -4,7 +4,6 @@ import tenacity
 from urllib.parse import unquote
 
 from fastapi import HTTPException
-from stream_fusion.constants import NO_CACHE_VIDEO_URL
 from stream_fusion.utils.debrid.base_debrid import BaseDebrid
 from stream_fusion.utils.general import get_info_hash_from_magnet, season_episode_in_filename, is_video_file
 from stream_fusion.logging_config import logger
@@ -31,23 +30,25 @@ class Torbox(BaseDebrid):
         else:
             return {"Authorization": f"Bearer {self.config["TBToken"]}"}
 
-    def add_magnet(self, magnet, ip=None):
+    def add_magnet(self, magnet, ip=None, privacy="private"):
         logger.info(f"Torbox: Adding magnet: {magnet[:50]}...")
         url = f"{self.base_url}/torrents/createtorrent"
+        seed = 2 if privacy == "private" else 1
         data = {
             "magnet": magnet,
-            "seed": 1,  # Auto seeding
+            "seed": seed,
             "allow_zip": "false"
         }
         response = self.json_response(url, method='post', headers=self.get_headers(), data=data)
         logger.info(f"Torbox: Add magnet response: {response}")
         return response
 
-    def add_torrent(self, torrent_file):
+    def add_torrent(self, torrent_file, privacy="private"):
         logger.info("Torbox: Adding torrent file")
         url = f"{self.base_url}/torrents/createtorrent"
+        seed = 2 if privacy == "private" else 1
         data = {
-            "seed": 1,  # Auto seeding
+            "seed": seed,
             "allow_zip": "false"
         }
         files = {
@@ -122,21 +123,21 @@ class Torbox(BaseDebrid):
         # Wait for the torrent to be ready
         if not self._wait_for_torrent_completion(torrent_id):
             logger.warning("Torbox: Torrent not ready, caching in progress.")
-            return NO_CACHE_VIDEO_URL
+            return settings.no_cache_video_url
 
         # Select the appropriate file
         file_id = self._select_file(torrent_info, stream_type, file_index, season, episode)
         
         if file_id == None:
             logger.error("Torbox: No matching file found.")
-            return NO_CACHE_VIDEO_URL
+            return settings.no_cache_video_url
 
         # Request the download link
         download_link_response = self.request_download_link(torrent_id, file_id)
         
         if not download_link_response or "data" not in download_link_response:
             logger.error("Torbox: Failed to get download link.")
-            return NO_CACHE_VIDEO_URL
+            return settings.no_cache_video_url
 
         logger.info(f"Torbox: Got download link: {download_link_response['data']}")
         return download_link_response['data']
@@ -177,14 +178,14 @@ class Torbox(BaseDebrid):
         logger.info("Torbox: No existing torrent found")
         return None
 
-    def add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):
+    def add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None, privacy="private"):
         if torrent_download is None:
             logger.info("Torbox: Adding magnet")
-            response = self.add_magnet(magnet)
+            response = self.add_magnet(magnet, ip, privacy)
         else:
             logger.info("Torbox: Downloading and adding torrent file")
             torrent_file = self.download_torrent_file(torrent_download)
-            response = self.add_torrent(torrent_file)
+            response = self.add_torrent(torrent_file, privacy)
 
         logger.info(f"Torbox: Add torrent response: {response}")
 

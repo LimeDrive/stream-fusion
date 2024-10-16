@@ -4,7 +4,6 @@ from urllib.parse import unquote
 
 from fastapi import HTTPException
 
-from stream_fusion.constants import NO_CACHE_VIDEO_URL
 from stream_fusion.utils.debrid.base_debrid import BaseDebrid
 from stream_fusion.utils.general import season_episode_in_filename
 from stream_fusion.logging_config import logger
@@ -60,14 +59,14 @@ class AllDebrid(BaseDebrid):
         if not self.wait_for_ready_status(
                 lambda: self.check_magnet_status(torrent_id, ip)["data"]["magnets"]["status"] == "Ready"):
             logger.error("AllDebrid: Torrent not ready, caching in progress.")
-            return NO_CACHE_VIDEO_URL
+            return settings.no_cache_video_url
         logger.info("AllDebrid: Torrent is ready.")
 
         logger.info(f"AllDebrid: Retrieving data for torrent ID: {torrent_id}")
         data = self.check_magnet_status(torrent_id, ip)["data"]
         logger.info(f"AllDebrid: Data retrieved for torrent ID")
 
-        link = NO_CACHE_VIDEO_URL
+        link = settings.no_cache_video_url
         if stream_type == "movie":
             logger.info("AllDebrid: Getting link for movie")
             link = max(data["magnets"]['links'], key=lambda x: x['size'])['link']
@@ -90,7 +89,7 @@ class AllDebrid(BaseDebrid):
             logger.error("AllDebrid: Unsupported stream type.")
             raise HTTPException(status_code=500, detail="Unsupported stream type.")
 
-        if link == NO_CACHE_VIDEO_URL:
+        if link == settings.no_cache_video_url:
             logger.info("AllDebrid: Video not cached, returning NO_CACHE_VIDEO_URL")
             return link
 

@@ -5,7 +5,6 @@ from urllib.parse import unquote
 from fastapi import HTTPException
 import requests
 
-from stream_fusion.constants import NO_CACHE_VIDEO_URL
 from stream_fusion.services.rd_conn.token_manager import RDTokenManager
 from stream_fusion.utils.debrid.base_debrid import BaseDebrid
 from stream_fusion.utils.general import (
@@ -169,7 +168,7 @@ class RealDebrid(BaseDebrid):
         links = self.wait_for_link(torrent_id, timeout=20)  # Increased timeout to allow for slow servers
         if links is None:
             logger.warning("Real-Debrid: No links available after waiting. Returning NO_CACHE_VIDEO_URL.")
-            return NO_CACHE_VIDEO_URL
+            return settings.no_cache_video_url
 
         # Refresh torrent info to ensure we have the latest data
         torrent_info = self.get_torrent_info(torrent_id)
@@ -368,7 +367,7 @@ class RealDebrid(BaseDebrid):
 
         if index is None or index >= len(links):
             logger.warning(f"Real-Debrid: Appropriate link not found. Falling back to the first available link.")
-            return links[0] if links else NO_CACHE_VIDEO_URL
+            return links[0] if links else settings.no_cache_video_url
 
         logger.info(f"Real-Debrid: Selected link index: {index}")
         return links[index]

@@ -20,10 +20,10 @@ from stream_fusion.utils.debrid.get_debrid_service import (
     get_download_service,
 )
 from stream_fusion.utils.debrid.realdebrid import RealDebrid
+from stream_fusion.utils.debrid.torbox import Torbox
 from stream_fusion.utils.parse_config import parse_config
 from stream_fusion.utils.string_encoding import decodeb64
 from stream_fusion.utils.security import check_api_key
-from stream_fusion.constants import NO_CACHE_VIDEO_URL
 from stream_fusion.web.playback.stream.schemas import (
     ErrorResponse,
     HeadResponse,
@@ -89,7 +89,7 @@ async def handle_download(
     # Check if a download is already in progress
     if await redis_cache.get(cache_key) == DOWNLOAD_IN_PROGRESS_FLAG:
         logger.info("Playback: Download already in progress")
-        return NO_CACHE_VIDEO_URL
+        return settings.no_cache_video_url
 
     # Mark the start of the download
     await redis_cache.set(
@@ -111,6 +111,23 @@ async def handle_download(
                     status_code=500,
                     detail="Failed to add magnet or torrent to Real-Debrid",
                 )
+        elif isinstance(debrid_service, Torbox):
+            magnet = query["magnet"]
+            torrent_download = (
+                unquote(query["torrent_download"])
+                if query["torrent_download"] is not None
+                else None
+            )
+            privacy = query.get("privacy", "private")
+            torrent_info = debrid_service.add_magnet_or_torrent(magnet, torrent_download, ip, privacy)
+            logger.success(
+                f"Playback: Added magnet or torrent to TorBox: {magnet[:50]}"
+            )
+            if not torrent_info:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to add magnet or torrent to TorBox",
+                )
         else:
             magnet = query["magnet"]
             torrent_download = (
@@ -123,7 +140,7 @@ async def handle_download(
                 f"Playback: Added magnet or torrent to download service: {magnet[:50]}"
             )
 
-        return NO_CACHE_VIDEO_URL
+        return settings.no_cache_video_url
     except Exception as e:
         await redis_cache.delete(cache_key)
         logger.error(f"Playback: Error handling download: {str(e)}", exc_info=True)
@@ -156,7 +173,7 @@ async def get_stream_link(
         logger.error("Playback: Service not found in query")
         raise HTTPException(status_code=500, detail="Service not found in query")
 
-    if link != NO_CACHE_VIDEO_URL:
+    if link != settings.no_cache_video_url:
         logger.debug(f"Playback: Caching new stream link: {link}")
         await redis_cache.set(cache_key, link, expiration=3600)  # Cache for 1 hour
         logger.info(f"Playback: New stream link generated and cached: {link}")

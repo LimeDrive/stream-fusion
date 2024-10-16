@@ -23,6 +23,16 @@ class DebridService(str, enum.Enum):
     AD = "AD"
     TB = "TB"
 
+class NoCacheVideoLanguages(str, enum.Enum):
+    """Possible languages for which to not cache video results."""
+    FR = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/limedrive-TorBox/stream_fusion/static/videos/fr_download_video.mp4"
+    EN = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/limedrive-TorBox/stream_fusion/static/videos/en_download_video.mp4"
+
+    @classmethod
+    def get_url(cls, language):
+        """Get the video URL for a given language."""
+        return cls[language.upper()].value
+
 def get_default_worker_count():
     """
     Calculate the default number of workers based on CPU cores.
@@ -55,6 +65,7 @@ class Settings(BaseSettings):
     )
     use_https: bool = False
     download_service: DebridService = DebridService.TB
+    no_cache_video_language: NoCacheVideoLanguages = NoCacheVideoLanguages.FR
 
     # PROXY
     proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
@@ -224,6 +235,13 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", secrets_dir="/run/secrets", env_file_encoding="utf-8"
     )
+
+    @property
+    def no_cache_video_url(self) -> str:
+        """
+        Get the URL for the no-cache video based on the selected language.
+        """
+        return self.no_cache_video_language.value
 
 
 try:
