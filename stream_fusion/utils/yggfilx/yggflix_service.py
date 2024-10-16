@@ -111,6 +111,6 @@ class YggflixService:
             item.parsed_data=parse(item.raw_title)
 
             items.append(item)
-            logger.debug(f"Yggflix parsed: {item.parsed_data}")
+            logger.trace(f"Yggflix result: {item}")
 
         return items

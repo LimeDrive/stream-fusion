@@ -9,6 +9,7 @@ from stream_fusion.utils.torrent.torrent_item import TorrentItem
 from stream_fusion.constants import EXCLUDED_TRACKERS
 from stream_fusion.settings import settings
 
+
 def search_public(media):
     logger.info("Searching for public cached " + media.type + " results")
     url = settings.public_cache_url + "getResult/" + media.type + "/"
@@ -36,25 +37,33 @@ def cache_public(torrents: List[TorrentItem], media):
             cache_item = dict()
 
             cache_item["title"] = torrent.raw_title
-            cache_item["trackers"] = "tracker:".join(torrent.trackers)
-            cache_item["magnet"] = torrent.magnet
+            cache_item["trackers"] = (
+                "tracker:".join(torrent.trackers) if torrent.trackers else "Unknown"
+            )
+            cache_item["magnet"] = torrent.magnet if torrent.magnet else "Unknown"
             cache_item["files"] = []  # I guess keep it empty?
             cache_item["hash"] = torrent.info_hash
-            cache_item["indexer"] = torrent.indexer
+            cache_item["indexer"] = torrent.indexer if torrent.indexer else "Unknown"
             cache_item["quality"] = (
                 torrent.parsed_data.resolution
                 if torrent.parsed_data.resolution
                 else "Unknown"
             )
-            cache_item["qualitySpec"] = ";".join(torrent.parsed_data.quality)
-            cache_item["seeders"] = torrent.seeders
+            cache_item["qualitySpec"] = (
+                ";".join(torrent.parsed_data.quality)
+                if torrent.parsed_data.quality
+                else "Unknown"
+            )
+            cache_item["seeders"] = torrent.seeders if torrent.seeders else 0
             cache_item["size"] = torrent.size
-            cache_item["language"] = ";".join(torrent.languages)
+            cache_item["language"] = (
+                ";".join(torrent.languages) if torrent.languages else "Unknown"
+            )
             cache_item["type"] = media.type
             cache_item["availability"] = False
 
             if media.type == "movie":
-                cache_item["year"] = media.year
+                cache_item["year"] = media.year if media.year else "1990"
             elif media.type == "series":
                 cache_item["season"] = media.season
                 cache_item["episode"] = media.episode
@@ -74,9 +83,13 @@ def cache_public(torrents: List[TorrentItem], media):
         response.raise_for_status()
 
         if response.status_code == 200:
-            logger.info(f"Cached {str(len(cache_items))} {media.type} results on Public Cache")
+            logger.info(
+                f"Cached {str(len(cache_items))} {media.type} results on Public Cache"
+            )
         else:
-            logger.error(f"Failed to public cache {media.type} results: {str(response)}")
+            logger.error(
+                f"Failed to public cache {media.type} results: {str(response)}"
+            )
     except:
         logger.error("Failed to public cache results")
         pass

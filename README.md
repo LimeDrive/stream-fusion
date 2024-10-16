@@ -2,7 +2,7 @@
 <p align="center" style="font-size: 1.5em; font-weight: bold;">Optimisé pour le contenu francophone</p>
 
 <p align="center">
-  <img src="stream_fusion/static/logo-stream-fusion.png" alt="StreamFusion Logo"/>
+  <img src="stream_fusion/static/logo_anim_stream-fusion-3.gif" alt="StreamFusion Logo"/>
 </p>
 
 <p align="center">

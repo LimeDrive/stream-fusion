@@ -21,6 +21,17 @@ class DebridService(str, enum.Enum):
 
     RD = "RD"
     AD = "AD"
+    TB = "TB"
+
+class NoCacheVideoLanguages(str, enum.Enum):
+    """Possible languages for which to not cache video results."""
+    FR = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/limedrive-TorBox/stream_fusion/static/videos/fr_download_video.mp4"
+    EN = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/limedrive-TorBox/stream_fusion/static/videos/en_download_video.mp4"
+
+    @classmethod
+    def get_url(cls, language):
+        """Get the video URL for a given language."""
+        return cls[language.upper()].value
 
 def get_default_worker_count():
     """
@@ -53,7 +64,8 @@ class Settings(BaseSettings):
         )
     )
     use_https: bool = False
-    default_debrid_service: DebridService = DebridService.RD
+    download_service: DebridService = DebridService.TB
+    no_cache_video_language: NoCacheVideoLanguages = NoCacheVideoLanguages.FR
 
     # PROXY
     proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
@@ -65,6 +77,8 @@ class Settings(BaseSettings):
     # REALDEBRID
     rd_token: str | None = None
     rd_unique_account: bool = check_env_variable("RD_TOKEN")
+    rd_base_url: str = "https://api.real-debrid.com/rest"
+    rd_api_version: str = "1.0"
 
     # ALLDEBRID
     ad_token: str | None = None
@@ -72,6 +86,14 @@ class Settings(BaseSettings):
     ad_user_app: str = "streamfusion"
     ad_user_ip: str | None = None
     ad_use_proxy: bool = check_env_variable("PROXY_URL")
+    ad_base_url: str = "https://api.alldebrid.com"
+    ad_api_version: str = "v4"
+
+    # TORBOX
+    tb_token: str | None = None
+    tb_unique_account: bool = check_env_variable("TB_TOKEN")
+    tb_base_url: str = "https://api.torbox.app"
+    tb_api_version: str = "v1"
 
     # LOGGING
     log_level: LogLevel = LogLevel.INFO
@@ -213,6 +235,13 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", secrets_dir="/run/secrets", env_file_encoding="utf-8"
     )
+
+    @property
+    def no_cache_video_url(self) -> str:
+        """
+        Get the URL for the no-cache video based on the selected language.
+        """
+        return self.no_cache_video_language.value
 
 
 try:

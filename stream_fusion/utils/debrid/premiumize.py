@@ -1,7 +1,7 @@
 # Assuming the BaseDebrid class and necessary imports are already defined as shown previously
 import json
 
-from stream_fusion.constants import NO_CACHE_VIDEO_URL
+from stream_fusion.settings import settings
 from stream_fusion.utils.debrid.base_debrid import BaseDebrid
 from stream_fusion.utils.general import get_info_hash_from_magnet, season_episode_in_filename
 from stream_fusion.logging_config import logger
@@ -63,7 +63,7 @@ class Premiumize(BaseDebrid):
 
         if not self.wait_for_ready_status(lambda: self.get_availability(info_hash)["transcoded"][0] is True):
             logger.info("Torrent not ready, caching in progress")
-            return NO_CACHE_VIDEO_URL
+            return settings.no_cache_video_url
 
         logger.info("Torrent is ready.")
 

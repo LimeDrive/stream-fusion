@@ -15,19 +15,20 @@ class LanguageFilter(BaseFilter):
         filtered_data = []
         for torrent in data:
             if not torrent.languages:
+                logger.debug(f"Skipping {torrent.raw_title} with no languages")
                 continue
 
             languages = torrent.languages.copy()
 
             if torrent.indexer == "DMM - API" and "multi" in languages:
                 regex = self.fr_regex.search(torrent.raw_title)
-                logger.debug(f"Regex match for {torrent.raw_title} : {regex}")
+                logger.trace(f"Regex match for {torrent.raw_title} : {regex}")
                 if not regex:
                     languages.remove("multi")
             
             if torrent.indexer == "DMM - API" and "fr" in languages:
                 regex = self.fr_regex.search(torrent.raw_title)
-                logger.debug(f"Regex match for {torrent.raw_title} : {regex}")
+                logger.trace(f"Regex match for {torrent.raw_title} : {regex}")
                 if not regex:
                     languages.remove("fr")
 
@@ -35,7 +36,7 @@ class LanguageFilter(BaseFilter):
                 lang in self.config["languages"] for lang in languages
             ):
                 torrent.languages = languages
-                logger.debug(f"Keeping {torrent.raw_title} with lang : {languages} ")
+                logger.trace(f"Keeping {torrent.raw_title} with lang : {languages} ")
                 filtered_data.append(torrent)
 
         return filtered_data

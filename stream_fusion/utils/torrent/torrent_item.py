@@ -41,7 +41,8 @@ class TorrentItem:
             "season": media.season if isinstance(media, Series) else None,
             "episode": media.episode if isinstance(media, Series) else None,
             "torrent_download": quote(self.torrent_download) if self.torrent_download is not None else None,
-            "service": self.availability if self.availability else None,
+            "service": self.availability if self.availability else "DL",
+            "privacy": self.privacy if self.privacy else "private",
         }
     
     def to_dict(self):
