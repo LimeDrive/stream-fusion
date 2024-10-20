@@ -21,7 +21,7 @@ class ResultsPerQualityFilter(BaseFilter):
                 resolution_count[resolution] += 1
                 filtered_items.append(item)
 
-        logger.info(f"ResultsPerQualityFilter: input {len(data)}, output {len(filtered_items)}")
+        logger.debug(f"ResultsPerQualityFilter: input {len(data)}, output {len(filtered_items)}")
         return filtered_items
 
     def can_filter(self):

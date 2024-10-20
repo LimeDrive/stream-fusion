@@ -48,7 +48,6 @@ class QualityExclusionFilter(BaseFilter):
                 logger.debug(f"Stream excluded due to HEVC codec: {parsed_data.raw_title}")
                 return False
 
-        logger.debug("Stream allowed")
         return True
 
     def can_filter(self) -> bool:

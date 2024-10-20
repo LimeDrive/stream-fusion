@@ -18,7 +18,7 @@ class TMDB(MetadataProvider):
             url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={settings.tmdb_api_key}&external_source=imdb_id&language={lang}"
             response = requests.get(url)
             data = response.json()
-            logger.debug(data)
+            logger.trace(data)
 
             if lang == self.config['languages'][0]:
                 if type == "movie":

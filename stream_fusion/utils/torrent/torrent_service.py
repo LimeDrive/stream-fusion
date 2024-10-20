@@ -282,7 +282,7 @@ class TorrentService:
                     "seasons": parsed_file.seasons,
                     "episodes": parsed_file.episodes
                 })
-                self.logger.debug(f"Added file to index: {file_name}")
+                self.logger.trace(f"Added file to index: {file_name}")
             
             file_index += 1
         
