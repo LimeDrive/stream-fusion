@@ -23,7 +23,7 @@ class JackettService:
         self.logger = logger
 
         self.__api_key = settings.jackett_api_key
-        self.__base_url = f"{settings.jackett_shema}://{settings.jackett_host}:{settings.jackett_port}/api/v2.0"
+        self.__base_url = f"{settings.jackett_schema}://{settings.jackett_host}:{settings.jackett_port}/api/v2.0"
         self.__session = requests.Session()
         
         adapter = HTTPAdapter(pool_connections=100, pool_maxsize=100)

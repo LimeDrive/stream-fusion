@@ -2,7 +2,7 @@
 <p align="center" style="font-size: 1.5em; font-weight: bold;">Optimisé pour le contenu francophone</p>
 
 <p align="center">
-  <img src="stream_fusion/static/logo-stream-fusion.png" alt="StreamFusion Logo"/>
+  <img src="stream_fusion/static/logo_anim_stream-fusion-3.gif" alt="StreamFusion Logo"/>
 </p>
 
 <p align="center">
@@ -20,6 +20,7 @@ StreamFusion est un addon avancé pour Stremio, spécialement conçu pour améli
 - **Intégration de Zilean** : Indexe les hashlist de DébridMediaManager pour accéder aux contenus en cache chez les débrideurs.
 - **Intégration de Real-Debrid** : Permet la redistribution des liens de streaming en direct et l'ajout de torrents depuis Stremio.
 - **Intégration de AllDebrid** : Offre un accès aux liens de streaming et aux torrents via AllDebrid.
+- **Intégration de TorBox** : Offre un accès aux liens de streaming et aux torrents avec TorBox.
 - **Tri optimisé pour le contenu français** : Offre des résultats ciblés et de qualité, avec reconnaissance des langues et des teams.
 - **Sécurité renforcée** : Protège l'application avec une clé API via une interface de gestion.
 

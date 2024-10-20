@@ -250,7 +250,7 @@ class TorrentService:
         return max(episode_files, key=lambda file: file["size"])
     
     def __find_full_index(self, file_structure):
-        self.logger.info("Starting to build full index of video files")
+        self.logger.debug("Starting to build full index of video files")
         video_formats = {".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg", ".mpeg", ".m4v", ".3gp", ".3g2",
                         ".ogv", ".ogg", ".drc", ".gif", ".gifv", ".mng", ".avi", ".mov", ".qt", ".wmv", ".yuv", ".rm",
                         ".rmvb", ".asf", ".amv", ".m4p", ".m4v", ".mpg", ".mp2", ".mpeg", ".mpe", ".mpv", ".mpg",
@@ -282,11 +282,11 @@ class TorrentService:
                     "seasons": parsed_file.seasons,
                     "episodes": parsed_file.episodes
                 })
-                self.logger.debug(f"Added file to index: {file_name}")
+                self.logger.trace(f"Added file to index: {file_name}")
             
             file_index += 1
         
-        self.logger.info(f"Full index built with {len(full_index)} video files")
+        self.logger.debug(f"Full index built with {len(full_index)} video files")
         return full_index
 
     def __find_movie_file(self, file_structure):
