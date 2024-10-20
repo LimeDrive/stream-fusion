@@ -40,8 +40,15 @@ redis_session = create_redis_session(
 
 DOWNLOAD_IN_PROGRESS_FLAG = "DOWNLOAD_IN_PROGRESS"
 
+
 class ProxyStreamer:
-    def __init__(self, request: Request, url: str, headers: dict, buffer_size: int = 2 * 1024 * 1024):
+    def __init__(
+        self,
+        request: Request,
+        url: str,
+        headers: dict,
+        buffer_size: int = settings.proxy_buffer_size,
+    ):
         self.request = request
         self.url = url
         self.headers = headers
@@ -52,7 +59,9 @@ class ProxyStreamer:
 
     async def fill_buffer(self):
         while len(self.buffer.getvalue()) < self.buffer_size and not self.eof:
-            chunk = await self.response.content.read(self.buffer_size - len(self.buffer.getvalue()))
+            chunk = await self.response.content.read(
+                self.buffer_size - len(self.buffer.getvalue())
+            )
             if not chunk:
                 self.eof = True
                 break
@@ -60,14 +69,16 @@ class ProxyStreamer:
         self.buffer.seek(0)
 
     async def stream_content(self):
-        async with self.request.app.state.http_session.get(self.url, headers=self.headers) as self.response:
+        async with self.request.app.state.http_session.get(
+            self.url, headers=self.headers
+        ) as self.response:
             while True:
                 if self.buffer.tell() == len(self.buffer.getvalue()):
                     if self.eof:
                         break
                     self.buffer = BytesIO()
                     await self.fill_buffer()
-                
+
                 chunk = self.buffer.read(8192)
                 if chunk:
                     yield chunk
@@ -78,6 +89,26 @@ class ProxyStreamer:
         if self.response:
             await self.response.release()
         logger.debug("Playback: Streaming connection closed")
+
+
+# class ProxyStreamer:
+#     def __init__(self, request: Request, url: str, headers: dict):
+#         self.request = request
+#         self.url = url
+#         self.headers = headers
+#         self.response = None
+
+#     async def stream_content(self):
+#         async with self.request.app.state.http_session.get(
+#             self.url, headers=self.headers
+#         ) as self.response:
+#             async for chunk in self.response.content.iter_any():
+#                 yield chunk
+
+#     async def close(self):
+#         if self.response:
+#             await self.response.release()
+#         logger.debug("Streaming connection closed")
 
 
 async def handle_download(
@@ -105,7 +136,9 @@ async def handle_download(
 
         if isinstance(debrid_service, RealDebrid):
             torrent_id = debrid_service.add_magnet_or_torrent_and_select(query, ip)
-            logger.success(f"Playback: Added magnet or torrent to Real-Debrid: {torrent_id}")
+            logger.success(
+                f"Playback: Added magnet or torrent to Real-Debrid: {torrent_id}"
+            )
             if not torrent_id:
                 raise HTTPException(
                     status_code=500,
@@ -119,7 +152,9 @@ async def handle_download(
                 else None
             )
             privacy = query.get("privacy", "private")
-            torrent_info = debrid_service.add_magnet_or_torrent(magnet, torrent_download, ip, privacy)
+            torrent_info = debrid_service.add_magnet_or_torrent(
+                magnet, torrent_download, ip, privacy
+            )
             logger.success(
                 f"Playback: Added magnet or torrent to TorBox: {magnet[:50]}"
             )
@@ -209,16 +244,12 @@ async def get_playback(
         logger.debug(f"Playback: Decoded query: {decoded_query}, Client IP: {ip}")
 
         query_dict = json.loads(decoded_query)
-        logger.debug(
-            f"Playback: Received playback request for query: {decoded_query}"
-        )
+        logger.debug(f"Playback: Received playback request for query: {decoded_query}")
         service = query_dict.get("service", False)
 
         if service == "DL":
             link = await handle_download(query_dict, config, ip, redis_cache)
-            return RedirectResponse(
-                url=link, status_code=status.HTTP_302_FOUND
-            )
+            return RedirectResponse(url=link, status_code=status.HTTP_302_FOUND)
 
         lock_key = f"lock:stream:{api_key}:{decoded_query}_{ip}"
         lock = redis_client.lock(lock_key, timeout=60)
@@ -255,6 +286,10 @@ async def get_playback(
             return RedirectResponse(
                 url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY
             )
+
+        if service == "TB":  # TODO: Check this for torbox
+            logger.debug("Playback: Bypass proxied link for TorBox")
+            return RedirectResponse(url=link, status_code=status.HTTP_302_FOUND)
 
         logger.debug("Playback: Preparing to proxy stream")
         headers = {}
@@ -337,7 +372,7 @@ async def head_playback(
 
         if not query:
             raise HTTPException(status_code=400, detail="Query required.")
-        
+
         decoded_query = decodeb64(query)
         ip = request.client.host
         query_dict = json.loads(decoded_query)
@@ -369,7 +404,9 @@ async def head_playback(
             if await redis_cache.exists(cache_key):
                 link = await redis_cache.get(cache_key)
 
-                if not settings.proxied_link:  # avoid sending HEAD request if link is sent directly
+                if (
+                    not settings.proxied_link
+                ):  # avoid sending HEAD request if link is sent directly
                     return Response(status_code=status.HTTP_200_OK, headers=headers)
 
                 async with request.app.state.http_session.head(link) as response:

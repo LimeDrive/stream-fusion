@@ -16,6 +16,7 @@ class LogLevel(str, enum.Enum):
     ERROR = "ERROR"
     FATAL = "FATAL"
 
+
 class DebridService(str, enum.Enum):
     """Possible debrid services."""
 
@@ -23,8 +24,10 @@ class DebridService(str, enum.Enum):
     AD = "AD"
     TB = "TB"
 
+
 class NoCacheVideoLanguages(str, enum.Enum):
     """Possible languages for which to not cache video results."""
+
     FR = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/limedrive-TorBox/stream_fusion/static/videos/fr_download_video.mp4"
     EN = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/limedrive-TorBox/stream_fusion/static/videos/en_download_video.mp4"
 
@@ -33,6 +36,7 @@ class NoCacheVideoLanguages(str, enum.Enum):
         """Get the video URL for a given language."""
         return cls[language.upper()].value
 
+
 def get_default_worker_count():
     """
     Calculate the default number of workers based on CPU cores.
@@ -40,12 +44,14 @@ def get_default_worker_count():
     """
     return min(max(multiprocessing.cpu_count() * 2, 2), 6)
 
+
 def check_env_variable(var_name):
     value = os.getenv(var_name.upper())
-    
+
     if value and isinstance(value, str) and len(value.strip()) >= 10:
         return True
     return False
+
 
 class Settings(BaseSettings):
     """Settings for the application"""
@@ -68,11 +74,14 @@ class Settings(BaseSettings):
     no_cache_video_language: NoCacheVideoLanguages = NoCacheVideoLanguages.FR
 
     # PROXY
-    proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable("AD_TOKEN")
+    proxied_link: bool = check_env_variable("RD_TOKEN") or check_env_variable(
+        "AD_TOKEN"
+    )
     proxy_url: str | URL | None = None
     playback_proxy: bool | None = (
         None  # If set, the link will be proxied through the given proxy.
     )
+    proxy_buffer_size: int = 1024 * 1024
 
     # REALDEBRID
     rd_token: str | None = None
@@ -104,12 +113,12 @@ class Settings(BaseSettings):
     secret_api_key: str | None = None
     security_hide_docs: bool = True
 
-    # POSTGRESQL_DB 
+    # POSTGRESQL_DB
     # TODO: Change the values, but break dev environment
     pg_host: str = "stremio-postgres"
     pg_port: int = 5432
-    pg_user: str = "streamfusion" #"stremio"
-    pg_pass: str = "streamfusion" #"stremio"
+    pg_user: str = "streamfusion"  # "stremio"
+    pg_pass: str = "streamfusion"  # "stremio"
     pg_base: str = "streamfusion"
     pg_echo: bool = False
 
@@ -161,15 +170,15 @@ class Settings(BaseSettings):
     develop: bool = False
     reload: bool = False
 
-    @field_validator('proxy_url')
+    @field_validator("proxy_url")
     @classmethod
     def validate_and_create_proxy_url(cls, v: str | None) -> URL | None:
         if v is None:
             return None
-        
-        v = v.strip('"\'')
-        if not v.startswith(('http://', 'https://')):
-            v = 'http://' + v
+
+        v = v.strip("\"'")
+        if not v.startswith(("http://", "https://")):
+            v = "http://" + v
         try:
             return URL(v)
         except ValueError as e:
@@ -190,6 +199,7 @@ class Settings(BaseSettings):
             password=self.pg_pass,
             path=f"/{self.pg_base}",
         )
+
     @property
     def jackett_url(self) -> URL:
         """

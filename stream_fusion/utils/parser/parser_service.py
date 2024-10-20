@@ -85,13 +85,13 @@ class StreamParser:
     ) -> str:
         resolution = parsed_data.resolution or "Unknown"
         if torrent_item.availability == "RD":
-            name = f"{INSTANTLY_AVAILABLE}Real-Debrid\ninstant\n({resolution})"
+            name = f"{INSTANTLY_AVAILABLE}instant\nReal-Debrid\n({resolution})"
         elif torrent_item.availability == "AD":
-            name = f"{INSTANTLY_AVAILABLE}AllDebrid\ninstant\n({resolution})"
+            name = f"{INSTANTLY_AVAILABLE}instant\nAllDebrid\n({resolution})"
         elif torrent_item.availability == "TB":
-            name = f"{INSTANTLY_AVAILABLE}TorBox\ninstant\n({resolution})"
+            name = f"{INSTANTLY_AVAILABLE}instant\nTorBox\n({resolution})"
         else:
-            name = f"{DOWNLOAD_REQUIRED}{self.config.get("debridDownloader", settings.download_service)}\ndownload\n({resolution})"
+            name = f"{DOWNLOAD_REQUIRED}download\n{self.config.get("debridDownloader", settings.download_service)}\n({resolution})"
         return name
 
     def _create_stream_title(
