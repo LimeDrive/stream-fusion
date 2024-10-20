@@ -28,8 +28,8 @@ class DebridService(str, enum.Enum):
 class NoCacheVideoLanguages(str, enum.Enum):
     """Possible languages for which to not cache video results."""
 
-    FR = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/limedrive-TorBox/stream_fusion/static/videos/fr_download_video.mp4"
-    EN = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/limedrive-TorBox/stream_fusion/static/videos/en_download_video.mp4"
+    FR = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/develop/stream_fusion/static/videos/fr_download_video.mp4"
+    EN = "https://github.com/LimeDrive/stream-fusion/raw/refs/heads/develop/stream_fusion/static/videos/en_download_video.mp4"
 
     @classmethod
     def get_url(cls, language):
