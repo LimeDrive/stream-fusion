@@ -72,6 +72,8 @@ class TorrentItemModel(Base):
                     model_dict[attr] = value.model_dump() if value else None
                 elif attr == "availability":
                     model_dict[attr] = False
+                elif attr == "seeders":
+                    model_dict[attr] = int(value) if value else 0
                 else:
                     model_dict[attr] = value
 
