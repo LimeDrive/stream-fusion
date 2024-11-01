@@ -20,9 +20,9 @@ class LogLevel(str, enum.Enum):
 class DebridService(str, enum.Enum):
     """Possible debrid services."""
 
-    RD = "RD"
-    AD = "AD"
-    TB = "TB"
+    RD = "Real-Debrid"
+    AD = "AllDebrid"
+    TB = "TorBox"
 
 
 class NoCacheVideoLanguages(str, enum.Enum):
@@ -70,7 +70,7 @@ class Settings(BaseSettings):
         )
     )
     use_https: bool = False
-    download_service: DebridService = DebridService.TB
+    download_service: DebridService | None = None
     no_cache_video_language: NoCacheVideoLanguages = NoCacheVideoLanguages.FR
 
     # PROXY

@@ -62,12 +62,8 @@ async def lifespan_setup(
 
     if settings.playback_proxy and settings.proxy_url:
         parsed_url = URL(settings.proxy_url)
-        if parsed_url.scheme in ("socks5", "socks5h", "socks4"):
-            connector = ProxyConnector.from_url(settings.proxy_url, limit=100, limit_per_host=50)
-        elif parsed_url.scheme in ("http", "https"):
-            connector = aiohttp.TCPConnector(
-                limit=100, limit_per_host=50, proxy=settings.proxy_url
-            )
+        if parsed_url.scheme in ("socks5", "socks5h", "socks4", "http", "https"):
+            connector = ProxyConnector.from_url(parsed_url, limit=100, limit_per_host=50)
         else:
             raise ValueError(f"Unsupported proxy scheme: {parsed_url.scheme}")
     else:

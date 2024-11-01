@@ -36,11 +36,11 @@ def get_download_service(config):
     if not service:
         logger.error("No download service found in the user config.")
         return
-    if service == "RD":
+    if service == "Real-Debrid":
         return RealDebrid(config)
-    elif service == "AD":
+    elif service == "AllDebrid":
         return AllDebrid(config)
-    elif service == "TB":
+    elif service == "TorBox":
         return Torbox(config)
     else:
         logger.error("Invalid service configuration return by stremio in the query.")
