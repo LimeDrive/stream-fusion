@@ -70,7 +70,7 @@ class Settings(BaseSettings):
         )
     )
     use_https: bool = False
-    download_service: DebridService = DebridService.TB
+    download_service: DebridService | None = None
     no_cache_video_language: NoCacheVideoLanguages = NoCacheVideoLanguages.FR
 
     # PROXY
