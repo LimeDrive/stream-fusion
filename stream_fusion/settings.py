@@ -20,9 +20,9 @@ class LogLevel(str, enum.Enum):
 class DebridService(str, enum.Enum):
     """Possible debrid services."""
 
-    RD = "RD"
-    AD = "AD"
-    TB = "TB"
+    RD = "Real-Debrid"
+    AD = "AllDebrid"
+    TB = "TorBox"
 
 
 class NoCacheVideoLanguages(str, enum.Enum):

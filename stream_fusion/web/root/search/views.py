@@ -316,7 +316,7 @@ async def get_results(
 
     stream_list = stream_processing(search_results, media, config)
     streams = [Stream(**stream) for stream in stream_list]
-    await redis_cache.set(stream_cache_key(media), streams, expiration=3600)
+    await redis_cache.set(stream_cache_key(media), streams, expiration=1200)
     total_time = time.time() - start
     logger.info(f"Search: Request completed in {total_time:.2f} seconds")
     return SearchResponse(streams=streams)
