@@ -165,7 +165,7 @@ class RealDebrid(BaseDebrid):
                 raise HTTPException(status_code=500, detail="Real-Debrid: Failed to add or find torrent.")
 
         logger.info(f"Real-Debrid: Waiting for link(s) to be ready for torrent ID: {torrent_id}")
-        links = self.wait_for_link(torrent_id, timeout=20)  # Increased timeout to allow for slow servers
+        links = self.wait_for_link(torrent_id, timeout=40)  # Increased timeout to allow for slow servers
         if links is None:
             logger.warning("Real-Debrid: No links available after waiting. Returning NO_CACHE_VIDEO_URL.")
             return settings.no_cache_video_url
